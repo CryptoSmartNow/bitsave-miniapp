@@ -225,21 +225,11 @@ export default function WithdrawModal({
       
       const userChildContractAddress = await contract.getUserChildContractAddress();
       
+      
       const childContract = new ethers.Contract(userChildContractAddress, childContractABI, signer);
-      
-      // Validate savings plan before withdrawal
       const savingData = await childContract.getSaving(nameOfSavings);
-      console.log('Saving data retrieved:', savingData);
-      
-      // Check if saving exists and has valid data
-      if (!savingData || !savingData.amount || savingData.amount === BigInt(0)) {
-        throw new Error(`Savings plan '${nameOfSavings}' does not exist or is invalid.`);
-      }
-      
-      const amount = ethers.formatUnits(savingData.amount, 6);
-      console.log('Formatted amount:', amount);
-      
-      // Estimate gas for the withdrawal transaction
+      const amount = ethers.formatUnits(savingData.amount, 6); 
+
       const gasEstimate = await contract.withdrawSaving.estimateGas(nameOfSavings);
       console.log(`Gas estimate for token withdrawal: ${gasEstimate}`);
       
