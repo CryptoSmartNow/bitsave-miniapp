@@ -117,16 +117,37 @@ export default function WithdrawModal({
       const contract = new ethers.Contract(contractAddress, CONTRACT_ABI, signer);
       
       const userChildContractAddress = await contract.getUserChildContractAddress();
+      console.log(`Child contract address: ${userChildContractAddress}`);
 
       const childContract = new ethers.Contract(userChildContractAddress, childContractABI, signer);
+      
+      // Validate savings plan exists and is valid
       const savingData = await childContract.getSaving(nameOfSavings);
-      const amount = ethers.formatUnits(savingData.amount, 18); 
+      console.log(`Saving data for "${nameOfSavings}":`, savingData);
+      
+      if (!savingData.isValid) {
+        throw new Error(`Savings plan "${nameOfSavings}" does not exist or is invalid.`);
+      }
+      
+      if (savingData.amount === BigInt(0)) {
+        throw new Error(`Savings plan "${nameOfSavings}" has zero balance.`);
+      }
+      
+      const amount = ethers.formatUnits(savingData.amount, 18);
+      console.log(`Withdrawing ${amount} ETH from plan: ${nameOfSavings}`);
 
-      // const gasEstimate = await contract.withdrawSaving.estimateGas(nameOfSavings);
-      // console.log(`Gas estimate for withdrawal: ${gasEstimate}`);
+      // Estimate gas before transaction
+      let gasEstimate;
+      try {
+        gasEstimate = await contract.withdrawSaving.estimateGas(nameOfSavings);
+        console.log(`Gas estimate for withdrawal: ${gasEstimate}`);
+      } catch (gasError) {
+        console.error("Gas estimation failed:", gasError);
+        throw new Error(`Cannot estimate gas for withdrawal. This may indicate the transaction will fail: ${gasError instanceof Error ? gasError.message : String(gasError)}`);
+      }
 
       const tx = await contract.withdrawSaving(nameOfSavings, {
-        gasLimit: 2717330,
+        gasLimit: gasEstimate + (gasEstimate * BigInt(20) / BigInt(100)), 
       });
 
       const receipt = await tx.wait();
@@ -224,14 +245,37 @@ export default function WithdrawModal({
       const contract = new ethers.Contract(contractAddress, CONTRACT_ABI, signer);
       
       const userChildContractAddress = await contract.getUserChildContractAddress();
-      
+      console.log(`Child contract address: ${userChildContractAddress}`);
       
       const childContract = new ethers.Contract(userChildContractAddress, childContractABI, signer);
+      
+      // Validate savings plan exists and is valid
       const savingData = await childContract.getSaving(nameOfSavings);
-      const amount = ethers.formatUnits(savingData.amount, 6); 
+      console.log(`Saving data for "${nameOfSavings}":`, savingData);
+      
+      if (!savingData.isValid) {
+        throw new Error(`Savings plan "${nameOfSavings}" does not exist or is invalid.`);
+      }
+      
+      if (savingData.amount === BigInt(0)) {
+        throw new Error(`Savings plan "${nameOfSavings}" has zero balance.`);
+      }
+      
+      const amount = ethers.formatUnits(savingData.amount, 6);
+      console.log(`Withdrawing ${amount} ${currentTokenName} from plan: ${nameOfSavings}`);
+
+      // Estimate gas before transaction
+      let gasEstimate;
+      try {
+        gasEstimate = await contract.withdrawSaving.estimateGas(nameOfSavings);
+        console.log(`Gas estimate for withdrawal: ${gasEstimate}`);
+      } catch (gasError) {
+        console.error("Gas estimation failed:", gasError);
+        throw new Error(`Cannot estimate gas for withdrawal. This may indicate the transaction will fail: ${gasError instanceof Error ? gasError.message : String(gasError)}`);
+      }
 
       const tx = await contract.withdrawSaving(nameOfSavings, {
-        gasLimit: 2717330,
+        gasLimit: gasEstimate + (gasEstimate * BigInt(20) / BigInt(100)), // Add 20% buffer
       });
 
       const receipt = await tx.wait();

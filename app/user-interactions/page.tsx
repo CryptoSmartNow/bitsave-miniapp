@@ -691,7 +691,7 @@ const ActivityChart = ({ interactions }: { interactions: UserInteraction[] }) =>
   );
 };
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
 
 // Error analysis helper functions
 const categorizeError = (errorMessage: string): string => {
