@@ -85,7 +85,7 @@ export default function WithdrawModal({
 
   const handleWithdraw = async () => {
     try {
-      const sanitizedPlanName = planName.trim();
+      const sanitizedPlanName = planName;
       console.log(`Attempting to withdraw from plan: "${sanitizedPlanName}" at address: ${planId}`);
       
       // Added timeout to prevent hanging

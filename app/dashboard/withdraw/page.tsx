@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { useAccount } from 'wagmi';
-import childContractABI from '../../abi/childContractABI.js';
 import CONTRACT_ABI from '@/app/abi/contractABI.js';
 import { trackTransaction, trackError } from '@/lib/interactionTracker';
 
@@ -17,17 +16,6 @@ export default function WithdrawPage() {
   const [success, setSuccess] = useState(false);
   const [txHash, setTxHash] = useState('');
   const [isBaseNetwork, setIsBaseNetwork] = useState(true);
-  const [savingData, setSavingData] = useState<{
-    isValid: boolean;
-    amount: bigint;
-    interest: bigint;
-    startTime: bigint;
-    endTime: bigint;
-    tokenId: bigint;
-    interestAccumulated: bigint;
-    maturityTime: bigint;
-  } | null>(null);
-  const [previewMode, setPreviewMode] = useState(false);
   useAccount();
 
   useEffect(() => {
@@ -53,7 +41,7 @@ export default function WithdrawPage() {
       : `https://celoscan.io/tx/${txHash}`;
   };
 
-  const handlePreviewSaving = async () => {
+  const handleWithdraw = async () => {
     if (!withdrawalName.trim()) {
       setError('Please enter a withdrawal name');
       return;
@@ -61,37 +49,6 @@ export default function WithdrawPage() {
 
     setError('');
     setIsLoading(true);
-
-    try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(getContractAddress(), CONTRACT_ABI, signer);
-      
-      const userChildContractAddress = await contract.getUserChildContractAddress();
-      const childContract = new ethers.Contract(userChildContractAddress, childContractABI, signer);
-      
-      const savingInfo = await childContract.getSaving(withdrawalName.trim());
-      
-      if (!savingInfo.isValid) {
-        throw new Error(`Savings plan '${withdrawalName}' does not exist or is invalid.`);
-      }
-
-      setSavingData(savingInfo);
-      setPreviewMode(true);
-    } catch (err: unknown) {
-      console.error('Error fetching saving data:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch savings plan information');
-      await trackError(err instanceof Error ? err.message : 'Unknown error', { component: 'preview_withdrawal' });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleWithdraw = async () => {
-    if (!savingData) return;
-
-    setIsLoading(true);
-    setError('');
 
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
@@ -116,8 +73,6 @@ export default function WithdrawPage() {
       if (receipt.status === 1) {
         setSuccess(true);
         setWithdrawalName('');
-        setSavingData(null);
-        setPreviewMode(false);
       } else {
         throw new Error('Transaction failed');
       }
@@ -132,21 +87,12 @@ export default function WithdrawPage() {
 
   const resetForm = () => {
     setWithdrawalName('');
-    setSavingData(null);
-    setPreviewMode(false);
     setError('');
     setSuccess(false);
     setTxHash('');
   };
 
-  const formatAmount = (amount: bigint, tokenId: string) => {
-    const decimals = tokenId === ethers.ZeroAddress ? 18 : 6;
-    return ethers.formatUnits(amount, decimals);
-  };
 
-  const getTokenSymbol = (tokenId: string) => {
-    return tokenId === ethers.ZeroAddress ? 'ETH' : 'USDC';
-  };
 
   if (success) {
     return (
@@ -194,127 +140,56 @@ export default function WithdrawPage() {
           {/* Header */}
           <div className="bg-gradient-to-r from-[#81D7B4] to-[#6bc4a1] p-6">
             <h1 className="text-2xl font-bold text-white mb-2">Withdraw Savings</h1>
-            <p className="text-white/90">Enter your savings plan name to withdraw funds</p>
+            <p className="text-white/90">Enter your savings plan name to instantly withdraw your funds</p>
           </div>
 
           <div className="p-6">
-            {!previewMode ? (
-              /* Withdrawal Name Form */
-              <div className="space-y-6">
-                <div>
-                  <label htmlFor="withdrawalName" className="block text-sm font-medium text-gray-700 mb-2">
-                    Withdrawal Name *
-                  </label>
-                  <input
-                    type="text"
-                    id="withdrawalName"
-                    value={withdrawalName}
-                    onChange={(e) => setWithdrawalName(e.target.value)}
-                    placeholder="Enter your savings plan name"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#81D7B4] focus:border-transparent outline-none transition-all"
-                    disabled={isLoading}
-                  />
-                </div>
-
-                {error && (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <div className="flex items-center">
-                      <svg className="w-5 h-5 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <p className="text-red-800 text-sm">{error}</p>
-                    </div>
-                  </div>
-                )}
-
-                <button
-                  onClick={handlePreviewSaving}
-                  disabled={isLoading || !withdrawalName.trim()}
-                  className="w-full bg-[#81D7B4] text-white py-3 px-6 rounded-lg hover:bg-[#6bc4a1] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center"
-                >
-                  {isLoading ? (
-                    <>
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Loading...
-                    </>
-                  ) : (
-                    'Preview Withdrawal'
-                  )}
-                </button>
+            {/* Withdrawal Name Form */}
+            <div className="space-y-6">
+              <div>
+                <label htmlFor="withdrawalName" className="block text-sm font-medium text-gray-700 mb-2">
+                  Withdrawal Name *
+                </label>
+                <input
+                  type="text"
+                  id="withdrawalName"
+                  value={withdrawalName}
+                  onChange={(e) => setWithdrawalName(e.target.value)}
+                  placeholder="Enter your savings plan name"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#81D7B4] focus:border-transparent outline-none transition-all"
+                  disabled={isLoading}
+                />
               </div>
-            ) : (
-              /* Savings Preview */
-              <div className="space-y-6">
-                <div className="bg-gray-50 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">Savings Plan Details</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-gray-600">Plan Name</p>
-                      <p className="font-medium text-gray-800">{withdrawalName}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Amount</p>
-                      <p className="font-medium text-gray-800">
-                        {savingData && formatAmount(savingData.amount, savingData.tokenId.toString())} {savingData && getTokenSymbol(savingData.tokenId.toString())}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Interest Accumulated</p>
-                      <p className="font-medium text-gray-800">
-                        {savingData && formatAmount(savingData.interestAccumulated, savingData.tokenId.toString())} {savingData && getTokenSymbol(savingData.tokenId.toString())}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Maturity Date</p>
-                      <p className="font-medium text-gray-800">
-                        {savingData && new Date(Number(savingData.maturityTime) * 1000).toLocaleDateString()}
-                      </p>
-                    </div>
+
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-red-800 text-sm">{error}</p>
                   </div>
                 </div>
+              )}
 
-                {error && (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <div className="flex items-center">
-                      <svg className="w-5 h-5 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <p className="text-red-800 text-sm">{error}</p>
-                    </div>
-                  </div>
+              <button
+                onClick={handleWithdraw}
+                disabled={isLoading || !withdrawalName.trim()}
+                className="w-full bg-red-600 text-white py-3 px-6 rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center"
+              >
+                {isLoading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing Withdrawal...
+                  </>
+                ) : (
+                  'Withdraw Funds'
                 )}
-
-                <div className="flex space-x-4">
-                  <button
-                    onClick={() => setPreviewMode(false)}
-                    disabled={isLoading}
-                    className="flex-1 bg-gray-200 text-gray-800 py-3 px-6 rounded-lg hover:bg-gray-300 disabled:opacity-50 transition-colors font-medium"
-                  >
-                    Back
-                  </button>
-                  <button
-                    onClick={handleWithdraw}
-                    disabled={isLoading}
-                    className="flex-1 bg-red-600 text-white py-3 px-6 rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center"
-                  >
-                    {isLoading ? (
-                      <>
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Processing...
-                      </>
-                    ) : (
-                      'Confirm Withdrawal'
-                    )}
-                  </button>
-                </div>
-              </div>
-            )}
+              </button>
+            </div>
           </div>
         </div>
       </div>
