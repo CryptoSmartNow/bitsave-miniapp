@@ -367,6 +367,7 @@ export default function Dashboard() {
         // Refresh data after switching
         setIsCorrectNetwork(true);
         fetchSavingsData();
+        console.log(fetchSavingsData())
       } else if (networkName === 'Celo') {
         await window.ethereum.request({
           method: 'wallet_switchEthereumChain',
@@ -545,6 +546,7 @@ export default function Dashboard() {
       
       const savingsNamesObj = await Promise.race([savingsNamesPromise, savingsTimeoutPromise]);
       const savingsNamesArray = savingsNamesObj?.savingsNames || [];
+      console.log("Savings names object:", savingsNamesObj);
       
       const currentPlans = [];
       const completedPlans = [];
@@ -555,8 +557,9 @@ export default function Dashboard() {
       // Limit concurrent processing to prevent overwhelming the RPC
       const BATCH_SIZE = 3;
       const validSavingNames = savingsNamesArray.filter((savingName: string) => 
-        savingName && typeof savingName === "string" && savingName.trim() !== "" && !processedPlanNames.has(savingName)
+        savingName && typeof savingName === "string" && savingName !== "" && !processedPlanNames.has(savingName)
       );
+      console.log()
       
       for (let i = 0; i < validSavingNames.length; i += BATCH_SIZE) {
         const batch = validSavingNames.slice(i, i + BATCH_SIZE);
