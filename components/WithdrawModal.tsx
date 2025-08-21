@@ -88,14 +88,22 @@ export default function WithdrawModal({
       const sanitizedPlanName = planName.trim();
       console.log(`Attempting to withdraw from plan: "${sanitizedPlanName}" at address: ${planId}`);
       
-      if (isEth) {
-        await handleEthWithdraw(sanitizedPlanName);
-      } else {
-        await handleTokenWithdraw(sanitizedPlanName);
-      }
+      // Added timeout to prevent hanging
+      const withdrawalPromise = isEth 
+        ? handleEthWithdraw(sanitizedPlanName)
+        : handleTokenWithdraw(sanitizedPlanName);
+      
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => {
+          reject(new Error('Withdrawal timed out. Please check your wallet for pending transactions and try again.'));
+        }, 300000); // 5 minutes timeout
+      });
+      
+      await Promise.race([withdrawalPromise, timeoutPromise]);
     } catch (err) {
       console.error("Error in handleWithdraw:", err);
       setError(`Withdrawal failed: ${err instanceof Error ? err.message : String(err)}`);
+      setIsLoading(false);
       setShowTransactionModal(true);
     }
   };
@@ -122,11 +130,11 @@ export default function WithdrawModal({
       const savingData = await childContract.getSaving(nameOfSavings);
       const amount = ethers.formatUnits(savingData.amount, 18); 
 
-      // const gasEstimate = await contract.withdrawSaving.estimateGas(nameOfSavings);
-      // console.log(`Gas estimate for withdrawal: ${gasEstimate}`);
+      const gasEstimate = await contract.withdrawSaving.estimateGas(nameOfSavings);
+      console.log(`Gas estimate for ETH withdrawal: ${gasEstimate}`);
 
-      const tx = await contract.withdrawSaving(nameOfSavings, {
-        gasLimit: 2717330,
+     const tx = await contract.withdrawSaving(nameOfSavings, {
+        gasLimit: gasEstimate + (gasEstimate * BigInt(20) / BigInt(100)), 
       });
 
       const receipt = await tx.wait();
@@ -228,11 +236,14 @@ export default function WithdrawModal({
       
       const childContract = new ethers.Contract(userChildContractAddress, childContractABI, signer);
       const savingData = await childContract.getSaving(nameOfSavings);
-      const amount = ethers.formatUnits(savingData.amount, 6); 
-
+      const amount = ethers.formatUnits(savingData.amount, 6);
+      
+      const gasEstimate = await contract.withdrawSaving.estimateGas(nameOfSavings);
+      console.log(`Gas estimate for token withdrawal: ${gasEstimate}`);
       const tx = await contract.withdrawSaving(nameOfSavings, {
-        gasLimit: 2717330,
+        gasLimit: gasEstimate + (gasEstimate * BigInt(20) / BigInt(100)),
       });
+
 
       const receipt = await tx.wait();
       setTxHash(receipt.hash);

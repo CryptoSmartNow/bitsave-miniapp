@@ -665,9 +665,9 @@ export default function Dashboard() {
           totalDeposits++;
   
           const planData = {
-            id: savingName,
+            id: savingName.trim(),
             address: userChildContractAddress,
-            name: savingName,
+            name: savingName.trim(),
             currentAmount: currentFormatted,
             targetAmount: targetFormatted,
             progress,

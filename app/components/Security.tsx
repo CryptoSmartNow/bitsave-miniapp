@@ -264,7 +264,6 @@ export default function Security() {
                     </div>
                   </div>
 
-                  {/* Problems Grid */}
                   <div className="space-y-4 sm:space-y-6">
                     {[1, 2, 3].map((num) => (
                       <div 
