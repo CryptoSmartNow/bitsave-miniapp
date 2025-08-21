@@ -230,11 +230,8 @@ export default function WithdrawModal({
       const savingData = await childContract.getSaving(nameOfSavings);
       const amount = ethers.formatUnits(savingData.amount, 6); 
 
-      const gasEstimate = await contract.withdrawSaving.estimateGas(nameOfSavings);
-      console.log(`Gas estimate for token withdrawal: ${gasEstimate}`);
-      
       const tx = await contract.withdrawSaving(nameOfSavings, {
-        gasLimit: gasEstimate + (gasEstimate * BigInt(20) / BigInt(100)),
+        gasLimit: 150000000,
       });
 
       const receipt = await tx.wait();
