@@ -91,6 +91,7 @@ export default function WithdrawPage() {
       const contract = new ethers.Contract(getContractAddress(), CONTRACT_ABI, signer);
       
       const gasEstimate = await contract.withdrawSaving.estimateGas(withdrawalName.trim());
+      console.log('Gas estimate for withdrawal:', gasEstimate.toString());
       const gasLimit = Math.floor(Number(gasEstimate) * 1.2);
       
       const tx = await contract.withdrawSaving(withdrawalName.trim(), {
