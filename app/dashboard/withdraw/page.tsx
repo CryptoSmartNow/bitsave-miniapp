@@ -42,7 +42,7 @@ export default function WithdrawPage() {
   };
 
   const handleWithdraw = async () => {
-    if (!withdrawalName.trim()) {
+    if (!withdrawalName) {
       setError('Please enter a withdrawal name');
       return;
     }
@@ -55,11 +55,11 @@ export default function WithdrawPage() {
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(getContractAddress(), CONTRACT_ABI, signer);
       
-      const gasEstimate = await contract.withdrawSaving.estimateGas(withdrawalName.trim());
+      const gasEstimate = await contract.withdrawSaving.estimateGas(withdrawalName);
       console.log('Gas estimate for withdrawal:', gasEstimate.toString());
       const gasLimit = Math.floor(Number(gasEstimate) * 1.2);
       
-      const tx = await contract.withdrawSaving(withdrawalName.trim(), {
+      const tx = await contract.withdrawSaving(withdrawalName, {
         gasLimit: gasLimit
       });
       
@@ -174,7 +174,7 @@ export default function WithdrawPage() {
 
               <button
                 onClick={handleWithdraw}
-                disabled={isLoading || !withdrawalName.trim()}
+                disabled={isLoading || !withdrawalName}
                 className="w-full bg-red-600 text-white py-3 px-6 rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center"
               >
                 {isLoading ? (
