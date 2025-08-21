@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { useAccount } from 'wagmi';
-import Image from 'next/image';
 import childContractABI from '../../abi/childContractABI.js';
 import CONTRACT_ABI from '@/app/abi/contractABI.js';
 import { trackTransaction, trackError } from '@/lib/interactionTracker';
@@ -18,9 +17,18 @@ export default function WithdrawPage() {
   const [success, setSuccess] = useState(false);
   const [txHash, setTxHash] = useState('');
   const [isBaseNetwork, setIsBaseNetwork] = useState(true);
-  const [savingData, setSavingData] = useState<any>(null);
+  const [savingData, setSavingData] = useState<{
+    isValid: boolean;
+    amount: bigint;
+    interest: bigint;
+    startTime: bigint;
+    endTime: bigint;
+    tokenId: bigint;
+    interestAccumulated: bigint;
+    maturityTime: bigint;
+  } | null>(null);
   const [previewMode, setPreviewMode] = useState(false);
-  const { address } = useAccount();
+  useAccount();
 
   useEffect(() => {
     const detectNetwork = async () => {
@@ -70,10 +78,10 @@ export default function WithdrawPage() {
 
       setSavingData(savingInfo);
       setPreviewMode(true);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching saving data:', err);
-      setError(err.message || 'Failed to fetch savings plan information');
-      await trackError('preview_withdrawal', err.message);
+      setError(err instanceof Error ? err.message : 'Failed to fetch savings plan information');
+      await trackError(err instanceof Error ? err.message : 'Unknown error', { component: 'preview_withdrawal' });
     } finally {
       setIsLoading(false);
     }
@@ -113,10 +121,10 @@ export default function WithdrawPage() {
       } else {
         throw new Error('Transaction failed');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Withdrawal error:', err);
-      setError(err.message || 'Withdrawal failed. Please try again.');
-      await trackError('withdrawal', err.message);
+      setError(err instanceof Error ? err.message : 'Withdrawal failed. Please try again.');
+      await trackError(err instanceof Error ? err.message : 'Unknown error', { component: 'withdrawal' });
     } finally {
       setIsLoading(false);
     }
@@ -250,19 +258,19 @@ export default function WithdrawPage() {
                     <div>
                       <p className="text-sm text-gray-600">Amount</p>
                       <p className="font-medium text-gray-800">
-                        {formatAmount(savingData.amount, savingData.tokenId)} {getTokenSymbol(savingData.tokenId)}
+                        {savingData && formatAmount(savingData.amount, savingData.tokenId.toString())} {savingData && getTokenSymbol(savingData.tokenId.toString())}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Interest Accumulated</p>
                       <p className="font-medium text-gray-800">
-                        {formatAmount(savingData.interestAccumulated, savingData.tokenId)} {getTokenSymbol(savingData.tokenId)}
+                        {savingData && formatAmount(savingData.interestAccumulated, savingData.tokenId.toString())} {savingData && getTokenSymbol(savingData.tokenId.toString())}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Maturity Date</p>
                       <p className="font-medium text-gray-800">
-                        {new Date(Number(savingData.maturityTime) * 1000).toLocaleDateString()}
+                        {savingData && new Date(Number(savingData.maturityTime) * 1000).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
