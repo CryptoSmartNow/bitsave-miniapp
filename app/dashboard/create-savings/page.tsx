@@ -76,7 +76,7 @@ export default function CreateSavingsPage() {
   })
 
 
-  const [savingsName, setSavingsName] = useState('')
+  // const [savingsName, setSavingsName] = useState('')
 
   const [selectedPenalty, setSelectedPenalty] = useState(1)
   const [errors, setErrors] = useState({
@@ -105,9 +105,9 @@ export default function CreateSavingsPage() {
     }
   }, [startDate, endDate, errors.endDate]);
 
-  useEffect(() => {
-    setSavingsName(name);
-  }, [name]);
+  // useEffect(() => {
+  //   setSavingsName(name);
+  // }, [name]);
 
   useEffect(() => {
     setSelectedPenalty(parseInt(penalty))
@@ -552,7 +552,7 @@ export default function CreateSavingsPage() {
 
 
       console.log("User Input - Amount:", amount)
-      console.log("User Input - Savings Name:", savingsName)
+      console.log("User Input - Savings Name:", name)
       console.log("User Input - Selected Day Range:", selectedDayRange)
       console.log("User Input - Selected Penalty:", selectedPenalty)
 
@@ -625,7 +625,7 @@ export default function CreateSavingsPage() {
       }
 
       const tx = await contract.createSaving(
-        savingsName,
+        name,
         maturityTime,
         selectedPenalty,
         safeMode,
@@ -644,7 +644,7 @@ export default function CreateSavingsPage() {
             amount: parseFloat(amount),
             txnhash: receipt.hash,
             chain: "base", 
-            savingsname: savingsName,
+            savingsname: name,
             useraddress: walletAddress,
             transaction_type: "deposit",
             currency: currency
@@ -791,7 +791,7 @@ export default function CreateSavingsPage() {
           amount,
           txnhash: txHash,
           chain: "celo",
-          savingsname: savingsName,
+          savingsname: name,
           useraddress: walletAddress,
           transaction_type: "deposit",
           currency
@@ -860,7 +860,7 @@ export default function CreateSavingsPage() {
           value: ethers.parseEther(feeInCelo)
         };
         const tx = await contract.createSaving(
-          savingsName,
+          name,
           maturityTime,
           selectedPenalty,
           false, // safeMode
@@ -969,7 +969,7 @@ export default function CreateSavingsPage() {
           value: ethers.parseEther(feeInCelo)
         };
         const tx = await contract.createSaving(
-          savingsName,
+          name,
           maturityTime,
           selectedPenalty,
           false, // safeMode
@@ -1060,7 +1060,7 @@ export default function CreateSavingsPage() {
           value: ethers.parseEther(feeInCelo)
         };
         const tx = await contract.createSaving(
-          savingsName,
+          name,
           maturityTime,
           selectedPenalty,
           false, // safeMode
