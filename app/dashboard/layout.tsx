@@ -100,6 +100,17 @@ export default function DashboardLayout({
             {!sidebarCollapsed && <span className="ml-3">My Plans</span>}
           </Link>
           
+          <Link href="/dashboard/withdraw" className={`flex items-center px-4 py-3 mb-2 rounded-lg mx-2 ${
+            isActive('/dashboard/withdraw') 
+              ? 'bg-[#81D7B4]/20 text-[#81D7B4]' 
+              : 'hover:bg-gray-100/60 text-gray-600 hover:text-gray-800 transition-colors'
+          }`}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+            </svg>
+            {!sidebarCollapsed && <span className="ml-3">Withdraw</span>}
+          </Link>
+          
           <Link href="/dashboard/activity" className={`flex items-center px-4 py-3 mb-2 rounded-lg mx-2 ${
             isActive('/dashboard/activity') 
               ? 'bg-[#81D7B4]/20 text-[#81D7B4]' 
