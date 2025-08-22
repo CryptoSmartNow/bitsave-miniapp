@@ -136,7 +136,7 @@ export default function WithdrawModal({
      const tx = await contract.withdrawSaving(nameOfSavings, {
         gasLimit: gasEstimate + (gasEstimate * BigInt(20) / BigInt(100)), 
       });
-
+      console.log(nameOfSavings)
       const receipt = await tx.wait();
       setTxHash(receipt.hash);
 
