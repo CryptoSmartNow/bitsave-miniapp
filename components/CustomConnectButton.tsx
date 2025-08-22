@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { motion, AnimatePresence } from 'framer-motion';
+import sdk from '@farcaster/miniapp-sdk';
+import farcasterMiniApp from '@farcaster/miniapp-wagmi-connector';
+import { useConnect } from 'wagmi';
 
 interface UnsupportedWalletModalProps {
   isOpen: boolean;
@@ -106,6 +109,7 @@ function UnsupportedWalletModal({ isOpen, onClose }: UnsupportedWalletModalProps
 
 export default function CustomConnectButton() {
   const [showUnsupportedModal, setShowUnsupportedModal] = useState(false);
+  const { connect } = useConnect();
 
   return (
     <>
@@ -142,7 +146,12 @@ export default function CustomConnectButton() {
                 if (!connected) {
                   return (
                     <button
-                      onClick={() => {
+                      onClick={async () => {
+                        if (await sdk.isInMiniApp()) {
+                          connect({ connector: farcasterMiniApp() });
+                          return;
+                        }
+
                         // Check if user has any of the supported wallets
                         const hasMetaMask = typeof window !== 'undefined' && window.ethereum?.isMetaMask;
                         const hasCoinbase = typeof window !== 'undefined' && window.ethereum?.isCoinbaseWallet;

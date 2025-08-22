@@ -11,6 +11,7 @@ import { ethers } from 'ethers';
 import contractABI from '../abi/contractABI.js';
 import childContractABI from '../abi/childContractABI.js';
 import axios from 'axios';
+import sdk from "@farcaster/miniapp-sdk";
 
 // Initialize the Space Grotesk font
 const spaceGrotesk = Space_Grotesk({
@@ -326,7 +327,13 @@ export default function Dashboard() {
   }, [showNotifications]);
 
   useEffect(() => {
-    setMounted(true);
+    const readyMiniapp = async () => {
+      await sdk.actions.ready();
+        setMounted(true);
+    };
+    if (sdk && !mounted) {
+      readyMiniapp();
+    }
   }, []);
 
   // Function to get signer

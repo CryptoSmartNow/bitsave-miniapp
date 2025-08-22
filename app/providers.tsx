@@ -14,6 +14,7 @@ import {
   zerionWallet
 } from '@rainbow-me/rainbowkit/wallets';
 import { useTheme } from 'next-themes';
+import { farcasterFrame } from "@farcaster/miniapp-wagmi-connector";
 
 // Import Rainbow Kit styles
 import '@rainbow-me/rainbowkit/styles.css';
@@ -41,14 +42,14 @@ const connectors = connectorsForWallets([
     projectId,
 });
 
-const config = createConfig({
+export const config = createConfig({
   chains,
   transports: {
     [mainnet.id]: http(),
     [sepolia.id]: http(),
     [base.id]: http(),
   },
-  connectors,
+  connectors: [farcasterFrame(), ...connectors],
 });
 
 const queryClient = new QueryClient();

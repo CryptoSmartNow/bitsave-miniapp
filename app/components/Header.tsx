@@ -6,6 +6,7 @@ import { useAccount } from 'wagmi';
 import { useOptimizedDisconnect } from '../../lib/useOptimizedDisconnect';
 import { trackWalletConnect, trackPageVisit } from '../../lib/interactionTracker';
 import CustomConnectButton from '../../components/CustomConnectButton';
+import sdk from "@farcaster/miniapp-sdk";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -17,8 +18,14 @@ export default function Header() {
 
   // Set mounted state after component mounts to prevent hydration mismatch
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    const readyMiniapp = async () => {
+      await sdk.actions.ready();
+      setMounted(true);
+    }
+    if (sdk && !mounted) {
+      readyMiniapp();
+    }
+  }, [mounted]);
 
   // Function to switch to Base network
   const switchToBaseNetwork = async () => {

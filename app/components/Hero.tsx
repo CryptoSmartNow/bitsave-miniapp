@@ -2,14 +2,17 @@
 import Image from 'next/image';
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAccount } from 'wagmi';
+import { useAccount, useConnect } from 'wagmi';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
+import sdk from "@farcaster/miniapp-sdk";
+import farcasterMiniApp from '@farcaster/miniapp-wagmi-connector';
 
 export default function Hero() {
   const heroRef = useRef<HTMLElement>(null);
   const shimmerElementsRef = useRef<Array<{width: number, top: number, rotation: number, duration: number, delay: number}>>([]);
   const router = useRouter();
   const { isConnected } = useAccount();
+  const { connect, connectors } = useConnect();
   const { openConnectModal } = useConnectModal();
 
   // Initialize shimmer elements data with fixed values to avoid hydration mismatch
@@ -27,13 +30,18 @@ export default function Hero() {
   }, []);
 
   // Handle wallet connection and redirect
-  const handleOpenApp = () => {
+  const handleOpenApp = async () => {
     if (isConnected) {
       // If already connected, redirect to dashboard
       router.push('/dashboard');
     } else {
-      // If not connected, open wallet connect modal
-      openConnectModal?.();
+      if (await sdk.isInMiniApp()) {
+        // If in mini app, connect with farcaster connector
+        connect({ connector: farcasterMiniApp() });
+      } else {
+        // If not connected, open wallet connect modal
+        openConnectModal?.();
+      }
     }
   };
 
