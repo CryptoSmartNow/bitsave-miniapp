@@ -1,17 +1,21 @@
 'use client'
 import { useState, useEffect } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useSwitchChain, useConnectorClient, useWriteContract, useReadContract } from 'wagmi';
+import { readContract } from '@wagmi/core'
+import { addChain } from 'viem/actions';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Space_Grotesk } from 'next/font/google';
 import TopUpModal from '../../components/TopUpModal';
 import WithdrawModal from '../../components/WithdrawModal';
 import { motion } from 'framer-motion';
-import { ethers } from 'ethers';
 import contractABI from '../abi/contractABI.js';
 import childContractABI from '../abi/childContractABI.js';
+import { config } from '../providers';
 import axios from 'axios';
 import sdk from "@farcaster/miniapp-sdk";
+import { getSaving, getUserChildContract, getUserVaultNames } from '@/lib/onchainReads';
+import { ethers } from 'ethers';
 
 // Initialize the Space Grotesk font
 const spaceGrotesk = Space_Grotesk({
@@ -35,7 +39,6 @@ const CELO_TOKEN_MAP: { [address: string]: { name: string; decimals: number; log
 };
 
 export default function Dashboard() {
-  const [, setCurrentNetwork] = useState<{ chainId: bigint, name: string } | null>(null);
   const [isBaseNetwork, setIsBaseNetwork] = useState(true);
   const [mounted, setMounted] = useState(false);
   const { address, isConnected } = useAccount();
@@ -55,6 +58,10 @@ export default function Dashboard() {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [selectedUpdate, setSelectedUpdate] = useState<{ title: string, content: string, date: string } | null>(null);
 
+  // onchain hooks
+  const { switchChain } = useSwitchChain();
+  const { data: walletClient } = useConnectorClient();
+  const { writeContractAsync }  = useWriteContract();
 
   const [updates, setUpdates] = useState<Array<{
     id: string;
@@ -336,61 +343,25 @@ export default function Dashboard() {
     }
   }, []);
 
-  // Function to get signer
-  // const getSigner = async () => {
-  //   if (typeof window === 'undefined' || !window.ethereum) {
-  //     throw new Error('No wallet detected');
-  //   }
-
-  //   await window.ethereum.request({ method: 'eth_requestAccounts' });
-  //   const provider = new ethers.BrowserProvider(window.ethereum);
-
-  //   // Check if on Base network
-  //   const network = await provider.getNetwork();
-  //   const BASE_CHAIN_ID = 8453; // Base network chain ID
-
-  //   if (Number(network.chainId) !== BASE_CHAIN_ID) {
-  //     setIsCorrectNetwork(false);
-  //     return null;
-  //   }
-
-  //   setIsCorrectNetwork(true);
-  //   return provider.getSigner();
-  // };
-
 
   // Function to switch to Base network
   const switchToNetwork = async (networkName: string) => {
-    if (!window.ethereum) return;
-
     setSwitchingNetwork(true);
     try {
-      if (networkName === 'Base') {
-        await window.ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0x2105' }], // Base chainId in hex (8453)
-        });
-
-        // Refresh data after switching
-        setIsCorrectNetwork(true);
-        fetchSavingsData();
-        console.log(fetchSavingsData())
-      } else if (networkName === 'Celo') {
-        await window.ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0xA4EC' }], // Celo chainId in hex (42220)
-        });
-
-        // Refresh data after switching
-        setIsCorrectNetwork(true);
-        fetchSavingsData();
+      if (networkName.toLowerCase() === 'base') {
+        switchChain({ chainId: 8453 });
+      } else if (networkName.toLowerCase() === 'celo') {
+        switchChain({ chainId: 42220 });
       }
+      // Refresh data after switching
+      setIsCorrectNetwork(true);
+      fetchSavingsData();
     } catch (error: unknown) {
       // Type guard to check if error is an object with a code property
       if (error && typeof error === 'object' && 'code' in error && error.code === 4902) {
         try {
-          if (networkName === 'Base') {
-            await window.ethereum.request({
+          if (networkName.toLowerCase() === 'base') {
+            await walletClient!.request({
               method: 'wallet_addEthereumChain',
               params: [
                 {
@@ -406,8 +377,8 @@ export default function Dashboard() {
                 },
               ],
             });
-          } else if (networkName === 'Celo') {
-            await window.ethereum.request({
+          } else if (networkName.toLowerCase() === 'celo') {
+            await walletClient!.request({
               method: 'wallet_addEthereumChain',
               params: [
                 {
@@ -426,13 +397,7 @@ export default function Dashboard() {
           }
 
           // Try switching again after adding
-          await window.ethereum.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: networkName === 'Base' ? '0x2105' : '0xA4EC' }],
-          });
-
-          setIsCorrectNetwork(true);
-          fetchSavingsData();
+          await switchToNetwork(networkName);
         } catch (addError) {
           console.error(`Error adding ${networkName} network:`, addError);
         }
@@ -464,27 +429,15 @@ export default function Dashboard() {
       setIsLoading(true);
   
       // Fetch ETH price in parallel with wallet setup
-      const ethPricePromise = fetchEthPrice();
-  
-      if (!window.ethereum) {
-        throw new Error("No Ethereum wallet detected. Please install MetaMask.");
-      }
-  
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      
-      // Get network and ETH price in parallel
-      const [network, currentEthPrice] = await Promise.all([
-        provider.getNetwork(),
-        ethPricePromise
-      ]);
+      const currentEthPrice = await fetchEthPrice();
+      const network = config.state;
       
       console.log(`Current ETH price: ${currentEthPrice}`);
       setEthPrice(currentEthPrice || 3500);
   
-      const BASE_CHAIN_ID = BigInt(8453);
-      const CELO_CHAIN_ID = BigInt(42220);
+      const BASE_CHAIN_ID = (8453);
+      const CELO_CHAIN_ID = (42220);
   
-      setCurrentNetwork(network);
       setIsBaseNetwork(network.chainId === BASE_CHAIN_ID);
   
       if (network.chainId !== BASE_CHAIN_ID && network.chainId !== CELO_CHAIN_ID) {
@@ -494,24 +447,17 @@ export default function Dashboard() {
       }
   
       setIsCorrectNetwork(true);
-      const signer = await provider.getSigner();
   
       const contractAddress = (network.chainId === BASE_CHAIN_ID)
         ? BASE_CONTRACT_ADDRESS
         : CELO_CONTRACT_ADDRESS;
   
-      const contract = new ethers.Contract(contractAddress, BitSaveABI, signer);
-  
       // Get user's child contract with timeout
       let userChildContractAddress;
       try {
         // Add timeout to prevent hanging
-        const contractPromise = contract.getUserChildContractAddress();
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Contract call timeout')), 10000)
-        );
+        userChildContractAddress = await getUserChildContract(contractAddress, address, network.chainId);
         
-        userChildContractAddress = await Promise.race([contractPromise, timeoutPromise]);
         console.log("User child contract address:", userChildContractAddress);
   
         if (!userChildContractAddress || userChildContractAddress === ethers.ZeroAddress) {
@@ -539,22 +485,10 @@ export default function Dashboard() {
         return;
       }
   
-      const childContract = new ethers.Contract(
-        userChildContractAddress,
-        childContractABI,
-        signer
-      );
-  
-      // Get savings names with timeout
-      const savingsNamesPromise = childContract.getSavingsNames();
-      const savingsTimeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Savings names timeout')), 8000)
-      );
-      
-      const savingsNamesObj = await Promise.race([savingsNamesPromise, savingsTimeoutPromise]);
-      const savingsNamesArray = savingsNamesObj?.savingsNames || [];
-      console.log("Savings names object:", savingsNamesObj);
-      
+      // Get savings names
+      const savingsNamesArray = await getUserVaultNames(userChildContractAddress, network.chainId);
+      console.log("Savings names object:", savingsNamesArray);
+
       const currentPlans = [];
       const completedPlans = [];
       let totalDeposits = 0;
@@ -566,7 +500,6 @@ export default function Dashboard() {
       const validSavingNames = savingsNamesArray.filter((savingName: string) => 
         savingName && typeof savingName === "string" && savingName !== "" && !processedPlanNames.has(savingName)
       );
-      console.log()
       
       for (let i = 0; i < validSavingNames.length; i += BATCH_SIZE) {
         const batch = validSavingNames.slice(i, i + BATCH_SIZE);
@@ -577,14 +510,9 @@ export default function Dashboard() {
             processedPlanNames.add(savingName);
             console.log("Fetching data for:", savingName);
             
-            // Add timeout for individual saving data calls
-            const savingDataPromise = childContract.getSaving(savingName);
-            const timeoutPromise = new Promise((_, reject) => 
-              setTimeout(() => reject(new Error(`Timeout for ${savingName}`)), 5000)
-            );
-            
-            const savingData = await Promise.race([savingDataPromise, timeoutPromise]);
-            console.log(savingData);
+            // get saving plan data
+            const savingData = await getSaving(userChildContractAddress, savingName, network.chainId);
+            console.log("savingData for", savingName, ":", savingData);
             
             return { savingName, savingData };
           } catch (err) {
@@ -632,7 +560,6 @@ export default function Dashboard() {
             }
           }
           console.log('Savings Name Array:', savingsNamesArray)
-          console.log('Savings Name Object:', savingsNamesObj)
   
           const targetFormatted = ethers.formatUnits(savingData.amount, decimals);
             // Use amount as the current deposited amount (not interestAccumulated)
@@ -718,7 +645,7 @@ export default function Dashboard() {
       });
   
     } catch (error) {
-      console.error("Unhandled error in fetchSavingsData:", error);
+      console.error("Unhandled error in fetch_SavingsData:", error);
       // Set empty data on error to prevent infinite loading
       setSavingsData({
         totalLocked: "0.00",

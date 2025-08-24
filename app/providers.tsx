@@ -3,7 +3,7 @@
 import { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider, createConfig, http } from 'wagmi';
-import { mainnet, sepolia, base } from 'wagmi/chains';
+import { base, celo } from 'wagmi/chains';
 import { RainbowKitProvider, lightTheme, darkTheme } from '@rainbow-me/rainbowkit';
 import { connectorsForWallets } from '@rainbow-me/rainbowkit';
 import { 
@@ -23,7 +23,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 const projectId = 'dfffb9bb51c39516580c01f134de2345';
 
 // Define the supported chains - needs to be a tuple type with at least one chain
-const chains = [mainnet, sepolia, base] as const;
+const chains = [base, celo] as const;
 
 // Create wallet groups with connectorsForWallets - Only supported wallets
 const connectors = connectorsForWallets([
@@ -45,9 +45,8 @@ const connectors = connectorsForWallets([
 export const config = createConfig({
   chains,
   transports: {
-    [mainnet.id]: http(),
-    [sepolia.id]: http(),
     [base.id]: http(),
+    [celo.id]: http(),
   },
   connectors: [farcasterFrame(), ...connectors],
 });
