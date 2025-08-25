@@ -8,8 +8,9 @@ import WithdrawModal from '@/components/WithdrawModal'
 import TopUpModal from '@/components/TopUpModal'
 import { ethers } from 'ethers'
 import { useAccount } from 'wagmi'
-import contractABI from '@/app/abi/contractABI.js'
-import childContractABI from '@/app/abi/childContractABI.js'
+import { getSaving, getUserChildContract, getUserVaultNames } from '@/lib/onchain'
+import { BASE_CONTRACT_ADDRESS, CELO_CONTRACT_ADDRESS } from '@/lib/constants'
+import { config } from '@/app/providers'
 
 // Initialize the Space Grotesk font
 const spaceGrotesk = Space_Grotesk({
@@ -17,9 +18,6 @@ const spaceGrotesk = Space_Grotesk({
   display: 'swap',
 })
 
-// Contract address
-const MAIN_CONTRACT_ADDRESS = "0x3593546078eecd0ffd1c19317f53ee565be6ca13";
-const CELO_CONTRACT_ADDRESS = "0x7d839923Eb2DAc3A0d1cABb270102E481A208F33"; // Celo
 // Define types for our plan data
 interface Plan {
   id: string;
@@ -108,17 +106,10 @@ export default function PlansPage() {
       console.log(`Current ETH price: ${currentEthPrice}`);
       setEthPrice(currentEthPrice || 3500);
 
-      if (!window.ethereum) {
-        throw new Error("No Ethereum wallet detected. Please install MetaMask.");
-      }
-
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-
       // Check if on Base or Celo network
-      const network = await provider.getNetwork();
-      const BASE_CHAIN_ID = BigInt(8453); // Base network chainId
-      const CELO_CHAIN_ID = BigInt(42220); // Celo network chainId
+      const network = config.state;
+      const BASE_CHAIN_ID = (8453); // Base network chainId
+      const CELO_CHAIN_ID = (42220); // Celo network chainId
 
       if (network.chainId !== BASE_CHAIN_ID && network.chainId !== CELO_CHAIN_ID) {
         setIsCorrectNetwork(false);
@@ -130,13 +121,11 @@ export default function PlansPage() {
 
       // Determine which contract address to use based on the network
       const isBase = network.chainId === BASE_CHAIN_ID;
-      const contractAddress = isBase ? MAIN_CONTRACT_ADDRESS : CELO_CONTRACT_ADDRESS;
-
-      const contract = new ethers.Contract(contractAddress, contractABI, signer);
+      const contractAddress = isBase ? BASE_CONTRACT_ADDRESS : CELO_CONTRACT_ADDRESS;
 
       // Get user's child contract address
-      const userChildContractAddress = await contract.getUserChildContractAddress();
-
+      const userChildContractAddress = await getUserChildContract(contractAddress, address);
+      
       if (userChildContractAddress === ethers.ZeroAddress) {
         // User hasn't joined BitSave yet
         setSavingsData({
@@ -150,16 +139,8 @@ export default function PlansPage() {
         return;
       }
 
-      // Create a contract instance for the user's child contract
-      const childContract = new ethers.Contract(
-        userChildContractAddress,
-        childContractABI,
-        signer
-      );
-
       // Get savings names from the child contract
-      const savingsNamesObj = await childContract.getSavingsNames();
-      const savingsNamesArray = savingsNamesObj[0];
+      const savingsNamesArray = await getUserVaultNames(userChildContractAddress, network.chainId);
 
       // Change 'let' to 'const' for variables that aren't reassigned
       const currentPlans = [];
@@ -183,7 +164,7 @@ export default function PlansPage() {
             processedPlanNames.add(savingName);
 
             // Get saving details
-            const savingData = await childContract.getSaving(savingName);
+            const savingData = await getSaving(userChildContractAddress, savingName, network.chainId);
             if (!savingData.isValid) continue;
 
             // Check if it's ETH or token based

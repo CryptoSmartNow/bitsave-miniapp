@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Space_Grotesk } from 'next/font/google'
 import Link from 'next/link'
+import { useAccount } from 'wagmi'
 
 // Initialize the Space Grotesk font
 const spaceGrotesk = Space_Grotesk({ 
@@ -27,18 +28,14 @@ export default function LeaderboardPage() {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [currentUserAddress, setCurrentUserAddress] = useState<string>('')
   const [currentUserPosition, setCurrentUserPosition] = useState<LeaderboardUser | null>(null)
+
+  const { address, isConnected } = useAccount();
   
   useEffect(() => {
-    // Get current user's wallet address using ethers
     const getUserWalletAddress = async () => {
       try {
-        // Check if window.ethereum is available (MetaMask or other wallet)
-        if (typeof window !== 'undefined' && window.ethereum) {
-          // Request account access if needed
-          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }) as string[];
-          // Get the first account
-          const address = accounts[0];
-          setCurrentUserAddress(address);
+        if (isConnected) {
+          setCurrentUserAddress(address || '');
         } else {
           console.log('Ethereum wallet not detected. Please install MetaMask or another wallet.');
           // Set a fallback for development/testing

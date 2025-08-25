@@ -2,11 +2,12 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAccount } from 'wagmi';
+import { useAccount, useSwitchChain } from 'wagmi';
 import { useOptimizedDisconnect } from '../../lib/useOptimizedDisconnect';
 import { trackWalletConnect, trackPageVisit } from '../../lib/interactionTracker';
 import CustomConnectButton from '../../components/CustomConnectButton';
 import sdk from "@farcaster/miniapp-sdk";
+import { base } from 'viem/chains';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -15,6 +16,7 @@ export default function Header() {
   
   const { isConnected, address } = useAccount();
   const { disconnect, isDisconnecting } = useOptimizedDisconnect();
+  const { switchChain } = useSwitchChain();
 
   // Set mounted state after component mounts to prevent hydration mismatch
   useEffect(() => {
@@ -29,17 +31,11 @@ export default function Header() {
 
   // Function to switch to Base network
   const switchToBaseNetwork = async () => {
-    if (typeof window === 'undefined' || !window.ethereum) return;
+    if (!isConnected) return;
     
     try {
-      // Base network chainId (8453)
-      const baseChainId = '0x2105';
-      
       // Try to switch to Base network
-      await window.ethereum.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: baseChainId }],
-      });
+      switchChain({ chainId: base.id });
     } catch (error: unknown) { 
       
       // Type guard to check if error is an object with a code property
@@ -63,10 +59,7 @@ export default function Header() {
           });
           
           // Try switching again after adding
-          await window.ethereum.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: '0x2105' }],
-          });
+          switchChain({ chainId: base.id });
         } catch (addError) {
           console.error('Error adding Base network:', addError);
         }

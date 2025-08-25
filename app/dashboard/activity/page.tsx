@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Inter } from 'next/font/google';
+import { useAccount } from 'wagmi';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -46,6 +47,8 @@ export default function ActivityPage() {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [currentUserAddress, setCurrentUserAddress] = useState<string>('');
   const [userData] = useState(MOCK_USER_DATA);
+
+  const { isConnected, address } = useAccount();
 
   const tasks: Task[] = [
     {
@@ -133,12 +136,9 @@ export default function ActivityPage() {
 
   useEffect(() => {
     const fetchUserAddress = async () => {
-      if (typeof window !== 'undefined' && window.ethereum) {
+      if (isConnected) {
         try {
-          const accounts = await window.ethereum.request({ method: 'eth_accounts' }) as string[];
-          if (accounts.length > 0) {
-            setCurrentUserAddress(accounts[0]);
-          }
+            setCurrentUserAddress(address || '');
         } catch (error) {
           console.error('Error fetching user address:', error);
         }
