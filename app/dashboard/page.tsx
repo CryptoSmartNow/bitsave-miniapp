@@ -1,21 +1,18 @@
 'use client'
 import { useState, useEffect } from 'react';
 import { useAccount, useSwitchChain, useConnectorClient, useWriteContract, useReadContract } from 'wagmi';
-import { readContract } from '@wagmi/core'
-import { addChain } from 'viem/actions';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Space_Grotesk } from 'next/font/google';
 import TopUpModal from '../../components/TopUpModal';
 import WithdrawModal from '../../components/WithdrawModal';
 import { motion } from 'framer-motion';
-import contractABI from '../abi/contractABI.js';
-import childContractABI from '../abi/childContractABI.js';
 import { config } from '../providers';
 import axios from 'axios';
 import sdk from "@farcaster/miniapp-sdk";
-import { getSaving, getUserChildContract, getUserVaultNames } from '@/lib/onchainReads';
+import { getSaving, getUserChildContract, getUserVaultNames } from '@/lib/onchain';
 import { ethers } from 'ethers';
+import { BASE_CONTRACT_ADDRESS, CELO_CONTRACT_ADDRESS, CELO_TOKEN_MAP } from '@/lib/constants';
 
 // Initialize the Space Grotesk font
 const spaceGrotesk = Space_Grotesk({
@@ -23,20 +20,6 @@ const spaceGrotesk = Space_Grotesk({
   display: 'swap',
   variable: '--font-space-grotesk'
 });
-
-
-// Contract addresses
-// const MAIN_CONTRACT_ADDRESS = "0x3593546078eecd0ffd1c19317f53ee565be6ca13";
-const BASE_CONTRACT_ADDRESS = "0x3593546078eecd0ffd1c19317f53ee565be6ca13";
-const CELO_CONTRACT_ADDRESS = "0x7d839923Eb2DAc3A0d1cABb270102E481A208F33";
-const BitSaveABI = contractABI;
-
-// Token address mapping for Celo
-const CELO_TOKEN_MAP: { [address: string]: { name: string; decimals: number; logo: string } } = {
-  '0x765de816845861e75a25fca122bb6898b8b1282a': { name: 'cUSD', decimals: 18, logo: '/cusd.png' },
-  '0x4f604735c1cf31399c6e711d5962b2b3e0225ad3': { name: 'USDGLO', decimals: 6, logo: '/usdglo.png' },
-  '0x62b8b11039fcfe5ab0c56e502b1c372a3d2a9c7a': { name: 'Gooddollar', decimals: 18, logo: '/$g.png' },
-};
 
 export default function Dashboard() {
   const [isBaseNetwork, setIsBaseNetwork] = useState(true);

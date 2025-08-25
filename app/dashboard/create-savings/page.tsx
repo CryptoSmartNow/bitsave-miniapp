@@ -8,19 +8,18 @@ import { format } from 'date-fns'
 import { Space_Grotesk } from 'next/font/google'
 import { ethers } from 'ethers'
 import { useRouter } from 'next/navigation'
-import { useAccount } from 'wagmi'
+import { useAccount, useConnectorClient, useSwitchChain, useConnect, useWriteContract } from 'wagmi'
 import axios from 'axios'
 import CONTRACT_ABI from '@/app/abi/contractABI.js'
 import erc20ABI from '@/app/abi/erc20ABI.json'
 import { trackSavingsCreated, trackError, trackPageVisit } from '@/lib/interactionTracker'
 import { useReferrals } from '@/lib/useReferrals'
-
-const CONTRACT_ADDRESS = "0x3593546078eecd0ffd1c19317f53ee565be6ca13"
-const BASE_CONTRACT_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-const CELO_CONTRACT_ADDRESS = "0x7d839923Eb2DAc3A0d1cABb270102E481A208F33" 
-// const ETH_TOKEN_ADDRESS = "0x0000000000000000000000000000000000000000"
-// const USDGLO_TOKEN_ADDRESS = "0x4f604735c1cf31399c6e711d5962b2b3e0225ad3"
-
+import { BASE_CONTRACT_ADDRESS, BASE_USDC_CONTRACT_ADDRESS, CELO_CONTRACT_ADDRESS, CELO_TOKEN_MAP } from '@/lib/constants'
+import { getBalance, getGasPrice, waitForTransactionReceipt } from '@wagmi/core'
+import { config } from '@/app/providers'
+import { getUserChildContract } from '@/lib/onchain'
+import { Address, parseEther } from 'viem'
+import { write } from 'fs'
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -29,7 +28,6 @@ const spaceGrotesk = Space_Grotesk({
 
 export default function CreateSavingsPage() {
   const router = useRouter()
-  const { address } = useAccount()
   const { referralData, generateReferralCode, markReferralConversion } = useReferrals()
   const [step, setStep] = useState(1)
   const [mounted, setMounted] = useState(false)
@@ -47,7 +45,6 @@ export default function CreateSavingsPage() {
   const [isLoading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [txHash, setTxHash] = useState<string | null>(null)
-  const [isConnected, setIsConnected] = useState(false)
   const [termsAgreed, setTermsAgreed] = useState(false)
   
   // Wallet balance checking states
@@ -56,6 +53,11 @@ export default function CreateSavingsPage() {
   const [estimatedGasFee, setEstimatedGasFee] = useState<string>('0')
   const [balanceWarning, setBalanceWarning] = useState<string | null>(null)
   const [isCheckingBalance, setIsCheckingBalance] = useState(false)
+
+  const { data: walletClient } = useConnectorClient();
+  const { switchChain } = useSwitchChain();
+  const { isConnected, address } = useAccount();
+  const { writeContractAsync } = useWriteContract();
 
   interface DayRange {
     from: {
@@ -105,10 +107,6 @@ export default function CreateSavingsPage() {
     }
   }, [startDate, endDate, errors.endDate]);
 
-  // useEffect(() => {
-  //   setSavingsName(name);
-  // }, [name]);
-
   useEffect(() => {
     setSelectedPenalty(parseInt(penalty))
   }, [penalty])
@@ -119,26 +117,6 @@ export default function CreateSavingsPage() {
       generateReferralCode()
     }
   }, [address, referralData, generateReferralCode])
-
-  // Check wallet balances when relevant values change
-  useEffect(() => {
-    if (address && amount && parseFloat(amount) > 0) {
-      const timeoutId = setTimeout(() => {
-        checkWalletBalances();
-      }, 500); // Debounce to avoid too many calls
-      
-      return () => clearTimeout(timeoutId);
-    } else {
-      setBalanceWarning(null);
-    }
-  }, [amount, currency, chain, address]);
-
-  // Initial balance check when wallet connects
-  useEffect(() => {
-    if (address && isConnected) {
-      checkWalletBalances();
-    }
-  }, [address, isConnected]);
 
   // Define available currencies for each network
   const networkCurrencies: Record<string, string[]> = {
@@ -159,20 +137,21 @@ export default function CreateSavingsPage() {
   // Function to switch network
   const switchToNetwork = async (networkName: string) => {
     try {
-      if (typeof window.ethereum !== 'undefined') {
-        if (networkName === 'base') {
-          try {
-            await window.ethereum.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: '0x2105' }], // Base chainId in hex (8453)
-            });
-          } catch (switchError: unknown) {
-        // This error code indicates that the chain has not been added to MetaMask
-        if ((switchError as { code: number }).code === 4902) {
-              await window.ethereum.request({
-                method: 'wallet_addEthereumChain',
-                params: [{
-                  chainId: '0x2105',
+      if (networkName.toLowerCase() === 'base') {
+        switchChain({ chainId: 8453 });
+      } else if (networkName.toLowerCase() === 'celo') {
+        switchChain({ chainId: 42220 });
+      }
+    } catch (error: unknown) {
+      // Type guard to check if error is an object with a code property
+      if (error && typeof error === 'object' && 'code' in error && error.code === 4902) {
+        try {
+          if (networkName.toLowerCase() === 'base') {
+            await walletClient!.request({
+              method: 'wallet_addEthereumChain',
+              params: [
+                {
+                  chainId: '0x2105', // Base chainId in hex
                   chainName: 'Base',
                   nativeCurrency: {
                     name: 'ETH',
@@ -181,22 +160,15 @@ export default function CreateSavingsPage() {
                   },
                   rpcUrls: ['https://mainnet.base.org'],
                   blockExplorerUrls: ['https://basescan.org'],
-                }],
-              });
-            }
-          }
-        } else if (networkName === 'celo') {
-          try {
-            await window.ethereum.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: '0xA4EC' }], // Celo chainId in hex (42220)
+                },
+              ],
             });
-          } catch (switchError: unknown) {
-        if ((switchError as { code: number }).code === 4902) {
-              await window.ethereum.request({
-                method: 'wallet_addEthereumChain',
-                params: [{
-                  chainId: '0xA4EC',
+          } else if (networkName.toLowerCase() === 'celo') {
+            await walletClient!.request({
+              method: 'wallet_addEthereumChain',
+              params: [
+                {
+                  chainId: '0xA4EC', // Celo chainId in hex
                   chainName: 'Celo',
                   nativeCurrency: {
                     name: 'CELO',
@@ -205,14 +177,19 @@ export default function CreateSavingsPage() {
                   },
                   rpcUrls: ['https://forno.celo.org'],
                   blockExplorerUrls: ['https://explorer.celo.org'],
-                }],
-              });
-            }
+                },
+              ],
+            });
           }
+
+          // Try switching again after adding
+          await switchToNetwork(networkName);
+        } catch (addError) {
+          console.error(`Error adding ${networkName} network:`, addError);
         }
+      } else {
+        console.error(`Error switching to ${networkName} network:`, error);
       }
-    } catch (error) {
-      console.error(`Error switching to ${networkName} network:`, error);
     }
   };
 
@@ -264,60 +241,22 @@ export default function CreateSavingsPage() {
     window.scrollTo(0, 0)
   }
 
-  useEffect(() => {
-    const checkConnection = async () => {
-      if (typeof window !== 'undefined' && window.ethereum) {
-        try {
-          const accounts = await window.ethereum.request({ method: 'eth_accounts' })
-          setIsConnected(accounts && accounts.length > 0)
-          if (accounts && accounts.length > 0) {
-            setWalletAddress(accounts[0])
-          }
-        } catch (error) {
-          console.error('Error checking wallet connection:', error)
-        }
-      }
-    }
-
-    checkConnection()
-  }, [])
-
-  const [walletAddress, setWalletAddress] = useState<string>('');
-
-  useEffect(() => {
-    const getWalletAddress = async () => {
-      try {
-        if (typeof window !== 'undefined' && window.ethereum) {
-          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-          if (accounts && accounts.length > 0) {
-            setWalletAddress(accounts[0]);
-          }
-        }
-      } catch (error) {
-        console.error('Error getting wallet address:', error);
-      }
-    };
-
-    getWalletAddress();
-  }, []);
-
   const approveERC20 = async (
-    tokenAddress: string,
+    tokenAddress: Address,
     amount: ethers.BigNumberish,
-    signer: ethers.Signer
   ) => {
     try {
-      const contractToApprove = chain === 'celo' ? CELO_CONTRACT_ADDRESS : CONTRACT_ADDRESS;
+      const contractToApprove = chain === 'celo' ? CELO_CONTRACT_ADDRESS : BASE_CONTRACT_ADDRESS;
 
-      const erc20Contract = new ethers.Contract(
-        tokenAddress,
-        erc20ABI.abi,
-        signer
-      );
+      const tx = await writeContractAsync({
+        address: tokenAddress,
+        abi: erc20ABI.abi,
+        functionName: 'approve',
+        args: [contractToApprove, amount],
+      });
 
-      const tx = await erc20Contract.approve(contractToApprove, amount);
-      await tx.wait();
-      console.log("Approval Transaction Hash:", tx.hash);
+      await waitForTransactionReceipt(config, { hash: tx, confirmations: 2 });
+      console.log("Approval Transaction Hash:", tx);
       return true;
     } catch (error) {
       console.error("Error approving ERC20 tokens:", error);
@@ -328,7 +267,7 @@ export default function CreateSavingsPage() {
   // Wallet balance checking utilities
   const getTokenAddress = (currency: string, chain: string) => {
     if (chain === 'base') {
-      return BASE_CONTRACT_ADDRESS; // USDC on Base
+      return BASE_USDC_CONTRACT_ADDRESS; // USDC on Base
     } else if (chain === 'celo') {
       switch (currency) {
         case 'cUSD':
@@ -341,35 +280,33 @@ export default function CreateSavingsPage() {
           return '0x765DE816845861e75A25fCA122bb6898B8B1282a';
       }
     }
-    return BASE_CONTRACT_ADDRESS;
+    return BASE_USDC_CONTRACT_ADDRESS;
   };
 
   const checkWalletBalances = async () => {
-    if (!address || !window.ethereum) return;
+    if (!isConnected || !address) return;
     
     setIsCheckingBalance(true);
     setBalanceWarning(null);
     
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      
       // Get native token balance (ETH)
-      const nativeBalance = await provider.getBalance(address);
-      const nativeBalanceFormatted = ethers.formatEther(nativeBalance);
+      const nativeBalance = await getBalance(config, { address });
+      console.log("Native balance ether:", nativeBalance);
+      const nativeBalanceFormatted = ethers.formatEther(nativeBalance.value);
       setWalletBalance(nativeBalanceFormatted);
       
       // Get token balance for selected currency
       const tokenAddress = getTokenAddress(currency, chain);
-      const tokenContract = new ethers.Contract(tokenAddress, erc20ABI.abi, provider);
-      const tokenBalance = await tokenContract.balanceOf(address);
-      const decimals = await tokenContract.decimals();
-      const tokenBalanceFormatted = ethers.formatUnits(tokenBalance, decimals);
+      const tokenBalance = await getBalance(config, { address, token: tokenAddress });
+      const tokenBalanceFormatted = ethers.formatUnits(tokenBalance.value, tokenBalance.decimals);
       setTokenBalance(tokenBalanceFormatted);
-      
+      console.log("token balance", tokenBalance);
+
       // Estimate gas fee
-      const gasPrice = await provider.getFeeData();
+      const gasPrice = await getGasPrice(config);
       const estimatedGasLimit = ethers.getBigInt(2717330); // Estimated gas limit for savings creation (0.000027 ETH)
-      const estimatedGasCost = gasPrice.gasPrice ? gasPrice.gasPrice * estimatedGasLimit : ethers.getBigInt(0);
+      const estimatedGasCost = gasPrice ? gasPrice * estimatedGasLimit : ethers.getBigInt(0);
       const gasFeeFormatted = ethers.formatEther(estimatedGasCost);
       setEstimatedGasFee(gasFeeFormatted);
       
@@ -396,144 +333,25 @@ export default function CreateSavingsPage() {
     }
   };
 
+  // Check wallet balances when relevant values change
+  useEffect(() => {
+    if (address && amount && parseFloat(amount) > 0) {
+      const timeoutId = setTimeout(() => {
+        checkWalletBalances();
+      }, 500); // Debounce to avoid too many calls
+      
+      return () => clearTimeout(timeoutId);
+    } else {
+      setBalanceWarning(null);
+    }
+  }, [amount, currency, chain, address]);
 
-  // const fetchEthPrice = async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
-  //     );
-  //     return response.data.ethereum.usd;
-  //   } catch (error) {
-  //     console.error("Error fetching ETH price:", error);
-  //     return null;
-  //   }
-  // };
-
-  // const handleEthCreateSavings = async () => {
-  //   if (!isConnected) {
-  //     setError("Please connect your wallet.")
-  //     return
-  //   }
-  //   setLoading(true)
-  //   setError(null)
-  //   setTxHash(null)
-  //   setSuccess(false)
-
-  //   try {
-  //     let ethPriceInUsd
-  //     for (let i = 0; i < 3; i++) {
-  //       try {
-  //         ethPriceInUsd = await fetchEthPrice()
-  //         break
-  //       } catch (error) {
-  //         if (i === 2) throw error
-  //         await new Promise(resolve => setTimeout(resolve, 1000))
-  //       }
-  //     }
-
-  //     const provider = new ethers.BrowserProvider(window.ethereum)
-  //     await provider.send("eth_requestAccounts", [])
-  //     const signer = await provider.getSigner()
-
-  //     const code = await provider.getCode(CONTRACT_ADDRESS)
-  //     if (code === "0x") {
-  //       throw new Error("Contract not found on this network. Check the contract address and network.")
-  //     }
-
-  //     const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer)
-
-  //     const userChildContractAddress = await contract.getUserChildContractAddress()
-  //     if (userChildContractAddress === ethers.ZeroAddress) {
-  //       const joinTx = await contract.joinBitsave({
-  //         value: ethers.parseEther("0.0001"),
-  //       })
-  //       await joinTx.wait()
-  //     }
-
-  //     console.log("User child contract address:", userChildContractAddress)
-
-  //     const maturityTime = selectedDayRange.to
-  //       ? Math.floor(
-  //         new Date(
-  //           selectedDayRange.to.year ?? 0,
-  //           (selectedDayRange.to.month ?? 1) - 1,
-  //           selectedDayRange.to.day ?? 1
-  //         ).getTime() / 1000
-  //       )
-  //       : 0
-  //     const safeMode = false
-  //     const tokenToSave = ETH_TOKEN_ADDRESS
-
-  //     const userEnteredUsdAmount = parseFloat(amount)
-  //     const ethAmount = userEnteredUsdAmount / ethPriceInUsd
-  //     const ethAmountInWei = ethers.parseEther(ethAmount.toFixed(18))
-  //     const totalAmount = ethAmountInWei + ethers.parseEther("0.0001")
-
-  //     console.log("Parameters:", {
-  //       savingsName,
-  //       maturityTime,
-  //       selectedPenalty,
-  //       safeMode,
-  //       tokenToSave,
-  //       userEnteredUsdAmount,
-  //       ethPriceInUsd,
-  //       ethAmount,
-  //       totalAmount,
-  //     })
-
-  //     const txOptions = {
-  //       gasLimit: 1200000,
-  //       value: totalAmount,
-  //     }
-
-  //     const tx = await contract.createSaving(
-  //       savingsName,
-  //       maturityTime,
-  //       selectedPenalty,
-  //       safeMode,
-  //       tokenToSave,
-  //       ethAmountInWei,
-  //       txOptions
-  //     )
-
-  //     const receipt = await tx.wait()
-  //     setTxHash(receipt.hash)
-
-  //     try {
-  //       const apiResponse = await axios.post(
-  //         "https://bitsaveapi.vercel.app/transactions/",
-  //         {
-  //           amount: parseFloat(amount),
-  //           txnhash: receipt.hash,
-  //           chain: "base", 
-  //           savingsname: savingsName,
-  //           useraddress: walletAddress,
-  //           transaction_type: "deposit",
-  //           currency: currency
-  //         },
-  //         {
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //             "X-API-Key": process.env.NEXT_PUBLIC_API_KEY
-  //           }
-  //         }
-  //       );
-  //       console.log("API response:", apiResponse.data);
-  //     } catch (apiError) {
-  //       console.error("Error sending transaction data to API:", apiError);
-  //     }
-
-  //     setSuccess(true)
-  //     console.log("ETH savings plan created successfully!")
-  //   } catch (error) {
-  //     console.error("Error creating ETH savings plan:", error)
-  //     setError("Failed to create ETH savings plan: " + (error instanceof Error ? error.message : String(error)))
-  //     setSuccess(false) 
-  //     throw error 
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
+  // Initial balance check when wallet connects
+  useEffect(() => {
+    if (address && isConnected) {
+      checkWalletBalances();
+    }
+  }, [address, isConnected]);
 
   const handleBaseSavingsCreate = async () => {
     if (!isConnected) {
@@ -546,11 +364,6 @@ export default function CreateSavingsPage() {
     setSuccess(false)
 
     try {
-      if (!window.ethereum) {
-        throw new Error("No Ethereum wallet detected. Please install MetaMask.")
-      }
-
-
       console.log("User Input - Amount:", amount)
       console.log("User Input - Savings Name:", name)
       console.log("User Input - Selected Day Range:", selectedDayRange)
@@ -563,23 +376,16 @@ export default function CreateSavingsPage() {
 
       const usdcEquivalentAmount = ethers.parseUnits(userEnteredUsdcAmount.toFixed(6), 6)
       console.log("USDC Equivalent Amount:", usdcEquivalentAmount.toString())
-
-      const provider = new ethers.BrowserProvider(window.ethereum)
-      await provider.send("eth_requestAccounts", [])
-      const signer = await provider.getSigner()
-
       const BASE_CHAIN_ID = 8453 
 
-      const network = await provider.getNetwork()
+      const network = config.state;
       console.log("User's Current Network:", network)
 
       if (Number(network.chainId) !== BASE_CHAIN_ID) {
-        throw new Error("Please switch your wallet to the Base network.")
+        switchChain({ chainId: BASE_CHAIN_ID });
       }
 
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer)
-
-      let userChildContractAddress = await contract.getUserChildContractAddress()
+      let userChildContractAddress = await getUserChildContract(BASE_CONTRACT_ADDRESS, address!);
       console.log("User's Child Contract Address (Before Join):", userChildContractAddress)
 
       if (userChildContractAddress === ethers.ZeroAddress) {
@@ -588,12 +394,17 @@ export default function CreateSavingsPage() {
         if (!ethPrice) throw new Error('Could not fetch ETH price for fee calculation.');
         const feeInEth = (1 / ethPrice).toFixed(6); // $1 in ETH
         
-        const joinTx = await contract.joinBitsave({
-          value: ethers.parseEther(feeInEth), 
+        const joinTx = await writeContractAsync({
+          address: BASE_CONTRACT_ADDRESS,
+          abi: CONTRACT_ABI,
+          functionName: "joinBitsave",
+          args: [],
+          value: parseEther(feeInEth),
         })
-        await joinTx.wait()
+        
+        await waitForTransactionReceipt(config, { hash: joinTx, confirmations: 2 });
 
-        userChildContractAddress = await contract.getUserChildContractAddress()
+        userChildContractAddress = await getUserChildContract(BASE_CONTRACT_ADDRESS, address!);
         console.log("User's Child Contract Address (After Join):", userChildContractAddress)
       }
 
@@ -608,44 +419,47 @@ export default function CreateSavingsPage() {
         : 0
 
       const safeMode = false
-      const tokenToSave = BASE_CONTRACT_ADDRESS
+      const tokenToSave = BASE_USDC_CONTRACT_ADDRESS
 
-      await approveERC20(tokenToSave, usdcEquivalentAmount, signer)
+      await approveERC20(tokenToSave, usdcEquivalentAmount)
 
       // Get current ETH price for $1 fee
       const ethPrice = await fetchEthPrice();
       if (!ethPrice) throw new Error('Could not fetch ETH price for fee calculation.');
       const feeInEth = (1 / ethPrice).toFixed(6); // $1 in ETH
 
-      
-
       const txOptions = {
         gasLimit: 2717330,
         value: ethers.parseEther(feeInEth), 
       }
 
-      const tx = await contract.createSaving(
-        name,
-        maturityTime,
-        selectedPenalty,
-        safeMode,
-        tokenToSave,
-        usdcEquivalentAmount,
-        txOptions
-      )
+      const tx = await writeContractAsync({
+        address: BASE_CONTRACT_ADDRESS,
+        abi: CONTRACT_ABI,
+        functionName: 'createSaving',
+        args: [
+          name,
+          maturityTime,
+          selectedPenalty,
+          safeMode,
+          tokenToSave,
+          usdcEquivalentAmount,
+        ],
+        ...txOptions
+      })
 
-      const receipt = await tx.wait()
-      setTxHash(receipt.hash)
+      const receipt = await waitForTransactionReceipt(config, { hash: tx, confirmations: 2 });
+      setTxHash(receipt.transactionHash)
 
       try {
         const apiResponse = await axios.post(
           "https://bitsaveapi.vercel.app/transactions/",
           {
             amount: parseFloat(amount),
-            txnhash: receipt.hash,
+            txnhash: receipt.transactionHash,
             chain: "base", 
             savingsname: name,
-            useraddress: walletAddress,
+            useraddress: address,
             transaction_type: "deposit",
             currency: currency
           },
@@ -714,36 +528,16 @@ export default function CreateSavingsPage() {
     }
   };
 
-  
-
-  // Common helper function for Celo setup
-  const setupCeloProvider = async () => {
-    if (!window.ethereum) throw new Error("No Ethereum wallet detected. Please install MetaMask.");
-    
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
-    const signer = await provider.getSigner();
-    
-    const CELO_CHAIN_ID = 42220;
-    const network = await provider.getNetwork();
-    if (Number(network.chainId) !== CELO_CHAIN_ID) {
-      throw new Error("Please switch your wallet to the Celo network.");
-    }
-    
-    return { provider, signer };
-  };
-
   // Common helper function for Bitsave contract setup
-  const setupBitsaveContract = async (signer: ethers.Signer) => {
+  const setupBitsaveContract = async () => {
     const celoPrice = await fetchCeloPrice();
     if (!celoPrice) throw new Error('Could not fetch CELO price.');
     const joinFeeCelo = (1 / celoPrice).toFixed(4); // $1 in CELO
     
-    const contract = new ethers.Contract(CELO_CONTRACT_ADDRESS, CONTRACT_ABI, signer);
     let userChildContractAddress;
     
     try {
-      userChildContractAddress = await contract.getUserChildContractAddress();
+      userChildContractAddress = await getUserChildContract(CELO_CONTRACT_ADDRESS, address!);
     } catch (error) {
       console.error(error);
       throw new Error("Failed to interact with the Bitsave contract. Please try again.");
@@ -751,16 +545,22 @@ export default function CreateSavingsPage() {
     
     if (userChildContractAddress === ethers.ZeroAddress) {
       try {
-        const joinTx = await contract.joinBitsave({ value: ethers.parseEther(joinFeeCelo) });
-        await joinTx.wait();
-        userChildContractAddress = await contract.getUserChildContractAddress();
+        const joinTx = await writeContractAsync({
+          address: CELO_CONTRACT_ADDRESS,
+          abi: CONTRACT_ABI,
+          functionName: "joinBitsave",
+          args: [],
+          value: parseEther(joinFeeCelo)
+        });
+
+        await waitForTransactionReceipt(config, { hash: joinTx, confirmations: 2 });
+
+        userChildContractAddress = await getUserChildContract(CELO_CONTRACT_ADDRESS, address!);
       } catch (joinError) {
         console.error(joinError);
         throw new Error("Failed to join Bitsave. Please check your wallet has enough CELO for gas fees.");
       }
     }
-    
-    return contract;
   };
 
   // Common helper function for maturity time calculation
@@ -792,7 +592,7 @@ export default function CreateSavingsPage() {
           txnhash: txHash,
           chain: "celo",
           savingsname: name,
-          useraddress: walletAddress,
+          useraddress: address,
           transaction_type: "deposit",
           currency
         },
@@ -829,12 +629,10 @@ export default function CreateSavingsPage() {
       if (isNaN(parsedAmount) || parsedAmount <= 0) {
         throw new Error("Invalid amount. Please enter a valid number greater than zero.");
       }
-      
-  
+
+      await setupBitsaveContract();
       
       // Setup provider and contract
-      const { signer } = await setupCeloProvider();
-      const contract = await setupBitsaveContract(signer);
       const maturityTime = calculateMaturityTime();
       
       // USDGLO specific logic
@@ -846,35 +644,38 @@ export default function CreateSavingsPage() {
       console.log(`USDGLO Debug - Token amount (formatted): ${ethers.formatUnits(tokenAmount, token.decimals)}`);
       
       // Approve and create saving
-        await approveERC20(token.address, tokenAmount, signer);
+        await approveERC20(token.address as Address, tokenAmount);
         
         // Get current CELO price for $1 fee
         const celoPrice = await fetchCeloPrice();
         if (!celoPrice) throw new Error('Could not fetch CELO price for fee calculation.');
         const feeInCelo = (1 / celoPrice).toFixed(6); // $1 in CELO
         
-  
-        
         const txOptions = { 
           gasLimit: 2717330,
           value: ethers.parseEther(feeInCelo)
         };
-        const tx = await contract.createSaving(
-          name,
-          maturityTime,
-          selectedPenalty,
-          false, // safeMode
-          token.address,
-          tokenAmount,
-          txOptions
-        );
+        const tx = await writeContractAsync({
+          address: CELO_CONTRACT_ADDRESS,
+          abi: CONTRACT_ABI,
+          functionName: "createSaving",
+          args: [
+            name,
+            maturityTime,
+            selectedPenalty,
+            false, // safeMode
+            token.address,
+            tokenAmount
+          ],
+          ...txOptions
+        });
       
-      const receipt = await tx.wait();
-      setTxHash(receipt.hash);
+      const receipt = await waitForTransactionReceipt(config, { hash: tx, confirmations: 2 });
+      setTxHash(receipt.transactionHash);
       
       // Send to API
-      await sendTransactionToAPI(parsedAmount, receipt.hash, 'USDGLO');
-      
+      await sendTransactionToAPI(parsedAmount, receipt.transactionHash, 'USDGLO');
+
       // Track successful savings creation
       if (address) {
         trackSavingsCreated(address, {
@@ -941,9 +742,8 @@ export default function CreateSavingsPage() {
       console.log(`cUSD Debug - Clean amount: ${cleanAmount}`);
       console.log(`cUSD Debug - Parsed amount: ${parsedAmount}`);
       
-      // Setup provider and contract
-      const { signer } = await setupCeloProvider();
-      const contract = await setupBitsaveContract(signer);
+      // join bitsave if not already joined
+      await setupBitsaveContract();
       const maturityTime = calculateMaturityTime();
       
       // cUSD specific logic
@@ -955,35 +755,39 @@ export default function CreateSavingsPage() {
       console.log(`cUSD Debug - Token amount (formatted): ${ethers.formatUnits(tokenAmount, token.decimals)}`);
       
       // Approve and create saving
-        await approveERC20(token.address, tokenAmount, signer);
+        await approveERC20(token.address as Address, tokenAmount);
         
         // Get current CELO price for $1 fee
         const celoPrice = await fetchCeloPrice();
         if (!celoPrice) throw new Error('Could not fetch CELO price for fee calculation.');
         const feeInCelo = (1 / celoPrice).toFixed(6); // $1 in CELO
         
-       
-        
         const txOptions = { 
           gasLimit: 2717330,
           value: ethers.parseEther(feeInCelo)
         };
-        const tx = await contract.createSaving(
-          name,
-          maturityTime,
-          selectedPenalty,
-          false, // safeMode
-          token.address,
-          tokenAmount,
-          txOptions
-        );
-      
-      const receipt = await tx.wait();
-      setTxHash(receipt.hash);
-      
+
+        const tx = await writeContractAsync({
+          address: CELO_CONTRACT_ADDRESS,
+          abi: CONTRACT_ABI,
+          functionName: "createSaving",
+          args: [
+            name,
+            maturityTime,
+            selectedPenalty,
+            false, // safeMode
+            token.address,
+            tokenAmount
+          ],
+          ...txOptions
+        });
+
+      const receipt = await waitForTransactionReceipt(config, { hash: tx, confirmations: 2 });
+      setTxHash(receipt.transactionHash);
+
       // Send to API
-      await sendTransactionToAPI(parsedAmount, receipt.hash, 'cUSD');
-      
+      await sendTransactionToAPI(parsedAmount, receipt.transactionHash, 'cUSD');
+
       setSuccess(true);
     } catch (error) {
       console.error("Error creating cUSD savings plan:", error);
@@ -1029,10 +833,10 @@ export default function CreateSavingsPage() {
       console.log(`Gooddollar Debug - Original amount: ${amount}`);
       console.log(`Gooddollar Debug - USD amount: ${userEnteredAmount}`);
       console.log(`Gooddollar Debug - Gooddollar price: ${goodDollarPrice}`);
-      
-      // Setup provider and contract
-      const { signer } = await setupCeloProvider();
-      const contract = await setupBitsaveContract(signer);
+
+      // join bitsave if not already joined
+      await setupBitsaveContract();
+
       const maturityTime = calculateMaturityTime();
       
       // Gooddollar specific logic - Convert USD to $G using live price
@@ -1046,7 +850,7 @@ export default function CreateSavingsPage() {
       console.log(`Gooddollar Debug - Token amount (formatted): ${ethers.formatUnits(tokenAmount, token.decimals)}`);
       
       // Approve and create saving
-        await approveERC20(token.address, tokenAmount, signer);
+        await approveERC20(token.address as Address, tokenAmount);
         
         // Get current CELO price for $1 fee
         const celoPrice = await fetchCeloPrice();
@@ -1059,22 +863,27 @@ export default function CreateSavingsPage() {
           gasLimit: 2717330,
           value: ethers.parseEther(feeInCelo)
         };
-        const tx = await contract.createSaving(
-          name,
-          maturityTime,
-          selectedPenalty,
-          false, // safeMode
-          token.address,
-          tokenAmount,
-          txOptions
-        );
+        const tx = await writeContractAsync({
+          address: CELO_CONTRACT_ADDRESS,
+          abi: CONTRACT_ABI,
+          functionName: "createSaving",
+          args: [
+            name,
+            maturityTime,
+            selectedPenalty,
+            false, // safeMode
+            token.address,
+            tokenAmount
+          ],
+          ...txOptions
+        });
       
-      const receipt = await tx.wait();
-      setTxHash(receipt.hash);
+      const receipt = await waitForTransactionReceipt(config, { hash: tx, confirmations: 2 });
+      setTxHash(receipt.transactionHash);
       
       // Send to API with G amount
-      await sendTransactionToAPI(gAmount, receipt.hash, 'Gooddollar');
-      
+      await sendTransactionToAPI(gAmount, receipt.transactionHash, 'Gooddollar');
+
       setSuccess(true);
     } catch (error) {
       console.error("Error creating Gooddollar savings plan:", error);
