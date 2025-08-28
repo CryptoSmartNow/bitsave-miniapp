@@ -230,6 +230,7 @@ export default function TopUpModal({ isOpen, onClose, planName, isEth = false, t
         abi: erc20ABI.abi,
         functionName: 'approve',
         args: [contractAddress, amount],
+        chainId: network.chainId,
       });
 
       await waitForTransactionReceipt(config, { hash: tx, confirmations: 2 });
@@ -246,7 +247,8 @@ export default function TopUpModal({ isOpen, onClose, planName, isEth = false, t
           savingsPlanName,
           tokenAddress,
           tokenAmount,
-        ]
+        ],
+        chainId: network.chainId,
       });
 
       const receipt = await waitForTransactionReceipt(config, { hash: tx, confirmations: 2 });

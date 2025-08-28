@@ -10,7 +10,8 @@ import { trackTransaction, trackError } from '@/lib/interactionTracker';
 import { config } from '@/app/providers';
 import { getSaving, getUserChildContract } from '@/lib/onchain';
 import { estimateGas, waitForTransactionReceipt } from '@wagmi/core';
-import { Hex } from 'viem';
+import { encodeFunctionData, Hex } from 'viem';
+import CHILD_CONTRACT_ABI from '../app/abi/childContractABI.js';
 
 const BASE_CONTRACT_ADDRESS = "0x3593546078eecd0ffd1c19317f53ee565be6ca13";
 const CELO_CONTRACT_ADDRESS = "0x7d839923Eb2DAc3A0d1cABb270102E481A208F33";
@@ -130,17 +131,18 @@ export default function WithdrawModal({
 
       const gasEstimate = await estimateGas(config, {
         to: contractAddress,
-        data: ethers.AbiCoder.defaultAbiCoder().encode(
-          ['string'],
-          [nameOfSavings]
-        ) as Hex,
-      })
-      
+        data: encodeFunctionData({
+          abi: [...CONTRACT_ABI, ...CHILD_CONTRACT_ABI],
+          functionName: 'withdrawSaving',
+          args: [nameOfSavings]
+        })
+      });
+
       console.log(`Gas estimate for ETH withdrawal: ${gasEstimate}`);
 
      const tx = await writeContractAsync({
        address: contractAddress,
-       abi: CONTRACT_ABI,
+       abi: [...CONTRACT_ABI, ...CHILD_CONTRACT_ABI],
        functionName: 'withdrawSaving',
        args: [nameOfSavings],
        gas: gasEstimate + (gasEstimate * BigInt(20) / BigInt(100)),
@@ -247,17 +249,18 @@ export default function WithdrawModal({
       
       const gasEstimate = await estimateGas(config, {
         to: contractAddress,
-        data: ethers.AbiCoder.defaultAbiCoder().encode(
-          ["string"],
-          [nameOfSavings]
-        ) as Hex,
+        data: encodeFunctionData({
+          abi: [...CONTRACT_ABI, ...CHILD_CONTRACT_ABI],
+          functionName: 'withdrawSaving',
+          args: [nameOfSavings]
+        })
       })
 
       console.log(`Gas estimate for token withdrawal: ${gasEstimate}`);
 
       const tx = await writeContractAsync({
        address: contractAddress,
-       abi: CONTRACT_ABI,
+       abi: [...CONTRACT_ABI, ...CHILD_CONTRACT_ABI],
        functionName: 'withdrawSaving',
        args: [nameOfSavings],
        gas: gasEstimate + (gasEstimate * BigInt(20) / BigInt(100)),

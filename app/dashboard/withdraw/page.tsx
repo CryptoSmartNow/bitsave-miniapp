@@ -8,7 +8,8 @@ import { trackTransaction, trackError } from "@/lib/interactionTracker";
 import { config } from "@/app/providers";
 import { base } from "viem/chains";
 import { estimateGas, waitForTransactionReceipt } from "@wagmi/core";
-import { Hex } from "viem";
+import { encodeFunctionData, Hex } from "viem";
+import CHILD_CONTRACT_ABI from "@/app/abi/childContractABI";
 
 const BASE_CONTRACT_ADDRESS = "0x3593546078eecd0ffd1c19317f53ee565be6ca13";
 const CELO_CONTRACT_ADDRESS = "0x7d839923Eb2DAc3A0d1cABb270102E481A208F33";
@@ -44,14 +45,19 @@ export default function WithdrawPage() {
     try {
       const gasEstimate = await estimateGas(config, {
         to: getContractAddress(),
-        data: ethers.AbiCoder.defaultAbiCoder().encode(["string"], [withdrawalName]) as Hex,
+        data: encodeFunctionData({
+          abi: [...CONTRACT_ABI, ...CHILD_CONTRACT_ABI],
+          functionName: 'withdrawSaving',
+          args: [withdrawalName]
+        })
       });
+
       console.log("Gas estimate for withdrawal:", gasEstimate.toString());
       const gasLimit = Math.floor(Number(gasEstimate) * 1.2);
 
       const tx = await writeContractAsync({
         address: getContractAddress(),
-        abi: CONTRACT_ABI,
+        abi: [...CONTRACT_ABI, ...CHILD_CONTRACT_ABI],
         functionName: "withdrawSaving",
         args: [withdrawalName],
       });

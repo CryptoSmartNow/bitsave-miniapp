@@ -17,9 +17,10 @@ import { useReferrals } from '@/lib/useReferrals'
 import { BASE_CONTRACT_ADDRESS, BASE_USDC_CONTRACT_ADDRESS, CELO_CONTRACT_ADDRESS, CELO_TOKEN_MAP } from '@/lib/constants'
 import { getBalance, getGasPrice, waitForTransactionReceipt } from '@wagmi/core'
 import { config } from '@/app/providers'
-import { getUserChildContract } from '@/lib/onchain'
+import { getCreateSavingsFee, getJoiningFee, getUserChildContract } from '@/lib/onchain'
 import { Address, parseEther } from 'viem'
 import { write } from 'fs'
+import { base, celo } from 'viem/chains'
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -389,17 +390,12 @@ export default function CreateSavingsPage() {
       console.log("User's Child Contract Address (Before Join):", userChildContractAddress)
 
       if (userChildContractAddress === ethers.ZeroAddress) {
-        // Get current ETH price for $1 fee
-        const ethPrice = await fetchEthPrice();
-        if (!ethPrice) throw new Error('Could not fetch ETH price for fee calculation.');
-        const feeInEth = (1 / ethPrice).toFixed(6); // $1 in ETH
-        
         const joinTx = await writeContractAsync({
           address: BASE_CONTRACT_ADDRESS,
           abi: CONTRACT_ABI,
           functionName: "joinBitsave",
           args: [],
-          value: parseEther(feeInEth),
+          value: await getJoiningFee(BASE_CONTRACT_ADDRESS, base.id)
         })
         
         await waitForTransactionReceipt(config, { hash: joinTx, confirmations: 2 });
@@ -423,14 +419,9 @@ export default function CreateSavingsPage() {
 
       await approveERC20(tokenToSave, usdcEquivalentAmount)
 
-      // Get current ETH price for $1 fee
-      const ethPrice = await fetchEthPrice();
-      if (!ethPrice) throw new Error('Could not fetch ETH price for fee calculation.');
-      const feeInEth = (1 / ethPrice).toFixed(6); // $1 in ETH
-
       const txOptions = {
         gasLimit: 2717330,
-        value: ethers.parseEther(feeInEth), 
+        value: await getCreateSavingsFee(BASE_CONTRACT_ADDRESS, base.id)
       }
 
       const tx = await writeContractAsync({
@@ -530,10 +521,6 @@ export default function CreateSavingsPage() {
 
   // Common helper function for Bitsave contract setup
   const setupBitsaveContract = async () => {
-    const celoPrice = await fetchCeloPrice();
-    if (!celoPrice) throw new Error('Could not fetch CELO price.');
-    const joinFeeCelo = (1 / celoPrice).toFixed(4); // $1 in CELO
-    
     let userChildContractAddress;
     
     try {
@@ -550,7 +537,7 @@ export default function CreateSavingsPage() {
           abi: CONTRACT_ABI,
           functionName: "joinBitsave",
           args: [],
-          value: parseEther(joinFeeCelo)
+          value: await getJoiningFee(CELO_CONTRACT_ADDRESS, celo.id)
         });
 
         await waitForTransactionReceipt(config, { hash: joinTx, confirmations: 2 });
@@ -647,13 +634,9 @@ export default function CreateSavingsPage() {
         await approveERC20(token.address as Address, tokenAmount);
         
         // Get current CELO price for $1 fee
-        const celoPrice = await fetchCeloPrice();
-        if (!celoPrice) throw new Error('Could not fetch CELO price for fee calculation.');
-        const feeInCelo = (1 / celoPrice).toFixed(6); // $1 in CELO
-        
         const txOptions = { 
           gasLimit: 2717330,
-          value: ethers.parseEther(feeInCelo)
+          value: await getCreateSavingsFee(CELO_CONTRACT_ADDRESS, celo.id)
         };
         const tx = await writeContractAsync({
           address: CELO_CONTRACT_ADDRESS,
@@ -757,14 +740,9 @@ export default function CreateSavingsPage() {
       // Approve and create saving
         await approveERC20(token.address as Address, tokenAmount);
         
-        // Get current CELO price for $1 fee
-        const celoPrice = await fetchCeloPrice();
-        if (!celoPrice) throw new Error('Could not fetch CELO price for fee calculation.');
-        const feeInCelo = (1 / celoPrice).toFixed(6); // $1 in CELO
-        
         const txOptions = { 
           gasLimit: 2717330,
-          value: ethers.parseEther(feeInCelo)
+          value: await getCreateSavingsFee(CELO_CONTRACT_ADDRESS, celo.id)
         };
 
         const tx = await writeContractAsync({
@@ -853,15 +831,9 @@ export default function CreateSavingsPage() {
         await approveERC20(token.address as Address, tokenAmount);
         
         // Get current CELO price for $1 fee
-        const celoPrice = await fetchCeloPrice();
-        if (!celoPrice) throw new Error('Could not fetch CELO price for fee calculation.');
-        const feeInCelo = (1 / celoPrice).toFixed(6); // $1 in CELO
-        
-        
-        
         const txOptions = { 
           gasLimit: 2717330,
-          value: ethers.parseEther(feeInCelo)
+          value: await getCreateSavingsFee(CELO_CONTRACT_ADDRESS, celo.id)
         };
         const tx = await writeContractAsync({
           address: CELO_CONTRACT_ADDRESS,
