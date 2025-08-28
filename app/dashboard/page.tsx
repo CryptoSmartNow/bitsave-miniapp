@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useAccount, useSwitchChain, useConnectorClient, useWriteContract, useReadContract } from 'wagmi';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useMiniApp } from '@neynar/react';
 import { Space_Grotesk } from 'next/font/google';
 import TopUpModal from '../../components/TopUpModal';
 import WithdrawModal from '../../components/WithdrawModal';
@@ -46,6 +47,9 @@ export default function Dashboard() {
   const { data: walletClient } = useConnectorClient();
   const { writeContractAsync }  = useWriteContract();
 
+  // farcaster miniapp hook
+  const { context, isInMiniApp } = useMiniApp()
+
   const [updates, setUpdates] = useState<Array<{
     id: string;
     title: string;
@@ -57,7 +61,7 @@ export default function Dashboard() {
   
 
   useEffect(() => {
-    if (mounted && address) {
+      if (mounted && address) {
       // Check for Twitter username first
       const xUsername = localStorage.getItem('xUsername');
       const isXConnected = localStorage.getItem('isXConnected');
@@ -68,13 +72,13 @@ export default function Dashboard() {
         // Fall back to saved display name
         const savedName = localStorage.getItem(`bitsave_displayname_${address}`);
         if (savedName) {
-          setDisplayName(savedName);
+        setDisplayName(savedName);
         } else {
-          // Default to truncated wallet address
-          setDisplayName(`${address.slice(0, 6)}...${address.slice(-4)}`);
+        // Default to truncated wallet address
+        setDisplayName(`${address.slice(0, 6)}...${address.slice(-4)}`);
         }
       }
-    }
+      }
   }, [mounted, address]);
 
   interface LeaderboardEntry {
@@ -940,7 +944,7 @@ export default function Dashboard() {
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800 tracking-tight">Dashboard</h1>
           <p className="text-sm md:text-base text-gray-500 flex items-center">
             <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-            Welcome back, {displayName || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'User')}
+            Welcome back, {context?.user?.username ?? displayName ?? (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'User')}
           </p>
         </div>
         {/* Notification bell with responsive positioning - aligned with menu bar */}

@@ -7,8 +7,8 @@ import Image from 'next/image';
 import childContractABI from '../app/abi/childContractABI.js';
 import CONTRACT_ABI from '@/app/abi/contractABI.js';
 import { trackTransaction, trackError } from '@/lib/interactionTracker';
-import { config } from '@/app/providers.jsx';
-import { getSaving, getUserChildContract } from '@/lib/onchain.js';
+import { config } from '@/app/providers';
+import { getSaving, getUserChildContract } from '@/lib/onchain';
 import { estimateGas, waitForTransactionReceipt } from '@wagmi/core';
 import { Hex } from 'viem';
 
