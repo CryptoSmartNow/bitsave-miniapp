@@ -6,6 +6,7 @@ import { useAccount, useConnect } from 'wagmi';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import sdk from "@farcaster/miniapp-sdk";
 import farcasterMiniApp from '@farcaster/miniapp-wagmi-connector';
+import { useMiniApp } from '@neynar/react';
 
 export default function Hero() {
   const heroRef = useRef<HTMLElement>(null);
@@ -14,6 +15,7 @@ export default function Hero() {
   const { isConnected } = useAccount();
   const { connect, connectors } = useConnect();
   const { openConnectModal } = useConnectModal();
+  const { isInMiniApp } = useMiniApp();
 
   // Initialize shimmer elements data with fixed values to avoid hydration mismatch
   useEffect(() => {

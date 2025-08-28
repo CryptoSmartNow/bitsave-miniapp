@@ -2,11 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { useAccount } from 'wagmi';
+import { useAccount, useWriteContract } from 'wagmi';
 import Image from 'next/image';
 import childContractABI from '../app/abi/childContractABI.js';
 import CONTRACT_ABI from '@/app/abi/contractABI.js';
 import { trackTransaction, trackError } from '@/lib/interactionTracker';
+import { config } from '@/app/providers.jsx';
+import { getSaving, getUserChildContract } from '@/lib/onchain.js';
+import { estimateGas, waitForTransactionReceipt } from '@wagmi/core';
+import { Hex } from 'viem';
 
 const BASE_CONTRACT_ADDRESS = "0x3593546078eecd0ffd1c19317f53ee565be6ca13";
 const CELO_CONTRACT_ADDRESS = "0x7d839923Eb2DAc3A0d1cABb270102E481A208F33";
@@ -39,14 +43,15 @@ export default function WithdrawModal({
   const [showTransactionModal, setShowTransactionModal] = useState(false);
   const [isBaseNetwork, setIsBaseNetwork] = useState(true);
   const [currentTokenName, setCurrentTokenName] = useState(isEth ? 'ETH' : 'USDC');
-  const { address } = useAccount();
+  const { address: userAddress, isConnected } = useAccount();
+
+  const { writeContractAsync } = useWriteContract();
 
   useEffect(() => {
     const detectNetwork = async () => {
-      if (window.ethereum) {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const network = await provider.getNetwork();
-        const BASE_CHAIN_ID = BigInt(8453);
+      if (isCompleted) {
+        const network = config.state;
+        const BASE_CHAIN_ID = (8453);
         const isBase = network.chainId === BASE_CHAIN_ID;
         setIsBaseNetwork(isBase);
         
@@ -113,32 +118,37 @@ export default function WithdrawModal({
     setError('');
     
     try {
-      if (!window.ethereum) {
-        throw new Error("Ethereum provider not found. Please install MetaMask.");
+      if (!isConnected || !userAddress) {
+        return;
       }
-
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const userAddress = await signer.getAddress();
-
       const contractAddress = getContractAddress();
-      const contract = new ethers.Contract(contractAddress, CONTRACT_ABI, signer);
       
-      const userChildContractAddress = await contract.getUserChildContractAddress();
+      const userChildContractAddress = await getUserChildContract(contractAddress, userAddress);
 
-      const childContract = new ethers.Contract(userChildContractAddress, childContractABI, signer);
-      const savingData = await childContract.getSaving(nameOfSavings);
+      const savingData = await getSaving(userChildContractAddress, nameOfSavings, config.state.chainId);
       const amount = ethers.formatUnits(savingData.amount, 18); 
 
-      const gasEstimate = await contract.withdrawSaving.estimateGas(nameOfSavings);
+      const gasEstimate = await estimateGas(config, {
+        to: contractAddress,
+        data: ethers.AbiCoder.defaultAbiCoder().encode(
+          ['string'],
+          [nameOfSavings]
+        ) as Hex,
+      })
+      
       console.log(`Gas estimate for ETH withdrawal: ${gasEstimate}`);
 
-     const tx = await contract.withdrawSaving(nameOfSavings, {
-        gasLimit: gasEstimate + (gasEstimate * BigInt(20) / BigInt(100)), 
-      });
+     const tx = await writeContractAsync({
+       address: contractAddress,
+       abi: CONTRACT_ABI,
+       functionName: 'withdrawSaving',
+       args: [nameOfSavings],
+       gas: gasEstimate + (gasEstimate * BigInt(20) / BigInt(100)),
+     });
+
       console.log(nameOfSavings)
-      const receipt = await tx.wait();
-      setTxHash(receipt.hash);
+      const receipt = await waitForTransactionReceipt(config, { hash: tx, confirmations: 1 });
+      setTxHash(receipt.transactionHash);
 
       try {
         const headers: Record<string, string> = {
@@ -154,7 +164,7 @@ export default function WithdrawModal({
           headers,
           body: JSON.stringify({
             amount: parseFloat(amount), 
-            txnhash: receipt.hash,
+            txnhash: receipt.transactionHash,
             chain: getNetworkName().toLowerCase(),
             savingsname: nameOfSavings,
             useraddress: userAddress,
@@ -168,26 +178,26 @@ export default function WithdrawModal({
       }
 
       // Track successful ETH withdrawal
-      if (address) {
-        trackTransaction(address, {
+      if (userAddress) {
+        trackTransaction(userAddress, {
           type: 'withdrawal',
           amount: amount,
           currency: 'ETH',
           chain: getNetworkName().toLowerCase(),
           planName: nameOfSavings,
-          txHash: receipt.hash
+          txHash: receipt.transactionHash
         });
       }
       
       // Track successful token withdrawal
-      if (address) {
-        trackTransaction(address, {
+      if (userAddress) {
+        trackTransaction(userAddress, {
           type: 'withdrawal',
           amount: amount,
           currency: currentTokenName,
           chain: getNetworkName().toLowerCase(),
           planName: nameOfSavings,
-          txHash: receipt.hash
+          txHash: receipt.transactionHash
         });
       }
       
@@ -197,8 +207,8 @@ export default function WithdrawModal({
       console.error("Error during ETH withdrawal:", error);
       
       // Track ETH withdrawal error
-      if (address) {
-        trackError(address, {
+      if (userAddress) {
+        trackError(userAddress, {
           action: 'withdrawal_eth',
           error: error instanceof Error ? error.message : String(error),
           context: {
@@ -220,33 +230,42 @@ export default function WithdrawModal({
     setError('');
     
     try {
-      if (!window.ethereum) {
+      if (!isConnected) {
         throw new Error("Ethereum provider not found. Please install MetaMask.");
       }
 
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const userAddress = await signer.getAddress();
-
       const contractAddress = getContractAddress();
-      const contract = new ethers.Contract(contractAddress, CONTRACT_ABI, signer);
-      
-      const userChildContractAddress = await contract.getUserChildContractAddress();
-      
-      
-      const childContract = new ethers.Contract(userChildContractAddress, childContractABI, signer);
-      const savingData = await childContract.getSaving(nameOfSavings);
+
+      const userChildContractAddress = await getUserChildContract(contractAddress, userAddress!);
+
+      const savingData = await getSaving(
+        userChildContractAddress,
+        nameOfSavings,
+        config.state.chainId
+      )
       const amount = ethers.formatUnits(savingData.amount, 6);
       
-      const gasEstimate = await contract.withdrawSaving.estimateGas(nameOfSavings);
+      const gasEstimate = await estimateGas(config, {
+        to: contractAddress,
+        data: ethers.AbiCoder.defaultAbiCoder().encode(
+          ["string"],
+          [nameOfSavings]
+        ) as Hex,
+      })
+
       console.log(`Gas estimate for token withdrawal: ${gasEstimate}`);
-      const tx = await contract.withdrawSaving(nameOfSavings, {
-        gasLimit: gasEstimate + (gasEstimate * BigInt(20) / BigInt(100)),
-      });
+
+      const tx = await writeContractAsync({
+       address: contractAddress,
+       abi: CONTRACT_ABI,
+       functionName: 'withdrawSaving',
+       args: [nameOfSavings],
+       gas: gasEstimate + (gasEstimate * BigInt(20) / BigInt(100)),
+     });
 
 
-      const receipt = await tx.wait();
-      setTxHash(receipt.hash);
+      const receipt = await waitForTransactionReceipt(config, { hash: tx, confirmations: 1 });
+      setTxHash(receipt.transactionHash);
 
       try {
         const headers: Record<string, string> = {
@@ -262,7 +281,7 @@ export default function WithdrawModal({
           headers,
           body: JSON.stringify({
             amount: parseFloat(amount), 
-            txnhash: receipt.hash,
+            txnhash: receipt.transactionHash,
             chain: getNetworkName().toLowerCase(),
             savingsname: nameOfSavings,
             useraddress: userAddress,
@@ -281,8 +300,8 @@ export default function WithdrawModal({
       console.error(`Error during ${currentTokenName} withdrawal:`, error);
       
       // Track token withdrawal error
-      if (address) {
-        trackError(address, {
+      if (userAddress) {
+        trackError(userAddress, {
           action: 'withdrawal_token',
           error: error instanceof Error ? error.message : String(error),
           context: {

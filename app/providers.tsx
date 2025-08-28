@@ -15,6 +15,7 @@ import {
 } from '@rainbow-me/rainbowkit/wallets';
 import { useTheme } from 'next-themes';
 import { farcasterFrame } from "@farcaster/miniapp-wagmi-connector";
+import { MiniAppProvider } from '@neynar/react';
 
 // Import Rainbow Kit styles
 import '@rainbow-me/rainbowkit/styles.css';
@@ -71,7 +72,9 @@ export function Providers({ children }: { children: ReactNode }) {
             borderRadius: 'large',
           })}
         >
-          {children}
+          <MiniAppProvider analyticsEnabled={true}>
+            {children}
+          </MiniAppProvider>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

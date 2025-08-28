@@ -4,6 +4,11 @@ import { nanoid } from 'nanoid';
 
 export async function POST(request: NextRequest) {
   try {
+    return NextResponse.json({
+      "referralCode": "hi",
+      "referralLink": `https://bitsave.io/ref/hi`,
+      "isNew": false
+    });
     const { walletAddress } = await request.json();
     
     if (!walletAddress) {
