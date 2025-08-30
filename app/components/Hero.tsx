@@ -204,7 +204,7 @@ export default function Hero() {
                 onClick={() =>
                   window.open(
                     "https://youtube.com/shorts/CWRQ7rgtHzU?si=xd8ia_IQyonxOXFM",
-                    "_blank"
+                    "_blank",
                   )
                 }
                 className="px-8 py-4 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:border-[#81D7B4] hover:text-[#81D7B4] transition-all duration-300 transform hover:scale-105"

@@ -42,18 +42,24 @@ export interface PageVisitData extends BaseInteractionData {
   [key: string]: unknown;
 }
 
-export type InteractionData = 
-  | WalletConnectData 
-  | SavingsData 
-  | TransactionData 
-  | ErrorData 
-  | PageVisitData 
+export type InteractionData =
+  | WalletConnectData
+  | SavingsData
+  | TransactionData
+  | ErrorData
+  | PageVisitData
   | BaseInteractionData;
 
 export interface UserInteraction {
   id: string;
   timestamp: string;
-  type: 'wallet_connect' | 'wallet_disconnect' | 'savings_created' | 'page_visit' | 'transaction' | 'error';
+  type:
+    | "wallet_connect"
+    | "wallet_disconnect"
+    | "savings_created"
+    | "page_visit"
+    | "transaction"
+    | "error";
   walletAddress?: string;
   userAgent: string;
   ip?: string;
@@ -71,18 +77,18 @@ class InteractionTracker {
   }
 
   private generateSessionId(): string {
-    if (typeof window !== 'undefined') {
-      let sessionId = sessionStorage.getItem('bitsave_session_id');
+    if (typeof window !== "undefined") {
+      let sessionId = sessionStorage.getItem("bitsave_session_id");
       if (!sessionId) {
         sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        sessionStorage.setItem('bitsave_session_id', sessionId);
+        sessionStorage.setItem("bitsave_session_id", sessionId);
       }
       return sessionId;
     }
     return `server-session-${Date.now()}`;
   }
 
-  async trackInteraction(interaction: Omit<UserInteraction, 'id' | 'timestamp' | 'sessionId'>) {
+  async trackInteraction(interaction: Omit<UserInteraction, "id" | "timestamp" | "sessionId">) {
     const newInteraction: UserInteraction = {
       ...interaction,
       id: this.generateId(),
@@ -92,15 +98,15 @@ class InteractionTracker {
 
     try {
       // Send to MongoDB API for both client and server-side
-      await fetch('/api/user-interactions', {
-        method: 'POST',
+      await fetch("/api/user-interactions", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(newInteraction),
       });
     } catch (error) {
-      console.error('Failed to track interaction:', error);
+      console.error("Failed to track interaction:", error);
     }
   }
 
@@ -112,10 +118,13 @@ export const interactionTracker = new InteractionTracker();
 export { InteractionTracker };
 
 // Client-side helper functions
-export const trackWalletConnect = (walletAddress: string, additionalData?: Partial<WalletConnectData>) => {
-  if (typeof window !== 'undefined') {
+export const trackWalletConnect = (
+  walletAddress: string,
+  additionalData?: Partial<WalletConnectData>,
+) => {
+  if (typeof window !== "undefined") {
     interactionTracker.trackInteraction({
-      type: 'wallet_connect',
+      type: "wallet_connect",
       walletAddress,
       userAgent: navigator.userAgent,
       data: {
@@ -128,9 +137,9 @@ export const trackWalletConnect = (walletAddress: string, additionalData?: Parti
 };
 
 export const trackWalletDisconnect = (walletAddress?: string) => {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     interactionTracker.trackInteraction({
-      type: 'wallet_disconnect',
+      type: "wallet_disconnect",
       walletAddress,
       userAgent: navigator.userAgent,
       data: {
@@ -141,9 +150,9 @@ export const trackWalletDisconnect = (walletAddress?: string) => {
 };
 
 export const trackPageVisit = (page: string, additionalData?: Partial<PageVisitData>) => {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     interactionTracker.trackInteraction({
-      type: 'page_visit',
+      type: "page_visit",
       userAgent: navigator.userAgent,
       data: {
         page,
@@ -156,9 +165,9 @@ export const trackPageVisit = (page: string, additionalData?: Partial<PageVisitD
 };
 
 export const trackSavingsCreated = (walletAddress: string, savingsData: Partial<SavingsData>) => {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     interactionTracker.trackInteraction({
-      type: 'savings_created',
+      type: "savings_created",
       walletAddress,
       userAgent: navigator.userAgent,
       data: {
@@ -169,10 +178,13 @@ export const trackSavingsCreated = (walletAddress: string, savingsData: Partial<
   }
 };
 
-export const trackTransaction = (walletAddress: string, transactionData: Partial<TransactionData>) => {
-  if (typeof window !== 'undefined') {
+export const trackTransaction = (
+  walletAddress: string,
+  transactionData: Partial<TransactionData>,
+) => {
+  if (typeof window !== "undefined") {
     interactionTracker.trackInteraction({
-      type: 'transaction',
+      type: "transaction",
       walletAddress,
       userAgent: navigator.userAgent,
       data: {
@@ -184,9 +196,9 @@ export const trackTransaction = (walletAddress: string, transactionData: Partial
 };
 
 export const trackError = (error: string, additionalData?: Partial<ErrorData>) => {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     interactionTracker.trackInteraction({
-      type: 'error',
+      type: "error",
       userAgent: navigator.userAgent,
       data: {
         error,

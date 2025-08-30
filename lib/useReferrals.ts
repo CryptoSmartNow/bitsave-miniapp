@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useAccount } from 'wagmi';
+import { useState, useEffect } from "react";
+import { useAccount } from "wagmi";
 
 interface ReferralData {
   referralCode: string;
@@ -35,7 +35,7 @@ export function useReferrals(): UseReferralsReturn {
 
   const generateReferralCode = async () => {
     if (!address) {
-      setError('Wallet not connected');
+      setError("Wallet not connected");
       return;
     }
 
@@ -43,22 +43,22 @@ export function useReferrals(): UseReferralsReturn {
     setError(null);
 
     try {
-      const response = await fetch('/api/referrals/generate', {
-        method: 'POST',
+      const response = await fetch("/api/referrals/generate", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ walletAddress: address }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate referral code');
+        throw new Error("Failed to generate referral code");
       }
 
       // After generating, fetch the full referral data
       await refreshReferralData();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setLoading(false);
     }
@@ -66,10 +66,10 @@ export function useReferrals(): UseReferralsReturn {
 
   const trackReferralVisit = async (referralCode: string) => {
     try {
-      const response = await fetch('/api/referrals/track', {
-        method: 'POST',
+      const response = await fetch("/api/referrals/track", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           referralCode,
@@ -80,24 +80,24 @@ export function useReferrals(): UseReferralsReturn {
       });
 
       if (!response.ok) {
-        console.warn('Failed to track referral visit');
+        console.warn("Failed to track referral visit");
       }
     } catch (err) {
-      console.warn('Error tracking referral visit:', err);
+      console.warn("Error tracking referral visit:", err);
     }
   };
 
   const markReferralConversion = async (referralCode: string) => {
     if (!address) {
-      console.warn('Wallet not connected for referral conversion');
+      console.warn("Wallet not connected for referral conversion");
       return;
     }
 
     try {
-      const response = await fetch('/api/referrals/convert', {
-        method: 'POST',
+      const response = await fetch("/api/referrals/convert", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           newUserWalletAddress: address,
@@ -106,10 +106,10 @@ export function useReferrals(): UseReferralsReturn {
       });
 
       if (!response.ok) {
-        console.warn('Failed to mark referral conversion');
+        console.warn("Failed to mark referral conversion");
       }
     } catch (err) {
-      console.warn('Error marking referral conversion:', err);
+      console.warn("Error marking referral conversion:", err);
     }
   };
 
@@ -131,13 +131,13 @@ export function useReferrals(): UseReferralsReturn {
           setReferralData(null);
           return;
         }
-        throw new Error('Failed to fetch referral data');
+        throw new Error("Failed to fetch referral data");
       }
 
       const data = await response.json();
       setReferralData(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setLoading(false);
     }
@@ -156,28 +156,28 @@ export function useReferrals(): UseReferralsReturn {
   // Handle referral tracking on page load
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const referralCode = urlParams.get('ref');
-    
+    const referralCode = urlParams.get("ref");
+
     if (referralCode) {
       trackReferralVisit(referralCode);
-      
+
       // Store referral code in localStorage for later conversion tracking
-      localStorage.setItem('pendingReferralCode', referralCode);
-      
+      localStorage.setItem("pendingReferralCode", referralCode);
+
       // Clean up URL
       const newUrl = new URL(window.location.href);
-      newUrl.searchParams.delete('ref');
-      window.history.replaceState({}, '', newUrl.toString());
+      newUrl.searchParams.delete("ref");
+      window.history.replaceState({}, "", newUrl.toString());
     }
   }, []);
 
   // Handle referral conversion when wallet connects
   useEffect(() => {
     if (address) {
-      const pendingReferralCode = localStorage.getItem('pendingReferralCode');
+      const pendingReferralCode = localStorage.getItem("pendingReferralCode");
       if (pendingReferralCode) {
         markReferralConversion(pendingReferralCode);
-        localStorage.removeItem('pendingReferralCode');
+        localStorage.removeItem("pendingReferralCode");
       }
     }
   }, [address]);

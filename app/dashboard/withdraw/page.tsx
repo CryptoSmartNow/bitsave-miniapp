@@ -47,9 +47,9 @@ export default function WithdrawPage() {
         to: getContractAddress(),
         data: encodeFunctionData({
           abi: [...CONTRACT_ABI, ...CHILD_CONTRACT_ABI],
-          functionName: 'withdrawSaving',
-          args: [withdrawalName]
-        })
+          functionName: "withdrawSaving",
+          args: [withdrawalName],
+        }),
       });
 
       console.log("Gas estimate for withdrawal:", gasEstimate.toString());

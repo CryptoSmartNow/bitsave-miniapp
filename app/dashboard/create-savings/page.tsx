@@ -1,58 +1,62 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import Link from 'next/link'
-import CustomDatePicker from '@/components/CustomDatePicker'
-import { format } from 'date-fns'
-import { Space_Grotesk } from 'next/font/google'
-import { ethers } from 'ethers'
-import { useRouter } from 'next/navigation'
-import { useAccount, useConnectorClient, useSwitchChain, useWriteContract } from 'wagmi'
-import axios from 'axios'
-import CONTRACT_ABI from '@/app/abi/contractABI.js'
-import erc20ABI from '@/app/abi/erc20ABI.json'
-import { trackSavingsCreated, trackError, trackPageVisit } from '@/lib/interactionTracker'
-import { useReferrals } from '@/lib/useReferrals'
-import { BASE_CONTRACT_ADDRESS, BASE_USDC_CONTRACT_ADDRESS, CELO_CONTRACT_ADDRESS } from '@/lib/constants'
-import { getBalance, getGasPrice, waitForTransactionReceipt } from '@wagmi/core'
-import { config } from '@/app/providers'
-import { getCreateSavingsFee, getJoiningFee, getUserChildContract } from '@/lib/onchain'
-import { Address } from 'viem'
-import { base, celo } from 'viem/chains'
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import CustomDatePicker from "@/components/CustomDatePicker";
+import { format } from "date-fns";
+import { Space_Grotesk } from "next/font/google";
+import { ethers } from "ethers";
+import { useRouter } from "next/navigation";
+import { useAccount, useConnectorClient, useSwitchChain, useWriteContract } from "wagmi";
+import axios from "axios";
+import CONTRACT_ABI from "@/app/abi/contractABI.js";
+import erc20ABI from "@/app/abi/erc20ABI.json";
+import { trackSavingsCreated, trackError, trackPageVisit } from "@/lib/interactionTracker";
+import { useReferrals } from "@/lib/useReferrals";
+import {
+  BASE_CONTRACT_ADDRESS,
+  BASE_USDC_CONTRACT_ADDRESS,
+  CELO_CONTRACT_ADDRESS,
+} from "@/lib/constants";
+import { getBalance, getGasPrice, waitForTransactionReceipt } from "@wagmi/core";
+import { config } from "@/app/providers";
+import { getCreateSavingsFee, getJoiningFee, getUserChildContract } from "@/lib/onchain";
+import { Address } from "viem";
+import { base, celo } from "viem/chains";
 
 const spaceGrotesk = Space_Grotesk({
-  subsets: ['latin'],
-  display: 'swap',
-})
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export default function CreateSavingsPage() {
-  const router = useRouter()
-  const { referralData, generateReferralCode, markReferralConversion } = useReferrals()
-  const [step, setStep] = useState(1)
-  const [mounted, setMounted] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [showTransactionModal, setShowTransactionModal] = useState(false)
-  const [name, setName] = useState('')
-  const [amount, setAmount] = useState('')
-  const [currency, setCurrency] = useState('USDC')
-  const [chain, setChain] = useState('base')
-  const [startDate] = useState<Date | null>(new Date())
-  const [endDate, setEndDate] = useState<Date | null>(null)
-  const [penalty, setPenalty] = useState('10%')
+  const router = useRouter();
+  const { referralData, generateReferralCode, markReferralConversion } = useReferrals();
+  const [step, setStep] = useState(1);
+  const [mounted, setMounted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [showTransactionModal, setShowTransactionModal] = useState(false);
+  const [name, setName] = useState("");
+  const [amount, setAmount] = useState("");
+  const [currency, setCurrency] = useState("USDC");
+  const [chain, setChain] = useState("base");
+  const [startDate] = useState<Date | null>(new Date());
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [penalty, setPenalty] = useState("10%");
 
-  const [isLoading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [txHash, setTxHash] = useState<string | null>(null)
-  const [termsAgreed, setTermsAgreed] = useState(false)
-  
+  const [isLoading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [txHash, setTxHash] = useState<string | null>(null);
+  const [termsAgreed, setTermsAgreed] = useState(false);
+
   // Wallet balance checking states
-  const [walletBalance, setWalletBalance] = useState<string>('0')
-  const [tokenBalance, setTokenBalance] = useState<string>('0')
-  const [estimatedGasFee, setEstimatedGasFee] = useState<string>('0')
-  const [balanceWarning, setBalanceWarning] = useState<string | null>(null)
-  const [isCheckingBalance, setIsCheckingBalance] = useState(false)
+  const [walletBalance, setWalletBalance] = useState<string>("0");
+  const [tokenBalance, setTokenBalance] = useState<string>("0");
+  const [estimatedGasFee, setEstimatedGasFee] = useState<string>("0");
+  const [balanceWarning, setBalanceWarning] = useState<string | null>(null);
+  const [isCheckingBalance, setIsCheckingBalance] = useState(false);
 
   const { data: walletClient } = useConnectorClient();
   const { switchChain } = useSwitchChain();
@@ -74,54 +78,53 @@ export default function CreateSavingsPage() {
 
   const [selectedDayRange, setSelectedDayRange] = useState<DayRange>({
     from: null,
-    to: null
-  })
-
+    to: null,
+  });
 
   // const [savingsName, setSavingsName] = useState('')
 
-  const [selectedPenalty, setSelectedPenalty] = useState(1)
+  const [selectedPenalty, setSelectedPenalty] = useState(1);
   const [errors, setErrors] = useState({
-    name: '',
-    amount: '',
-    endDate: ''
-  })
+    name: "",
+    amount: "",
+    endDate: "",
+  });
   useEffect(() => {
     if (endDate) {
       setSelectedDayRange({
         from: {
           year: startDate?.getFullYear(),
           month: startDate ? startDate.getMonth() + 1 : 0,
-          day: startDate?.getDate()
+          day: startDate?.getDate(),
         },
         to: {
           year: endDate.getFullYear(),
           month: endDate.getMonth() + 1,
-          day: endDate.getDate()
-        }
+          day: endDate.getDate(),
+        },
       });
 
       if (errors.endDate) {
-        setErrors(prev => ({ ...prev, endDate: '' }));
+        setErrors((prev) => ({ ...prev, endDate: "" }));
       }
     }
   }, [startDate, endDate, errors.endDate]);
 
   useEffect(() => {
-    setSelectedPenalty(parseInt(penalty))
-  }, [penalty])
+    setSelectedPenalty(parseInt(penalty));
+  }, [penalty]);
 
   // Generate referral code when component mounts
   useEffect(() => {
     if (address && !referralData) {
-      generateReferralCode()
+      generateReferralCode();
     }
-  }, [address, referralData, generateReferralCode])
+  }, [address, referralData, generateReferralCode]);
 
   // Define available currencies for each network
   const networkCurrencies: Record<string, string[]> = {
-    base: ['USDC'],
-    celo: ['cUSD', 'USDGLO', 'Gooddollar'],
+    base: ["USDC"],
+    celo: ["cUSD", "USDGLO", "Gooddollar"],
   };
 
   // Update currency options when chain changes
@@ -137,46 +140,46 @@ export default function CreateSavingsPage() {
   // Function to switch network
   const switchToNetwork = async (networkName: string) => {
     try {
-      if (networkName.toLowerCase() === 'base') {
+      if (networkName.toLowerCase() === "base") {
         switchChain({ chainId: 8453 });
-      } else if (networkName.toLowerCase() === 'celo') {
+      } else if (networkName.toLowerCase() === "celo") {
         switchChain({ chainId: 42220 });
       }
     } catch (error: unknown) {
       // Type guard to check if error is an object with a code property
-      if (error && typeof error === 'object' && 'code' in error && error.code === 4902) {
+      if (error && typeof error === "object" && "code" in error && error.code === 4902) {
         try {
-          if (networkName.toLowerCase() === 'base') {
+          if (networkName.toLowerCase() === "base") {
             await walletClient!.request({
-              method: 'wallet_addEthereumChain',
+              method: "wallet_addEthereumChain",
               params: [
                 {
-                  chainId: '0x2105', // Base chainId in hex
-                  chainName: 'Base',
+                  chainId: "0x2105", // Base chainId in hex
+                  chainName: "Base",
                   nativeCurrency: {
-                    name: 'ETH',
-                    symbol: 'ETH',
+                    name: "ETH",
+                    symbol: "ETH",
                     decimals: 18,
                   },
-                  rpcUrls: ['https://mainnet.base.org'],
-                  blockExplorerUrls: ['https://basescan.org'],
+                  rpcUrls: ["https://mainnet.base.org"],
+                  blockExplorerUrls: ["https://basescan.org"],
                 },
               ],
             });
-          } else if (networkName.toLowerCase() === 'celo') {
+          } else if (networkName.toLowerCase() === "celo") {
             await walletClient!.request({
-              method: 'wallet_addEthereumChain',
+              method: "wallet_addEthereumChain",
               params: [
                 {
-                  chainId: '0xA4EC', // Celo chainId in hex
-                  chainName: 'Celo',
+                  chainId: "0xA4EC", // Celo chainId in hex
+                  chainName: "Celo",
                   nativeCurrency: {
-                    name: 'CELO',
-                    symbol: 'CELO',
+                    name: "CELO",
+                    symbol: "CELO",
                     decimals: 18,
                   },
-                  rpcUrls: ['https://forno.celo.org'],
-                  blockExplorerUrls: ['https://explorer.celo.org'],
+                  rpcUrls: ["https://forno.celo.org"],
+                  blockExplorerUrls: ["https://explorer.celo.org"],
                 },
               ],
             });
@@ -194,64 +197,74 @@ export default function CreateSavingsPage() {
   };
 
   const chains = [
-    { id: 'base', name: 'Base', logo: '/base.svg', color: 'bg-blue-900/10', textColor: 'text-blue-800' },
-    { id: 'celo', name: 'Celo', logo: '/celo.png', color: 'bg-green-100', textColor: 'text-green-600', active: true }
-  ]
-  const penalties = ['10%', '20%', '30%']
+    {
+      id: "base",
+      name: "Base",
+      logo: "/base.svg",
+      color: "bg-blue-900/10",
+      textColor: "text-blue-800",
+    },
+    {
+      id: "celo",
+      name: "Celo",
+      logo: "/celo.png",
+      color: "bg-green-100",
+      textColor: "text-green-600",
+      active: true,
+    },
+  ];
+  const penalties = ["10%", "20%", "30%"];
 
   const validateStep = () => {
-    let valid = true
-    const newErrors = { name: '', amount: '', endDate: '' }
+    let valid = true;
+    const newErrors = { name: "", amount: "", endDate: "" };
 
     if (step === 1) {
       if (!name.trim()) {
-        newErrors.name = 'Please enter a name for your savings plan'
-        valid = false
+        newErrors.name = "Please enter a name for your savings plan";
+        valid = false;
       }
 
       if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
-        newErrors.amount = 'Please enter a valid amount'
-        valid = false
+        newErrors.amount = "Please enter a valid amount";
+        valid = false;
       }
     }
 
     if (step === 2) {
       if (!endDate) {
-        newErrors.endDate = 'Please select an end date'
-        valid = false
+        newErrors.endDate = "Please select an end date";
+        valid = false;
       } else if (startDate && endDate && endDate <= startDate) {
-        newErrors.endDate = 'End date must be after start date'
-        valid = false
+        newErrors.endDate = "End date must be after start date";
+        valid = false;
       }
     }
 
-    setErrors(newErrors)
-    return valid
-  }
+    setErrors(newErrors);
+    return valid;
+  };
 
   const handleNext = () => {
     if (validateStep()) {
-      setStep(step + 1)
-      window.scrollTo(0, 0)
+      setStep(step + 1);
+      window.scrollTo(0, 0);
     }
-  }
+  };
 
   const handlePrevious = () => {
-    setStep(step - 1)
-    window.scrollTo(0, 0)
-  }
+    setStep(step - 1);
+    window.scrollTo(0, 0);
+  };
 
-  const approveERC20 = async (
-    tokenAddress: Address,
-    amount: ethers.BigNumberish,
-  ) => {
+  const approveERC20 = async (tokenAddress: Address, amount: ethers.BigNumberish) => {
     try {
-      const contractToApprove = chain === 'celo' ? CELO_CONTRACT_ADDRESS : BASE_CONTRACT_ADDRESS;
+      const contractToApprove = chain === "celo" ? CELO_CONTRACT_ADDRESS : BASE_CONTRACT_ADDRESS;
 
       const tx = await writeContractAsync({
         address: tokenAddress,
         abi: erc20ABI.abi,
-        functionName: 'approve',
+        functionName: "approve",
         args: [contractToApprove, amount],
       });
 
@@ -266,18 +279,18 @@ export default function CreateSavingsPage() {
 
   // Wallet balance checking utilities
   const getTokenAddress = (currency: string, chain: string) => {
-    if (chain === 'base') {
+    if (chain === "base") {
       return BASE_USDC_CONTRACT_ADDRESS; // USDC on Base
-    } else if (chain === 'celo') {
+    } else if (chain === "celo") {
       switch (currency) {
-        case 'cUSD':
-          return '0x765DE816845861e75A25fCA122bb6898B8B1282a'; // cUSD on Celo
-        case 'USDGLO':
-          return '0x4f604735c1cf31399c6e711d5962b2b3e0225ad3'; // USDGLO on Celo
-        case 'Gooddollar':
-          return '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A'; // G$ on Celo
+        case "cUSD":
+          return "0x765DE816845861e75A25fCA122bb6898B8B1282a"; // cUSD on Celo
+        case "USDGLO":
+          return "0x4f604735c1cf31399c6e711d5962b2b3e0225ad3"; // USDGLO on Celo
+        case "Gooddollar":
+          return "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A"; // G$ on Celo
         default:
-          return '0x765DE816845861e75A25fCA122bb6898B8B1282a';
+          return "0x765DE816845861e75A25fCA122bb6898B8B1282a";
       }
     }
     return BASE_USDC_CONTRACT_ADDRESS;
@@ -285,17 +298,17 @@ export default function CreateSavingsPage() {
 
   const checkWalletBalances = async () => {
     if (!isConnected || !address) return;
-    
+
     setIsCheckingBalance(true);
     setBalanceWarning(null);
-    
+
     try {
       // Get native token balance (ETH)
       const nativeBalance = await getBalance(config, { address });
       console.log("Native balance ether:", nativeBalance);
       const nativeBalanceFormatted = ethers.formatEther(nativeBalance.value);
       setWalletBalance(nativeBalanceFormatted);
-      
+
       // Get token balance for selected currency
       const tokenAddress = getTokenAddress(currency, chain);
       const tokenBalance = await getBalance(config, { address, token: tokenAddress });
@@ -309,25 +322,32 @@ export default function CreateSavingsPage() {
       const estimatedGasCost = gasPrice ? gasPrice * estimatedGasLimit : ethers.getBigInt(0);
       const gasFeeFormatted = ethers.formatEther(estimatedGasCost);
       setEstimatedGasFee(gasFeeFormatted);
-      
+
       // Check for warnings
-      const amountNum = parseFloat(amount || '0');
+      const amountNum = parseFloat(amount || "0");
       const tokenBalanceNum = parseFloat(tokenBalanceFormatted);
       const nativeBalanceNum = parseFloat(nativeBalanceFormatted);
       const gasFeeNum = parseFloat(gasFeeFormatted);
-      
+
       if (amountNum > 0) {
         if (tokenBalanceNum < amountNum) {
-          setBalanceWarning(`Insufficient ${currency} balance. You have ${tokenBalanceNum.toFixed(4)} ${currency} but need ${amountNum} ${currency}.`);
-        } else if (nativeBalanceNum < gasFeeNum * 1.5) { // 1.5x buffer for gas
-          setBalanceWarning(`Low ETH balance for gas fees. You have ${nativeBalanceNum.toFixed(6)} ETH but may need ~${(gasFeeNum * 1.5).toFixed(6)} ETH for transaction fees.`);
-        } else if (tokenBalanceNum < amountNum * 1.1) { // Warning if balance is close
-          setBalanceWarning(`Your ${currency} balance (${tokenBalanceNum.toFixed(4)}) is close to the savings amount. Consider keeping some buffer for future transactions.`);
+          setBalanceWarning(
+            `Insufficient ${currency} balance. You have ${tokenBalanceNum.toFixed(4)} ${currency} but need ${amountNum} ${currency}.`,
+          );
+        } else if (nativeBalanceNum < gasFeeNum * 1.5) {
+          // 1.5x buffer for gas
+          setBalanceWarning(
+            `Low ETH balance for gas fees. You have ${nativeBalanceNum.toFixed(6)} ETH but may need ~${(gasFeeNum * 1.5).toFixed(6)} ETH for transaction fees.`,
+          );
+        } else if (tokenBalanceNum < amountNum * 1.1) {
+          // Warning if balance is close
+          setBalanceWarning(
+            `Your ${currency} balance (${tokenBalanceNum.toFixed(4)}) is close to the savings amount. Consider keeping some buffer for future transactions.`,
+          );
         }
       }
-      
     } catch (error) {
-      console.error('Error checking wallet balances:', error);
+      console.error("Error checking wallet balances:", error);
     } finally {
       setIsCheckingBalance(false);
     }
@@ -339,7 +359,7 @@ export default function CreateSavingsPage() {
       const timeoutId = setTimeout(() => {
         checkWalletBalances();
       }, 500); // Debounce to avoid too many calls
-      
+
       return () => clearTimeout(timeoutId);
     } else {
       setBalanceWarning(null);
@@ -355,38 +375,38 @@ export default function CreateSavingsPage() {
 
   const handleBaseSavingsCreate = async () => {
     if (!isConnected) {
-      setError("Please connect your wallet.")
-      return
+      setError("Please connect your wallet.");
+      return;
     }
-    setLoading(true)
-    setError(null)
-    setTxHash(null)
-    setSuccess(false)
+    setLoading(true);
+    setError(null);
+    setTxHash(null);
+    setSuccess(false);
 
     try {
-      console.log("User Input - Amount:", amount)
-      console.log("User Input - Savings Name:", name)
-      console.log("User Input - Selected Day Range:", selectedDayRange)
-      console.log("User Input - Selected Penalty:", selectedPenalty)
+      console.log("User Input - Amount:", amount);
+      console.log("User Input - Savings Name:", name);
+      console.log("User Input - Selected Day Range:", selectedDayRange);
+      console.log("User Input - Selected Penalty:", selectedPenalty);
 
-      const userEnteredUsdcAmount = parseFloat(amount)
+      const userEnteredUsdcAmount = parseFloat(amount);
       if (isNaN(userEnteredUsdcAmount) || userEnteredUsdcAmount <= 0) {
-        throw new Error("Invalid amount. Please enter an amount greater than zero.")
+        throw new Error("Invalid amount. Please enter an amount greater than zero.");
       }
 
-      const usdcEquivalentAmount = ethers.parseUnits(userEnteredUsdcAmount.toFixed(6), 6)
-      console.log("USDC Equivalent Amount:", usdcEquivalentAmount.toString())
-      const BASE_CHAIN_ID = 8453 
+      const usdcEquivalentAmount = ethers.parseUnits(userEnteredUsdcAmount.toFixed(6), 6);
+      console.log("USDC Equivalent Amount:", usdcEquivalentAmount.toString());
+      const BASE_CHAIN_ID = 8453;
 
       const network = config.state;
-      console.log("User's Current Network:", network)
+      console.log("User's Current Network:", network);
 
       if (Number(network.chainId) !== BASE_CHAIN_ID) {
         switchChain({ chainId: BASE_CHAIN_ID });
       }
 
       let userChildContractAddress = await getUserChildContract(BASE_CONTRACT_ADDRESS, address!);
-      console.log("User's Child Contract Address (Before Join):", userChildContractAddress)
+      console.log("User's Child Contract Address (Before Join):", userChildContractAddress);
 
       if (userChildContractAddress === ethers.ZeroAddress) {
         const joinTx = await writeContractAsync({
@@ -394,52 +414,45 @@ export default function CreateSavingsPage() {
           abi: CONTRACT_ABI,
           functionName: "joinBitsave",
           args: [],
-          value: await getJoiningFee(BASE_CONTRACT_ADDRESS, base.id)
-        })
-        
+          value: await getJoiningFee(BASE_CONTRACT_ADDRESS, base.id),
+        });
+
         await waitForTransactionReceipt(config, { hash: joinTx, confirmations: 2 });
 
         userChildContractAddress = await getUserChildContract(BASE_CONTRACT_ADDRESS, address!);
-        console.log("User's Child Contract Address (After Join):", userChildContractAddress)
+        console.log("User's Child Contract Address (After Join):", userChildContractAddress);
       }
 
       const maturityTime = selectedDayRange.to
         ? Math.floor(
-          new Date(
-            selectedDayRange.to.year ?? 0,
-            (selectedDayRange.to.month ?? 1) - 1,
-            selectedDayRange.to.day ?? 1
-          ).getTime() / 1000
-        )
-        : 0
+            new Date(
+              selectedDayRange.to.year ?? 0,
+              (selectedDayRange.to.month ?? 1) - 1,
+              selectedDayRange.to.day ?? 1,
+            ).getTime() / 1000,
+          )
+        : 0;
 
-      const safeMode = false
-      const tokenToSave = BASE_USDC_CONTRACT_ADDRESS
+      const safeMode = false;
+      const tokenToSave = BASE_USDC_CONTRACT_ADDRESS;
 
-      await approveERC20(tokenToSave, usdcEquivalentAmount)
+      await approveERC20(tokenToSave, usdcEquivalentAmount);
 
       const txOptions = {
         gasLimit: 2717330,
-        value: await getCreateSavingsFee(BASE_CONTRACT_ADDRESS, base.id)
-      }
+        value: await getCreateSavingsFee(BASE_CONTRACT_ADDRESS, base.id),
+      };
 
       const tx = await writeContractAsync({
         address: BASE_CONTRACT_ADDRESS,
         abi: CONTRACT_ABI,
-        functionName: 'createSaving',
-        args: [
-          name,
-          maturityTime,
-          selectedPenalty,
-          safeMode,
-          tokenToSave,
-          usdcEquivalentAmount,
-        ],
-        ...txOptions
-      })
+        functionName: "createSaving",
+        args: [name, maturityTime, selectedPenalty, safeMode, tokenToSave, usdcEquivalentAmount],
+        ...txOptions,
+      });
 
       const receipt = await waitForTransactionReceipt(config, { hash: tx, confirmations: 2 });
-      setTxHash(receipt.transactionHash)
+      setTxHash(receipt.transactionHash);
 
       try {
         const apiResponse = await axios.post(
@@ -447,61 +460,65 @@ export default function CreateSavingsPage() {
           {
             amount: parseFloat(amount),
             txnhash: receipt.transactionHash,
-            chain: "base", 
+            chain: "base",
             savingsname: name,
             useraddress: address,
             transaction_type: "deposit",
-            currency: currency
+            currency: currency,
           },
           {
             headers: {
               "Content-Type": "application/json",
-              "X-API-Key": process.env.NEXT_PUBLIC_API_KEY
-            }
-          }
+              "X-API-Key": process.env.NEXT_PUBLIC_API_KEY,
+            },
+          },
         );
         console.log("API response:", apiResponse.data);
       } catch (apiError) {
         console.error("Error sending transaction data to API:", apiError);
       }
 
-      setSuccess(true)
-      console.log("Savings plan created successfully!")
+      setSuccess(true);
+      console.log("Savings plan created successfully!");
     } catch (error) {
-      console.error("Error creating savings plan:", error)
-      setSuccess(false)
+      console.error("Error creating savings plan:", error);
+      setSuccess(false);
 
       const errorMessage = error instanceof Error ? error.message : String(error);
-      if (errorMessage.includes('user rejected') ||
-          errorMessage.includes('User denied') ||
-          errorMessage.includes('user cancelled') ||
-          errorMessage.includes('ACTION_REJECTED') ||
-          errorMessage.includes('ethers-user-denied')) {
-        setError('Error creating savings user rejected');
+      if (
+        errorMessage.includes("user rejected") ||
+        errorMessage.includes("User denied") ||
+        errorMessage.includes("user cancelled") ||
+        errorMessage.includes("ACTION_REJECTED") ||
+        errorMessage.includes("ethers-user-denied")
+      ) {
+        setError("Error creating savings user rejected");
       } else {
         setError(errorMessage);
       }
-      throw error 
+      throw error;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Token addresses and decimals for Celo
   const CELO_TOKENS = {
-    USDGLO: { address: '0x4f604735c1cf31399c6e711d5962b2b3e0225ad3', decimals: 18 },
-    cUSD: { address: '0x765DE816845861e75A25fCA122bb6898B8B1282a', decimals: 18 },
-    Gooddollar: { address: '0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A', decimals: 18 },
+    USDGLO: { address: "0x4f604735c1cf31399c6e711d5962b2b3e0225ad3", decimals: 18 },
+    cUSD: { address: "0x765DE816845861e75A25fCA122bb6898B8B1282a", decimals: 18 },
+    Gooddollar: { address: "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A", decimals: 18 },
   };
 
   // Helper to fetch CELO price in USD
   const fetchCeloPrice = async () => {
     try {
-      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=celo&vs_currencies=usd');
+      const response = await fetch(
+        "https://api.coingecko.com/api/v3/simple/price?ids=celo&vs_currencies=usd",
+      );
       const data = await response.json();
       return data.celo.usd;
     } catch (error) {
-      console.error('Error fetching CELO price:', error);
+      console.error("Error fetching CELO price:", error);
       return null;
     }
   };
@@ -509,11 +526,13 @@ export default function CreateSavingsPage() {
   // Helper to fetch ETH price in USD
   const fetchEthPrice = async () => {
     try {
-      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+      const response = await fetch(
+        "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd",
+      );
       const data = await response.json();
       return data.ethereum.usd;
     } catch (error) {
-      console.error('Error fetching ETH price:', error);
+      console.error("Error fetching ETH price:", error);
       return null;
     }
   };
@@ -521,14 +540,14 @@ export default function CreateSavingsPage() {
   // Common helper function for Bitsave contract setup
   const setupBitsaveContract = async () => {
     let userChildContractAddress;
-    
+
     try {
       userChildContractAddress = await getUserChildContract(CELO_CONTRACT_ADDRESS, address!);
     } catch (error) {
       console.error(error);
       throw new Error("Failed to interact with the Bitsave contract. Please try again.");
     }
-    
+
     if (userChildContractAddress === ethers.ZeroAddress) {
       try {
         const joinTx = await writeContractAsync({
@@ -536,7 +555,7 @@ export default function CreateSavingsPage() {
           abi: CONTRACT_ABI,
           functionName: "joinBitsave",
           args: [],
-          value: await getJoiningFee(CELO_CONTRACT_ADDRESS, celo.id)
+          value: await getJoiningFee(CELO_CONTRACT_ADDRESS, celo.id),
         });
 
         await waitForTransactionReceipt(config, { hash: joinTx, confirmations: 2 });
@@ -544,7 +563,9 @@ export default function CreateSavingsPage() {
         userChildContractAddress = await getUserChildContract(CELO_CONTRACT_ADDRESS, address!);
       } catch (joinError) {
         console.error(joinError);
-        throw new Error("Failed to join Bitsave. Please check your wallet has enough CELO for gas fees.");
+        throw new Error(
+          "Failed to join Bitsave. Please check your wallet has enough CELO for gas fees.",
+        );
       }
     }
   };
@@ -553,18 +574,18 @@ export default function CreateSavingsPage() {
   const calculateMaturityTime = () => {
     const maturityTime = selectedDayRange.to
       ? Math.floor(
-        new Date(
-          selectedDayRange.to.year ?? 0,
-          (selectedDayRange.to.month ?? 1) - 1,
-          selectedDayRange.to.day ?? 1
-        ).getTime() / 1000
-      )
+          new Date(
+            selectedDayRange.to.year ?? 0,
+            (selectedDayRange.to.month ?? 1) - 1,
+            selectedDayRange.to.day ?? 1,
+          ).getTime() / 1000,
+        )
       : 0;
-    
+
     if (maturityTime === 0) {
       throw new Error("Please select a valid end date for your savings plan.");
     }
-    
+
     return maturityTime;
   };
 
@@ -580,14 +601,14 @@ export default function CreateSavingsPage() {
           savingsname: name,
           useraddress: address,
           transaction_type: "deposit",
-          currency
+          currency,
         },
         {
           headers: {
             "Content-Type": "application/json",
-            "X-API-Key": process.env.NEXT_PUBLIC_API_KEY
-          }
-        }
+            "X-API-Key": process.env.NEXT_PUBLIC_API_KEY,
+          },
+        },
       );
       console.log("API response:", apiResponse.data);
     } catch (apiError) {
@@ -601,62 +622,64 @@ export default function CreateSavingsPage() {
       setError("Please connect your wallet.");
       throw new Error("Please connect your wallet.");
     }
-    
+
     setLoading(true);
     setError(null);
     setTxHash(null);
     setSuccess(false);
-    
+
     try {
       // Validate amount
-      const cleanAmount = amount.replace(/[^0-9.]/g, '');
+      const cleanAmount = amount.replace(/[^0-9.]/g, "");
       const parsedAmount = parseFloat(cleanAmount);
-      
+
       if (isNaN(parsedAmount) || parsedAmount <= 0) {
         throw new Error("Invalid amount. Please enter a valid number greater than zero.");
       }
 
       await setupBitsaveContract();
-      
+
       // Setup provider and contract
       const maturityTime = calculateMaturityTime();
-      
+
       // USDGLO specific logic
       const token = CELO_TOKENS.USDGLO;
       const tokenAmount = ethers.parseUnits(parsedAmount.toString(), token.decimals);
-      
+
       console.log(`USDGLO Debug - Token decimals: ${token.decimals}`);
       console.log(`USDGLO Debug - Token amount (wei): ${tokenAmount.toString()}`);
-      console.log(`USDGLO Debug - Token amount (formatted): ${ethers.formatUnits(tokenAmount, token.decimals)}`);
-      
+      console.log(
+        `USDGLO Debug - Token amount (formatted): ${ethers.formatUnits(tokenAmount, token.decimals)}`,
+      );
+
       // Approve and create saving
-        await approveERC20(token.address as Address, tokenAmount);
-        
-        // Get current CELO price for $1 fee
-        const txOptions = { 
-          gasLimit: 2717330,
-          value: await getCreateSavingsFee(CELO_CONTRACT_ADDRESS, celo.id)
-        };
-        const tx = await writeContractAsync({
-          address: CELO_CONTRACT_ADDRESS,
-          abi: CONTRACT_ABI,
-          functionName: "createSaving",
-          args: [
-            name,
-            maturityTime,
-            selectedPenalty,
-            false, // safeMode
-            token.address,
-            tokenAmount
-          ],
-          ...txOptions
-        });
-      
+      await approveERC20(token.address as Address, tokenAmount);
+
+      // Get current CELO price for $1 fee
+      const txOptions = {
+        gasLimit: 2717330,
+        value: await getCreateSavingsFee(CELO_CONTRACT_ADDRESS, celo.id),
+      };
+      const tx = await writeContractAsync({
+        address: CELO_CONTRACT_ADDRESS,
+        abi: CONTRACT_ABI,
+        functionName: "createSaving",
+        args: [
+          name,
+          maturityTime,
+          selectedPenalty,
+          false, // safeMode
+          token.address,
+          tokenAmount,
+        ],
+        ...txOptions,
+      });
+
       const receipt = await waitForTransactionReceipt(config, { hash: tx, confirmations: 2 });
       setTxHash(receipt.transactionHash);
-      
+
       // Send to API
-      await sendTransactionToAPI(parsedAmount, receipt.transactionHash, 'USDGLO');
+      await sendTransactionToAPI(parsedAmount, receipt.transactionHash, "USDGLO");
 
       // Track successful savings creation
       if (address) {
@@ -667,29 +690,33 @@ export default function CreateSavingsPage() {
           chain: chain,
           penalty: penalty,
           endDate: endDate?.toISOString(),
-          txHash: txHash
+          txHash: txHash,
         });
-        
+
         // Track referral conversion if user came from a referral link
-        const referralCode = localStorage.getItem('referralCode') || new URLSearchParams(window.location.search).get('ref');
+        const referralCode =
+          localStorage.getItem("referralCode") ||
+          new URLSearchParams(window.location.search).get("ref");
         if (referralCode) {
           markReferralConversion(referralCode);
-          localStorage.removeItem('referralCode'); // Remove after conversion
+          localStorage.removeItem("referralCode"); // Remove after conversion
         }
       }
-      
+
       setSuccess(true);
     } catch (error) {
       console.error("Error creating USDGLO savings plan:", error);
       setSuccess(false);
-      
+
       const errorMessage = error instanceof Error ? error.message : String(error);
-      if (errorMessage.includes('user rejected') ||
-          errorMessage.includes('User denied') ||
-          errorMessage.includes('user cancelled') ||
-          errorMessage.includes('ACTION_REJECTED') ||
-          errorMessage.includes('ethers-user-denied')) {
-        setError('Error creating savings user rejected');
+      if (
+        errorMessage.includes("user rejected") ||
+        errorMessage.includes("User denied") ||
+        errorMessage.includes("user cancelled") ||
+        errorMessage.includes("ACTION_REJECTED") ||
+        errorMessage.includes("ethers-user-denied")
+      ) {
+        setError("Error creating savings user rejected");
       } else {
         setError(errorMessage);
       }
@@ -705,78 +732,82 @@ export default function CreateSavingsPage() {
       setError("Please connect your wallet.");
       throw new Error("Please connect your wallet.");
     }
-    
+
     setLoading(true);
     setError(null);
     setTxHash(null);
     setSuccess(false);
-    
+
     try {
       // Validate amount
-      const cleanAmount = amount.replace(/[^0-9.]/g, '');
+      const cleanAmount = amount.replace(/[^0-9.]/g, "");
       const parsedAmount = parseFloat(cleanAmount);
-      
+
       if (isNaN(parsedAmount) || parsedAmount <= 0) {
         throw new Error("Invalid amount. Please enter a valid number greater than zero.");
       }
-      
+
       console.log(`cUSD Debug - Original amount: ${amount}`);
       console.log(`cUSD Debug - Clean amount: ${cleanAmount}`);
       console.log(`cUSD Debug - Parsed amount: ${parsedAmount}`);
-      
+
       // join bitsave if not already joined
       await setupBitsaveContract();
       const maturityTime = calculateMaturityTime();
-      
+
       // cUSD specific logic
       const token = CELO_TOKENS.cUSD;
       const tokenAmount = ethers.parseUnits(parsedAmount.toString(), token.decimals);
-      
+
       console.log(`cUSD Debug - Token decimals: ${token.decimals}`);
       console.log(`cUSD Debug - Token amount (wei): ${tokenAmount.toString()}`);
-      console.log(`cUSD Debug - Token amount (formatted): ${ethers.formatUnits(tokenAmount, token.decimals)}`);
-      
-      // Approve and create saving
-        await approveERC20(token.address as Address, tokenAmount);
-        
-        const txOptions = { 
-          gasLimit: 2717330,
-          value: await getCreateSavingsFee(CELO_CONTRACT_ADDRESS, celo.id)
-        };
+      console.log(
+        `cUSD Debug - Token amount (formatted): ${ethers.formatUnits(tokenAmount, token.decimals)}`,
+      );
 
-        const tx = await writeContractAsync({
-          address: CELO_CONTRACT_ADDRESS,
-          abi: CONTRACT_ABI,
-          functionName: "createSaving",
-          args: [
-            name,
-            maturityTime,
-            selectedPenalty,
-            false, // safeMode
-            token.address,
-            tokenAmount
-          ],
-          ...txOptions
-        });
+      // Approve and create saving
+      await approveERC20(token.address as Address, tokenAmount);
+
+      const txOptions = {
+        gasLimit: 2717330,
+        value: await getCreateSavingsFee(CELO_CONTRACT_ADDRESS, celo.id),
+      };
+
+      const tx = await writeContractAsync({
+        address: CELO_CONTRACT_ADDRESS,
+        abi: CONTRACT_ABI,
+        functionName: "createSaving",
+        args: [
+          name,
+          maturityTime,
+          selectedPenalty,
+          false, // safeMode
+          token.address,
+          tokenAmount,
+        ],
+        ...txOptions,
+      });
 
       const receipt = await waitForTransactionReceipt(config, { hash: tx, confirmations: 2 });
       setTxHash(receipt.transactionHash);
 
       // Send to API
-      await sendTransactionToAPI(parsedAmount, receipt.transactionHash, 'cUSD');
+      await sendTransactionToAPI(parsedAmount, receipt.transactionHash, "cUSD");
 
       setSuccess(true);
     } catch (error) {
       console.error("Error creating cUSD savings plan:", error);
       setSuccess(false);
-      
+
       const errorMessage = error instanceof Error ? error.message : String(error);
-      if (errorMessage.includes('user rejected') ||
-          errorMessage.includes('User denied') ||
-          errorMessage.includes('user cancelled') ||
-          errorMessage.includes('ACTION_REJECTED') ||
-          errorMessage.includes('ethers-user-denied')) {
-        setError('Error creating savings user rejected');
+      if (
+        errorMessage.includes("user rejected") ||
+        errorMessage.includes("User denied") ||
+        errorMessage.includes("user cancelled") ||
+        errorMessage.includes("ACTION_REJECTED") ||
+        errorMessage.includes("ethers-user-denied")
+      ) {
+        setError("Error creating savings user rejected");
       } else {
         setError(errorMessage);
       }
@@ -792,21 +823,21 @@ export default function CreateSavingsPage() {
       setError("Please connect your wallet.");
       throw new Error("Please connect your wallet.");
     }
-    
+
     setLoading(true);
     setError(null);
     setTxHash(null);
     setSuccess(false);
-    
+
     try {
       // Validate amount
-      const cleanAmountForValidation = amount.replace(/[^0-9.]/g, '');
+      const cleanAmountForValidation = amount.replace(/[^0-9.]/g, "");
       const userEnteredAmount = parseFloat(cleanAmountForValidation);
-      
+
       if (isNaN(userEnteredAmount) || userEnteredAmount <= 0) {
         throw new Error("Invalid amount. Please enter an amount greater than zero.");
       }
-      
+
       console.log(`Gooddollar Debug - Original amount: ${amount}`);
       console.log(`Gooddollar Debug - USD amount: ${userEnteredAmount}`);
       console.log(`Gooddollar Debug - Gooddollar price: ${goodDollarPrice}`);
@@ -815,58 +846,62 @@ export default function CreateSavingsPage() {
       await setupBitsaveContract();
 
       const maturityTime = calculateMaturityTime();
-      
+
       // Gooddollar specific logic - Convert USD to $G using live price
       const gAmount = userEnteredAmount / goodDollarPrice;
       const token = CELO_TOKENS.Gooddollar;
       const tokenAmount = ethers.parseUnits(gAmount.toFixed(token.decimals), token.decimals);
-      
+
       console.log(`Gooddollar Debug - G amount: ${gAmount}`);
       console.log(`Gooddollar Debug - Token decimals: ${token.decimals}`);
       console.log(`Gooddollar Debug - Token amount (wei): ${tokenAmount.toString()}`);
-      console.log(`Gooddollar Debug - Token amount (formatted): ${ethers.formatUnits(tokenAmount, token.decimals)}`);
-      
+      console.log(
+        `Gooddollar Debug - Token amount (formatted): ${ethers.formatUnits(tokenAmount, token.decimals)}`,
+      );
+
       // Approve and create saving
-        await approveERC20(token.address as Address, tokenAmount);
-        
-        // Get current CELO price for $1 fee
-        const txOptions = { 
-          gasLimit: 2717330,
-          value: await getCreateSavingsFee(CELO_CONTRACT_ADDRESS, celo.id)
-        };
-        const tx = await writeContractAsync({
-          address: CELO_CONTRACT_ADDRESS,
-          abi: CONTRACT_ABI,
-          functionName: "createSaving",
-          args: [
-            name,
-            maturityTime,
-            selectedPenalty,
-            false, // safeMode
-            token.address,
-            tokenAmount
-          ],
-          ...txOptions
-        });
-      
+      await approveERC20(token.address as Address, tokenAmount);
+
+      // Get current CELO price for $1 fee
+      const txOptions = {
+        gasLimit: 2717330,
+        value: await getCreateSavingsFee(CELO_CONTRACT_ADDRESS, celo.id),
+      };
+      const tx = await writeContractAsync({
+        address: CELO_CONTRACT_ADDRESS,
+        abi: CONTRACT_ABI,
+        functionName: "createSaving",
+        args: [
+          name,
+          maturityTime,
+          selectedPenalty,
+          false, // safeMode
+          token.address,
+          tokenAmount,
+        ],
+        ...txOptions,
+      });
+
       const receipt = await waitForTransactionReceipt(config, { hash: tx, confirmations: 2 });
       setTxHash(receipt.transactionHash);
-      
+
       // Send to API with G amount
-      await sendTransactionToAPI(gAmount, receipt.transactionHash, 'Gooddollar');
+      await sendTransactionToAPI(gAmount, receipt.transactionHash, "Gooddollar");
 
       setSuccess(true);
     } catch (error) {
       console.error("Error creating Gooddollar savings plan:", error);
       setSuccess(false);
-      
+
       const errorMessage = error instanceof Error ? error.message : String(error);
-      if (errorMessage.includes('user rejected') ||
-          errorMessage.includes('User denied') ||
-          errorMessage.includes('user cancelled') ||
-          errorMessage.includes('ACTION_REJECTED') ||
-          errorMessage.includes('ethers-user-denied')) {
-        setError('Error creating savings user rejected');
+      if (
+        errorMessage.includes("user rejected") ||
+        errorMessage.includes("User denied") ||
+        errorMessage.includes("user cancelled") ||
+        errorMessage.includes("ACTION_REJECTED") ||
+        errorMessage.includes("ethers-user-denied")
+      ) {
+        setError("Error creating savings user rejected");
       } else {
         setError(errorMessage);
       }
@@ -882,20 +917,20 @@ export default function CreateSavingsPage() {
     setError(null);
     setSuccess(false);
     try {
-      if (chain === 'celo') {
-        if (currency === 'USDGLO') {
+      if (chain === "celo") {
+        if (currency === "USDGLO") {
           await handleUSDGLOSavings();
-        } else if (currency === 'cUSD') {
+        } else if (currency === "cUSD") {
           await handleCUSDSavings();
-        } else if (currency === 'Gooddollar') {
+        } else if (currency === "Gooddollar") {
           await handleGooddollarSavings();
         } else {
-          throw new Error('Unsupported currency for Celo network.');
+          throw new Error("Unsupported currency for Celo network.");
         }
       } else {
         await handleBaseSavingsCreate();
       }
-      
+
       // Track successful savings creation
       if (address) {
         trackSavingsCreated(address, {
@@ -905,35 +940,37 @@ export default function CreateSavingsPage() {
           chain: chain,
           penalty: penalty,
           endDate: endDate?.toISOString(),
-          txHash: txHash
+          txHash: txHash,
         });
-        
+
         // Track referral conversion if user came from a referral link
-        const referralCode = localStorage.getItem('referralCode') || new URLSearchParams(window.location.search).get('ref');
+        const referralCode =
+          localStorage.getItem("referralCode") ||
+          new URLSearchParams(window.location.search).get("ref");
         if (referralCode) {
           markReferralConversion(referralCode);
-          localStorage.removeItem('referralCode'); // Remove after conversion
+          localStorage.removeItem("referralCode"); // Remove after conversion
         }
       }
-      
+
       setSuccess(true);
     } catch (err) {
-      console.error('Error creating savings plan:', err);
-      
+      console.error("Error creating savings plan:", err);
+
       // Track error
       if (address) {
         trackError(address, {
-          action: 'create_savings',
-          error: err instanceof Error ? err.message : 'Unknown error',
+          action: "create_savings",
+          error: err instanceof Error ? err.message : "Unknown error",
           context: {
             planName: name,
             amount: amount,
             currency: currency,
-            chain: chain
-          }
+            chain: chain,
+          },
         });
       }
-      
+
       // Individual functions handle their own error messages
       setSuccess(false);
     } finally {
@@ -942,26 +979,26 @@ export default function CreateSavingsPage() {
   };
 
   const handleCloseTransactionModal = () => {
-    setShowTransactionModal(false)
+    setShowTransactionModal(false);
     if (success) {
-      router.push('/dashboard')
+      router.push("/dashboard");
     }
-  }
+  };
 
   useEffect(() => {
     if (error || (success && txHash)) {
-      setShowTransactionModal(true)
+      setShowTransactionModal(true);
     }
-  }, [success, error, txHash])
+  }, [success, error, txHash]);
 
   useEffect(() => {
-    setMounted(true)
-    
+    setMounted(true);
+
     // Track page visit
     if (address) {
-      trackPageVisit('/dashboard/create-savings', { walletAddress: address });
+      trackPageVisit("/dashboard/create-savings", { walletAddress: address });
     }
-  }, [address])
+  }, [address]);
 
   // Animation variants
   const containerVariants = {
@@ -970,19 +1007,19 @@ export default function CreateSavingsPage() {
       opacity: 1,
       transition: {
         staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
-    }
-  }
+        delayChildren: 0.2,
+      },
+    },
+  };
 
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
       y: 0,
       opacity: 1,
-      transition: { type: 'spring' as const, stiffness: 300, damping: 24 }
-    }
-  }
+      transition: { type: "spring" as const, stiffness: 300, damping: 24 },
+    },
+  };
 
   // Add state for GoodDollar price and equivalent amount
   const [goodDollarPrice, setGoodDollarPrice] = useState(0.0001);
@@ -991,7 +1028,9 @@ export default function CreateSavingsPage() {
   // Fetch GoodDollar price from Coingecko
   const fetchGoodDollarPrice = async () => {
     try {
-      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=gooddollar&vs_currencies=usd');
+      const response = await fetch(
+        "https://api.coingecko.com/api/v3/simple/price?ids=gooddollar&vs_currencies=usd",
+      );
       const data = await response.json();
       return data.gooddollar.usd;
     } catch (error) {
@@ -1002,8 +1041,8 @@ export default function CreateSavingsPage() {
 
   // Calculate GoodDollar equivalent when amount or price changes
   useEffect(() => {
-    if (currency === 'Gooddollar' && amount && goodDollarPrice) {
-      const cleanAmount = amount.replace(/[^0-9.]/g, '');
+    if (currency === "Gooddollar" && amount && goodDollarPrice) {
+      const cleanAmount = amount.replace(/[^0-9.]/g, "");
       const usdAmount = parseFloat(cleanAmount);
       if (!isNaN(usdAmount) && usdAmount > 0) {
         const gAmount = usdAmount / goodDollarPrice;
@@ -1018,10 +1057,12 @@ export default function CreateSavingsPage() {
     fetchGoodDollarPrice().then(setGoodDollarPrice);
   }, []);
 
-  if (!mounted) return null
+  if (!mounted) return null;
 
   return (
-    <div className={`${spaceGrotesk.className} min-h-screen bg-gradient-to-b from-white to-gray-50 py-6 sm:py-12 px-4 sm:px-6 lg:px-8 overflow-hidden`}>
+    <div
+      className={`${spaceGrotesk.className} min-h-screen bg-gradient-to-b from-white to-gray-50 py-6 sm:py-12 px-4 sm:px-6 lg:px-8 overflow-hidden`}
+    >
       {/* Enhanced decorative elements */}
       <div className="fixed -top-40 -right-40 w-96 h-96 bg-[#81D7B4]/10 rounded-full blur-3xl"></div>
       <div className="fixed top-1/4 -left-20 w-60 h-60 bg-[#81D7B4]/5 rounded-full blur-3xl"></div>
@@ -1039,20 +1080,49 @@ export default function CreateSavingsPage() {
               {/* Success, Cancelled, or Error Icon */}
               {success ? (
                 <div className="w-10 h-10 sm:w-16 sm:h-16 rounded-full bg-green-500 flex items-center justify-center mb-4 sm:mb-6">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8 text-white" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6 sm:h-8 sm:w-8 text-white"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </div>
-              ) : error === 'Error creating savings user rejected' ? (
+              ) : error === "Error creating savings user rejected" ? (
                 <div className="w-10 h-10 sm:w-16 sm:h-16 rounded-full bg-yellow-200 flex items-center justify-center mb-4 sm:mb-6">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-8 w-8 text-yellow-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                 </div>
               ) : (
                 <div className="w-10 h-10 sm:w-16 sm:h-16 rounded-full bg-red-500 flex items-center justify-center mb-4 sm:mb-6">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8 text-white" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6 sm:h-8 sm:w-8 text-white"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </div>
               )}
@@ -1060,23 +1130,31 @@ export default function CreateSavingsPage() {
               {/* Title and Message */}
               {success ? (
                 <>
-                  <h2 className="text-xl sm:text-2xl font-bold text-center mb-1 sm:mb-2">Savings Plan Created!</h2>
+                  <h2 className="text-xl sm:text-2xl font-bold text-center mb-1 sm:mb-2">
+                    Savings Plan Created!
+                  </h2>
                   <p className="text-sm sm:text-base text-gray-500 text-center mb-5 sm:mb-8 max-w-xs sm:max-w-none mx-auto">
-                    Your Transaction to create your savings plan has been processed and is successful.
+                    Your Transaction to create your savings plan has been processed and is
+                    successful.
                   </p>
                 </>
-              ) : error === 'Error creating savings user rejected' ? (
+              ) : error === "Error creating savings user rejected" ? (
                 <>
-                  <h2 className="text-xl sm:text-2xl font-bold text-center mb-1 sm:mb-2 text-yellow-700">Transaction Cancelled</h2>
+                  <h2 className="text-xl sm:text-2xl font-bold text-center mb-1 sm:mb-2 text-yellow-700">
+                    Transaction Cancelled
+                  </h2>
                   <p className="text-sm sm:text-base text-gray-500 text-center mb-5 sm:mb-8 max-w-xs sm:max-w-none mx-auto">
                     You cancelled the transaction in your wallet. No changes were made.
                   </p>
                 </>
               ) : (
                 <>
-                  <h2 className="text-xl sm:text-2xl font-bold text-center mb-1 sm:mb-2 text-red-700">Savings Plan Creation Failed</h2>
+                  <h2 className="text-xl sm:text-2xl font-bold text-center mb-1 sm:mb-2 text-red-700">
+                    Savings Plan Creation Failed
+                  </h2>
                   <p className="text-sm sm:text-base text-gray-500 text-center mb-5 sm:mb-8 max-w-xs sm:max-w-none mx-auto">
-                    Your savings plan creation failed. Please try again or contact our support team for assistance.
+                    Your savings plan creation failed. Please try again or contact our support team
+                    for assistance.
                     {error && (
                       <span className="block mt-4 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg">
                         <div className="text-sm font-medium text-red-800 mb-2">Error Details:</div>
@@ -1084,23 +1162,44 @@ export default function CreateSavingsPage() {
                           {(() => {
                             // Enhanced error extraction and user-friendly messages
                             const lowerError = error.toLowerCase();
-                            if (error.includes("missing revert data") || lowerError.includes("call_exception")) {
+                            if (
+                              error.includes("missing revert data") ||
+                              lowerError.includes("call_exception")
+                            ) {
                               return "💸 Transaction failed - This usually means insufficient funds for gas fees or the contract couldn't process your request. Please check your wallet balance and ensure you have enough ETH/native tokens for gas fees, then try again.";
-                            } else if (error.includes("INVALID_ARGUMENT") || lowerError.includes("invalid argument")) {
+                            } else if (
+                              error.includes("INVALID_ARGUMENT") ||
+                              lowerError.includes("invalid argument")
+                            ) {
                               return "❌ Invalid savings plan parameters. Please check your inputs and try again.";
-                            } else if (lowerError.includes("insufficient funds") || lowerError.includes("insufficient balance")) {
+                            } else if (
+                              lowerError.includes("insufficient funds") ||
+                              lowerError.includes("insufficient balance")
+                            ) {
                               return "💰 Insufficient funds. Please check your wallet balance and ensure you have enough for both the savings amount and gas fees.";
-                            } else if (lowerError.includes("user rejected") || lowerError.includes("user denied")) {
+                            } else if (
+                              lowerError.includes("user rejected") ||
+                              lowerError.includes("user denied")
+                            ) {
                               return "🚫 Transaction was cancelled by user. No savings plan was created.";
-                            } else if (lowerError.includes("network") || lowerError.includes("connection")) {
+                            } else if (
+                              lowerError.includes("network") ||
+                              lowerError.includes("connection")
+                            ) {
                               return "🌐 Network connection issue. Please check your internet connection and try again.";
                             } else if (lowerError.includes("gas")) {
                               return "⛽ Gas estimation failed. Try increasing gas limit or check network congestion.";
                             } else if (lowerError.includes("nonce")) {
                               return "🔄 Transaction nonce error. Please reset your wallet or try again.";
-                            } else if (lowerError.includes("allowance") || lowerError.includes("approval")) {
+                            } else if (
+                              lowerError.includes("allowance") ||
+                              lowerError.includes("approval")
+                            ) {
                               return "🔐 Token allowance issue. Please approve the token spending and try again.";
-                            } else if (lowerError.includes("plan name") || lowerError.includes("name already exists")) {
+                            } else if (
+                              lowerError.includes("plan name") ||
+                              lowerError.includes("name already exists")
+                            ) {
                               return "📝 Plan name already exists. Please choose a different name for your savings plan.";
                             } else if (error.includes("code=")) {
                               const codeMatch = error.match(/code=([A-Z_]+)/);
@@ -1113,16 +1212,17 @@ export default function CreateSavingsPage() {
                           })()}
                         </div>
                         <div className="text-xs sm:text-sm text-gray-600 mb-3 p-2 sm:p-3 bg-gray-50 rounded border break-words overflow-wrap-anywhere">
-                          <strong>Original Error:</strong> <span className="break-all">{error}</span>
+                          <strong>Original Error:</strong>{" "}
+                          <span className="break-all">{error}</span>
                         </div>
 
                         <div className="mt-3 pt-2 border-t border-red-200">
-                          <button 
-                            onClick={() => window.open('https://t.me/+YimKRR7wAkVmZGRk', '_blank')}
+                          <button
+                            onClick={() => window.open("https://t.me/+YimKRR7wAkVmZGRk", "_blank")}
                             className="inline-flex items-center gap-2 px-3 py-2 bg-[#0088cc] text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-[#006699] transition-colors shadow-sm w-full sm:w-auto justify-center"
                           >
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M12 0C5.374 0 0 5.373 0 12s5.374 12 12 12 12-5.373 12-12S18.626 0 12 0zm5.568 8.16c-.169 1.858-.896 6.728-.896 6.728-.377 2.617-1.407 3.08-2.896 1.596l-2.123-1.596-1.018.96c-.11.11-.202.202-.418.202-.286 0-.237-.107-.335-.38L9.9 13.74l-3.566-1.199c-.778-.244-.79-.778.173-1.16L18.947 6.84c.636-.295 1.295.173.621 1.32z"/>
+                              <path d="M12 0C5.374 0 0 5.373 0 12s5.374 12 12 12 12-5.373 12-12S18.626 0 12 0zm5.568 8.16c-.169 1.858-.896 6.728-.896 6.728-.377 2.617-1.407 3.08-2.896 1.596l-2.123-1.596-1.018.96c-.11.11-.202.202-.418.202-.286 0-.237-.107-.335-.38L9.9 13.74l-3.566-1.199c-.778-.244-.79-.778.173-1.16L18.947 6.84c.636-.295 1.295.173.621 1.32z" />
                             </svg>
                             Get Help on Telegram
                           </button>
@@ -1134,51 +1234,61 @@ export default function CreateSavingsPage() {
               )}
 
               {/* Transaction ID Button (only on success or error, not on cancel) */}
-              {txHash && (success || (error && error !== 'Error creating savings user rejected')) && (
-                <button
-                  className="w-full py-2.5 sm:py-3 border border-gray-300 rounded-full text-gray-700 text-sm sm:text-base font-medium mb-3 sm:mb-4 hover:bg-gray-50 transition-colors"
-                  onClick={() => window.open(
-                    chain === 'celo'
-                      ? `https://explorer.celo.org/tx/${txHash}`
-                      : `https://basescan.org/tx/${txHash}`,
-                    '_blank'
-                  )}
-                >
-                  View Transaction ID
-                </button>
-              )}
+              {txHash &&
+                (success || (error && error !== "Error creating savings user rejected")) && (
+                  <button
+                    className="w-full py-2.5 sm:py-3 border border-gray-300 rounded-full text-gray-700 text-sm sm:text-base font-medium mb-3 sm:mb-4 hover:bg-gray-50 transition-colors"
+                    onClick={() =>
+                      window.open(
+                        chain === "celo"
+                          ? `https://explorer.celo.org/tx/${txHash}`
+                          : `https://basescan.org/tx/${txHash}`,
+                        "_blank",
+                      )
+                    }
+                  >
+                    View Transaction ID
+                  </button>
+                )}
 
               {/* Tweet Button (only on success) */}
-              {success && (() => {
-                const referralLink = referralData?.referralLink || 'https://bitsave.io';
-                const tweetText = `Just locked up some ${currency} for my future self on @bitsaveprotocol, no degen plays today, web3 savings never looked this good 💰\n\nYou should be doing #SaveFi → ${referralLink}`;
-                const encodedTweetText = encodeURIComponent(tweetText);
-                return (
-                  <a
-                    href={`https://twitter.com/intent/tweet?text=${encodedTweetText}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => {
-                      // Redirect to dashboard after a short delay
-                      setTimeout(() => {
-                        window.location.href = '/dashboard';
-                      }, 2000);
-                    }}
-                    className="w-full py-2.5 sm:py-3 bg-black text-white rounded-full text-sm sm:text-base font-semibold flex items-center justify-center gap-2 mb-3 sm:mb-4 hover:bg-gray-900 transition-colors"
-                  >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.209c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
-                    Post on X
-                  </a>
-                );
-              })()}
+              {success &&
+                (() => {
+                  const referralLink = referralData?.referralLink || "https://bitsave.io";
+                  const tweetText = `Just locked up some ${currency} for my future self on @bitsaveprotocol, no degen plays today, web3 savings never looked this good 💰\n\nYou should be doing #SaveFi → ${referralLink}`;
+                  const encodedTweetText = encodeURIComponent(tweetText);
+                  return (
+                    <a
+                      href={`https://twitter.com/intent/tweet?text=${encodedTweetText}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => {
+                        // Redirect to dashboard after a short delay
+                        setTimeout(() => {
+                          window.location.href = "/dashboard";
+                        }, 2000);
+                      }}
+                      className="w-full py-2.5 sm:py-3 bg-black text-white rounded-full text-sm sm:text-base font-semibold flex items-center justify-center gap-2 mb-3 sm:mb-4 hover:bg-gray-900 transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.209c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
+                      </svg>
+                      Post on X
+                    </a>
+                  );
+                })()}
 
               {/* Action Buttons */}
               <div className="flex w-full gap-3 sm:gap-4 flex-col sm:flex-row">
                 <button
-                  className={`w-full py-2.5 sm:py-3 ${success ? 'bg-[#81D7B4] hover:bg-[#6bc4a1]' : error === 'Error creating savings user rejected' ? 'bg-yellow-400 hover:bg-yellow-500 text-gray-900' : 'bg-gray-700 hover:bg-gray-800'} rounded-full text-white text-sm sm:text-base font-medium transition-colors`}
+                  className={`w-full py-2.5 sm:py-3 ${success ? "bg-[#81D7B4] hover:bg-[#6bc4a1]" : error === "Error creating savings user rejected" ? "bg-yellow-400 hover:bg-yellow-500 text-gray-900" : "bg-gray-700 hover:bg-gray-800"} rounded-full text-white text-sm sm:text-base font-medium transition-colors`}
                   onClick={handleCloseTransactionModal}
                 >
-                  {success ? 'Go to Dashboard' : error === 'Error creating savings user rejected' ? 'Close' : 'Close'}
+                  {success
+                    ? "Go to Dashboard"
+                    : error === "Error creating savings user rejected"
+                      ? "Close"
+                      : "Close"}
                 </button>
               </div>
             </div>
@@ -1194,47 +1304,96 @@ export default function CreateSavingsPage() {
       >
         {/* Enhanced Header */}
         <div className="text-center mb-8">
-          <Link href="/dashboard" className="inline-flex items-center text-gray-500 hover:text-gray-700 mb-6 transition-colors bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-white/60 hover:bg-white/80">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5 mr-2">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center text-gray-500 hover:text-gray-700 mb-6 transition-colors bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-white/60 hover:bg-white/80"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              className="w-5 h-5 mr-2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
             </svg>
             Back to Dashboard
           </Link>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-700 mb-2">Create a Savings Plan</h1>
-          <p className="text-gray-600 max-w-xl mx-auto text-sm sm:text-base">Set up a new savings plan to help you reach your financial goals with automated savings and rewards.</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-700 mb-2">
+            Create a Savings Plan
+          </h1>
+          <p className="text-gray-600 max-w-xl mx-auto text-sm sm:text-base">
+            Set up a new savings plan to help you reach your financial goals with automated savings
+            and rewards.
+          </p>
         </div>
 
         {/* Enhanced Progress bar - Modern, Fluid, Visually Stunning, Brand Color Only */}
         <div className="mb-8 sm:mb-10 px-2 sm:px-0">
           <div className="relative flex items-center justify-between mb-2">
             {/* Connecting line with single-color gradient and glow */}
-            <div className="absolute left-0 right-0 top-1/2 h-2 -translate-y-1/2 z-0 bg-gradient-to-r from-[#81D7B4]/60 via-[#81D7B4]/30 to-[#81D7B4]/60 rounded-full blur-[2px] shadow-[0_0_24px_#81D7B4aa]" style={{ height: '10px' }}></div>
+            <div
+              className="absolute left-0 right-0 top-1/2 h-2 -translate-y-1/2 z-0 bg-gradient-to-r from-[#81D7B4]/60 via-[#81D7B4]/30 to-[#81D7B4]/60 rounded-full blur-[2px] shadow-[0_0_24px_#81D7B4aa]"
+              style={{ height: "10px" }}
+            ></div>
             {[1, 2, 3].map((i) => (
               <div key={i} className="relative z-10 flex flex-col items-center flex-1">
                 {/* Animated step circle - single brand color, glassy/neomorphic */}
-                <div className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full border-4 transition-all duration-500 shadow-[0_4px_24px_rgba(129,215,180,0.18),0_2px_8px_rgba(129,215,180,0.10)] bg-white/80 backdrop-blur-md ${step === i
-                  ? 'border-[#81D7B4] scale-110 animate-pulse bg-gradient-to-br from-[#81D7B4]/90 to-[#81D7B4]/60'
-                  : step > i
-                    ? 'border-[#81D7B4]/60 bg-gradient-to-br from-[#81D7B4]/60 to-[#81D7B4]/30'
-                    : 'border-gray-200/60'} `}>
+                <div
+                  className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full border-4 transition-all duration-500 shadow-[0_4px_24px_rgba(129,215,180,0.18),0_2px_8px_rgba(129,215,180,0.10)] bg-white/80 backdrop-blur-md ${
+                    step === i
+                      ? "border-[#81D7B4] scale-110 animate-pulse bg-gradient-to-br from-[#81D7B4]/90 to-[#81D7B4]/60"
+                      : step > i
+                        ? "border-[#81D7B4]/60 bg-gradient-to-br from-[#81D7B4]/60 to-[#81D7B4]/30"
+                        : "border-gray-200/60"
+                  } `}
+                >
                   {step > i ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#81D7B4]" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6 text-[#81D7B4]"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                   ) : (
-                    <span className={`font-bold text-lg ${step === i ? 'text-white drop-shadow' : 'text-[#81D7B4]'}`}>{i}</span>
+                    <span
+                      className={`font-bold text-lg ${step === i ? "text-white drop-shadow" : "text-[#81D7B4]"}`}
+                    >
+                      {i}
+                    </span>
                   )}
                 </div>
                 {/* Step label */}
-                <span className={`mt-3 text-xs sm:text-sm font-semibold transition-colors duration-300 ${step === i ? 'text-[#81D7B4]' : step > i ? 'text-[#81D7B4]/80' : 'text-gray-400'} hidden sm:block tracking-wide`}>{i === 1 ? 'Plan Details' : i === 2 ? 'Duration & Penalties' : 'Review & Create'}</span>
+                <span
+                  className={`mt-3 text-xs sm:text-sm font-semibold transition-colors duration-300 ${step === i ? "text-[#81D7B4]" : step > i ? "text-[#81D7B4]/80" : "text-gray-400"} hidden sm:block tracking-wide`}
+                >
+                  {i === 1 ? "Plan Details" : i === 2 ? "Duration & Penalties" : "Review & Create"}
+                </span>
               </div>
             ))}
           </div>
           {/* Mobile step labels */}
           <div className="flex justify-between text-xs sm:hidden mt-3">
-            <span className={step >= 1 ? 'text-[#81D7B4] font-medium' : 'text-gray-500'}>Details</span>
-            <span className={step >= 2 ? 'text-[#81D7B4] font-medium' : 'text-gray-500'}>Duration</span>
-            <span className={step >= 3 ? 'text-[#81D7B4] font-medium' : 'text-gray-500'}>Review</span>
+            <span className={step >= 1 ? "text-[#81D7B4] font-medium" : "text-gray-500"}>
+              Details
+            </span>
+            <span className={step >= 2 ? "text-[#81D7B4] font-medium" : "text-gray-500"}>
+              Duration
+            </span>
+            <span className={step >= 3 ? "text-[#81D7B4] font-medium" : "text-gray-500"}>
+              Review
+            </span>
           </div>
         </div>
 
@@ -1252,13 +1411,29 @@ export default function CreateSavingsPage() {
                 className="p-8 text-center"
               >
                 <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <svg className="w-10 h-10 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <svg
+                    className="w-10 h-10 text-green-500"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">Savings Plan Created!</h2>
-                <p className="text-gray-600 mb-6">Your savings plan has been successfully created and is now active.</p>
-                <Link href="/dashboard" className="inline-flex items-center justify-center px-6 py-3 bg-[#81D7B4] text-white font-medium rounded-xl shadow-lg hover:bg-[#6bc4a1] transition-colors">
+                <p className="text-gray-600 mb-6">
+                  Your savings plan has been successfully created and is now active.
+                </p>
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center justify-center px-6 py-3 bg-[#81D7B4] text-white font-medium rounded-xl shadow-lg hover:bg-[#6bc4a1] transition-colors"
+                >
                   Go to Dashboard
                 </Link>
               </motion.div>
@@ -1278,7 +1453,9 @@ export default function CreateSavingsPage() {
                       className="text-xl font-bold text-gray-800 mb-6 flex items-center"
                       variants={itemVariants}
                     >
-                      <span className="bg-[#81D7B4]/10 w-8 h-8 rounded-full flex items-center justify-center text-[#81D7B4] mr-3 text-sm">1</span>
+                      <span className="bg-[#81D7B4]/10 w-8 h-8 rounded-full flex items-center justify-center text-[#81D7B4] mr-3 text-sm">
+                        1
+                      </span>
                       Plan Details
                     </motion.h2>
 
@@ -1290,7 +1467,10 @@ export default function CreateSavingsPage() {
                     >
                       {/* Plan name - enhanced */}
                       <motion.div variants={itemVariants}>
-                        <label htmlFor="planName" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                          htmlFor="planName"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                           Plan Name
                         </label>
                         <div className="relative group">
@@ -1301,7 +1481,7 @@ export default function CreateSavingsPage() {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="e.g. Vacation Fund, Emergency Savings"
-                            className={`relative w-full px-4 py-3 bg-white/70 backdrop-blur-sm rounded-xl border text-gray-900 ${errors.name ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-200/50 focus:ring-[#81D7B4]/50 focus:border-[#81D7B4]/50'} shadow-sm focus:outline-none focus:ring-2 transition-all`}
+                            className={`relative w-full px-4 py-3 bg-white/70 backdrop-blur-sm rounded-xl border text-gray-900 ${errors.name ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-200/50 focus:ring-[#81D7B4]/50 focus:border-[#81D7B4]/50"} shadow-sm focus:outline-none focus:ring-2 transition-all`}
                           />
                         </div>
                         {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name}</p>}
@@ -1309,7 +1489,10 @@ export default function CreateSavingsPage() {
 
                       {/* Amount - enhanced */}
                       <motion.div variants={itemVariants}>
-                        <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                          htmlFor="amount"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                           Amount to Save
                         </label>
                         <div className="relative group">
@@ -1320,16 +1503,18 @@ export default function CreateSavingsPage() {
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
                             placeholder="0.00"
-                            className={`relative w-full pl-12 pr-4 py-3 bg-white/70 backdrop-blur-sm rounded-xl border text-gray-900 ${errors.amount ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-200/50 focus:ring-[#81D7B4]/50 focus:border-[#81D7B4]/50'} shadow-sm focus:outline-none focus:ring-2 transition-all`}
+                            className={`relative w-full pl-12 pr-4 py-3 bg-white/70 backdrop-blur-sm rounded-xl border text-gray-900 ${errors.amount ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-200/50 focus:ring-[#81D7B4]/50 focus:border-[#81D7B4]/50"} shadow-sm focus:outline-none focus:ring-2 transition-all`}
                           />
                           <div className="absolute inset-y-0 left-0 flex items-center pl-3">
                             <span className="text-gray-500">$</span>
                           </div>
                         </div>
-                        {errors.amount && <p className="mt-1 text-sm text-red-500">{errors.amount}</p>}
-                        
+                        {errors.amount && (
+                          <p className="mt-1 text-sm text-red-500">{errors.amount}</p>
+                        )}
+
                         {/* GoodDollar Equivalent Display */}
-                        {currency === 'Gooddollar' && amount && goodDollarEquivalent > 0 && (
+                        {currency === "Gooddollar" && amount && goodDollarEquivalent > 0 && (
                           <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -1338,13 +1523,15 @@ export default function CreateSavingsPage() {
                             <div className="flex items-center justify-between">
                               <div className="flex items-center">
                                 <img src="/$g.png" alt="GoodDollar" className="w-5 h-5 mr-2" />
-                                <span className="text-sm font-medium text-gray-700">Equivalent in GoodDollar:</span>
+                                <span className="text-sm font-medium text-gray-700">
+                                  Equivalent in GoodDollar:
+                                </span>
                               </div>
                               <div className="flex items-center">
                                 <span className="text-lg font-bold text-[#81D7B4]">
-                                  {goodDollarEquivalent.toLocaleString('en-US', {
+                                  {goodDollarEquivalent.toLocaleString("en-US", {
                                     minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2
+                                    maximumFractionDigits: 2,
                                   })}
                                 </span>
                                 <span className="ml-1 text-sm text-gray-600">$G</span>
@@ -1358,7 +1545,6 @@ export default function CreateSavingsPage() {
                             </div>
                           </motion.div>
                         )}
-
                       </motion.div>
 
                       {/* Currency - enhanced, responsive, DeFi style */}
@@ -1372,18 +1558,24 @@ export default function CreateSavingsPage() {
                               key={curr}
                               type="button"
                               onClick={() => setCurrency(curr)}
-                              className={`flex items-center justify-center px-4 py-3 rounded-2xl border transition-all duration-300 flex-1 min-w-0 text-base sm:text-sm ${currency === curr
-                                ? 'bg-gradient-to-r from-[#81D7B4]/20 to-[#81D7B4]/5 border-[#81D7B4]/30 text-[#81D7B4] shadow-[0_4px_16px_rgba(129,215,180,0.18)] scale-105'
-                                : 'bg-white/80 border-gray-200/50 text-gray-700 hover:bg-gray-50 shadow-[0_2px_8px_rgba(129,215,180,0.06)]'} font-medium`}
+                              className={`flex items-center justify-center px-4 py-3 rounded-2xl border transition-all duration-300 flex-1 min-w-0 text-base sm:text-sm ${
+                                currency === curr
+                                  ? "bg-gradient-to-r from-[#81D7B4]/20 to-[#81D7B4]/5 border-[#81D7B4]/30 text-[#81D7B4] shadow-[0_4px_16px_rgba(129,215,180,0.18)] scale-105"
+                                  : "bg-white/80 border-gray-200/50 text-gray-700 hover:bg-gray-50 shadow-[0_2px_8px_rgba(129,215,180,0.06)]"
+                              } font-medium`}
                               style={{ minWidth: 0 }}
                             >
                               <img
                                 src={
-                                  curr === 'Gooddollar' ? '/$g.png'
-                                  : curr === 'cUSD' ? '/cusd.png'
-                                  : curr === 'USDGLO' ? '/usdglo.png'
-                                  : curr === 'USDC' ? '/usdc.png'
-                                  : `/${curr.toLowerCase().replace('$', '')}.png`
+                                  curr === "Gooddollar"
+                                    ? "/$g.png"
+                                    : curr === "cUSD"
+                                      ? "/cusd.png"
+                                      : curr === "USDGLO"
+                                        ? "/usdglo.png"
+                                        : curr === "USDC"
+                                          ? "/usdc.png"
+                                          : `/${curr.toLowerCase().replace("$", "")}.png`
                                 }
                                 alt={curr}
                                 className="w-5 h-5 mr-2"
@@ -1404,12 +1596,14 @@ export default function CreateSavingsPage() {
                           <button
                             type="button"
                             onClick={async () => {
-                              await switchToNetwork('base');
-                              setChain('base');
+                              await switchToNetwork("base");
+                              setChain("base");
                             }}
-                            className={`flex items-center justify-center px-5 py-3 rounded-2xl border transition-all duration-300 flex-1 text-base sm:text-sm ${chain === 'base'
-                              ? 'bg-gradient-to-r from-[#81D7B4]/20 to-[#81D7B4]/5 border-[#81D7B4]/30 text-[#81D7B4] shadow-[0_4px_16px_rgba(129,215,180,0.18)] scale-105'
-                              : 'bg-white/80 border-gray-200/50 text-gray-700 hover:bg-gray-50 shadow-[0_2px_8px_rgba(129,215,180,0.06)]'} font-medium`}
+                            className={`flex items-center justify-center px-5 py-3 rounded-2xl border transition-all duration-300 flex-1 text-base sm:text-sm ${
+                              chain === "base"
+                                ? "bg-gradient-to-r from-[#81D7B4]/20 to-[#81D7B4]/5 border-[#81D7B4]/30 text-[#81D7B4] shadow-[0_4px_16px_rgba(129,215,180,0.18)] scale-105"
+                                : "bg-white/80 border-gray-200/50 text-gray-700 hover:bg-gray-50 shadow-[0_2px_8px_rgba(129,215,180,0.06)]"
+                            } font-medium`}
                           >
                             <img src="/base.svg" alt="Base" className="w-5 h-5 mr-2" />
                             Base
@@ -1418,57 +1612,91 @@ export default function CreateSavingsPage() {
                           <div className="relative flex-1">
                             <button
                               type="button"
-                              className={`flex items-center justify-center px-5 py-3 rounded-2xl border transition-all duration-300 w-full text-base sm:text-sm font-medium group shadow-[0_2px_8px_rgba(129,215,180,0.06)] ${chain !== 'base'
-                                ? 'bg-gradient-to-r from-[#81D7B4]/20 to-[#81D7B4]/5 border-[#81D7B4]/30 text-[#81D7B4] shadow-[0_4px_16px_rgba(129,215,180,0.18)] scale-105'
-                                : 'bg-white/80 border-gray-200/50 text-gray-700 hover:bg-gray-50'}`}
+                              className={`flex items-center justify-center px-5 py-3 rounded-2xl border transition-all duration-300 w-full text-base sm:text-sm font-medium group shadow-[0_2px_8px_rgba(129,215,180,0.06)] ${
+                                chain !== "base"
+                                  ? "bg-gradient-to-r from-[#81D7B4]/20 to-[#81D7B4]/5 border-[#81D7B4]/30 text-[#81D7B4] shadow-[0_4px_16px_rgba(129,215,180,0.18)] scale-105"
+                                  : "bg-white/80 border-gray-200/50 text-gray-700 hover:bg-gray-50"
+                              }`}
                               onClick={() => {
-                                const el = document.getElementById('network-dropdown');
-                                if (el) el.classList.toggle('hidden');
+                                const el = document.getElementById("network-dropdown");
+                                if (el) el.classList.toggle("hidden");
                               }}
                             >
-                              {chain !== 'base' ? (
+                              {chain !== "base" ? (
                                 <>
-                                  <img src={chains.find(c => c.id === chain)?.logo || ''} alt={chains.find(c => c.id === chain)?.name || ''} className="w-5 h-5 mr-2" />
-                                  {chains.find(c => c.id === chain)?.name || 'Other Networks'}
+                                  <img
+                                    src={chains.find((c) => c.id === chain)?.logo || ""}
+                                    alt={chains.find((c) => c.id === chain)?.name || ""}
+                                    className="w-5 h-5 mr-2"
+                                  />
+                                  {chains.find((c) => c.id === chain)?.name || "Other Networks"}
                                 </>
                               ) : (
-                                <>Other Networks<svg className="w-4 h-4 ml-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg></>
+                                <>
+                                  Other Networks
+                                  <svg
+                                    className="w-4 h-4 ml-2 text-gray-400"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M19 9l-7 7-7-7"
+                                    />
+                                  </svg>
+                                </>
                               )}
                             </button>
-                            <div id="network-dropdown" className="hidden absolute left-0 mt-2 w-full bg-white/95 backdrop-blur-xl rounded-xl shadow-lg border border-gray-200/50 z-10">
-                              {chains.filter(c => c.id !== 'base').map((c) => (
-                                <button
-                                  key={c.id}
-                                  type="button"
-                                  onClick={async () => {
-                                    await switchToNetwork(c.id);
-                                    setChain(c.id);
-                                    document.getElementById('network-dropdown')?.classList.add('hidden');
-                                  }}
-                                  className={`flex items-center w-full px-4 py-2 rounded-xl border-b border-gray-100 last:border-b-0 text-base sm:text-sm ${chain === c.id ? 'bg-[#81D7B4]/10 text-[#81D7B4]' : 'hover:bg-gray-100/80 text-gray-700'} font-medium`}
-                                >
-                                  <img src={c.logo} alt={c.name} className="w-5 h-5 mr-2" />
-                                  {c.name}
-                                </button>
-                              ))}
+                            <div
+                              id="network-dropdown"
+                              className="hidden absolute left-0 mt-2 w-full bg-white/95 backdrop-blur-xl rounded-xl shadow-lg border border-gray-200/50 z-10"
+                            >
+                              {chains
+                                .filter((c) => c.id !== "base")
+                                .map((c) => (
+                                  <button
+                                    key={c.id}
+                                    type="button"
+                                    onClick={async () => {
+                                      await switchToNetwork(c.id);
+                                      setChain(c.id);
+                                      document
+                                        .getElementById("network-dropdown")
+                                        ?.classList.add("hidden");
+                                    }}
+                                    className={`flex items-center w-full px-4 py-2 rounded-xl border-b border-gray-100 last:border-b-0 text-base sm:text-sm ${chain === c.id ? "bg-[#81D7B4]/10 text-[#81D7B4]" : "hover:bg-gray-100/80 text-gray-700"} font-medium`}
+                                  >
+                                    <img src={c.logo} alt={c.name} className="w-5 h-5 mr-2" />
+                                    {c.name}
+                                  </button>
+                                ))}
                             </div>
                           </div>
                         </div>
                       </motion.div>
                     </motion.div>
 
-                    <motion.div
-                      className="mt-8 sm:mt-10 flex justify-end"
-                      variants={itemVariants}
-                    >
+                    <motion.div className="mt-8 sm:mt-10 flex justify-end" variants={itemVariants}>
                       <button
                         type="button"
                         onClick={handleNext}
                         className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#81D7B4] to-[#81D7B4]/90 text-white font-medium rounded-xl shadow-[0_4px_10px_rgba(129,215,180,0.3)] hover:shadow-[0_6px_15px_rgba(129,215,180,0.4)] transition-all duration-300 transform hover:translate-y-[-2px]"
                       >
                         Next Step
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5 ml-2"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
+                            clipRule="evenodd"
+                          />
                         </svg>
                       </button>
                     </motion.div>
@@ -1491,7 +1719,9 @@ export default function CreateSavingsPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.1 }}
                     >
-                      <span className="bg-[#81D7B4]/10 w-8 h-8 rounded-full flex items-center justify-center text-[#81D7B4] mr-3 text-sm">2</span>
+                      <span className="bg-[#81D7B4]/10 w-8 h-8 rounded-full flex items-center justify-center text-[#81D7B4] mr-3 text-sm">
+                        2
+                      </span>
                       Duration & Penalties
                     </motion.h2>
 
@@ -1508,8 +1738,19 @@ export default function CreateSavingsPage() {
                         transition={{ delay: 0.3 }}
                       >
                         <label className="block text-sm font-medium text-gray-700 mb-3 flex items-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#81D7B4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5 mr-2 text-[#81D7B4]"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
                           </svg>
                           Savings Duration
                         </label>
@@ -1518,7 +1759,8 @@ export default function CreateSavingsPage() {
                           <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#81D7B4]/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
                           <p className="text-sm text-gray-600 mb-4 relative z-10">
-                            Your savings will start today and end on your selected date. Choose an end date at least 30 days from now.
+                            Your savings will start today and end on your selected date. Choose an
+                            end date at least 30 days from now.
                           </p>
 
                           <div className="relative z-10">
@@ -1535,27 +1777,56 @@ export default function CreateSavingsPage() {
                               className="mt-4 bg-[#81D7B4]/10 rounded-xl p-3 sm:p-4 border border-[#81D7B4]/30 relative z-10"
                             >
                               <div className="flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#81D7B4] mr-2" viewBox="0 0 20 20" fill="currentColor">
-                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-5 w-5 text-[#81D7B4] mr-2"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                    clipRule="evenodd"
+                                  />
                                 </svg>
                                 <span className="text-sm font-medium text-gray-800">
-                                  Duration: {Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))} days
+                                  Duration:{" "}
+                                  {Math.ceil(
+                                    (endDate.getTime() - startDate.getTime()) /
+                                      (1000 * 60 * 60 * 24),
+                                  )}{" "}
+                                  days
                                 </span>
                               </div>
                               <div className="mt-2 text-xs text-gray-500 flex items-center">
                                 <span className="inline-block bg-white/80 rounded-md px-2 py-1 mr-2 shadow-sm">
-                                  {format(startDate, 'MMM d, yyyy')}
+                                  {format(startDate, "MMM d, yyyy")}
                                 </span>
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-4 w-4 text-gray-400"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                                  />
                                 </svg>
                                 <span className="inline-block bg-white/80 rounded-md px-2 py-1 ml-2 shadow-sm">
-                                  {format(endDate, 'MMM d, yyyy')}
+                                  {format(endDate, "MMM d, yyyy")}
                                 </span>
                               </div>
                             </motion.div>
                           )}
-                          {errors.endDate && <p className="mt-2 text-sm text-red-500 relative z-10">{errors.endDate}</p>}
+                          {errors.endDate && (
+                            <p className="mt-2 text-sm text-red-500 relative z-10">
+                              {errors.endDate}
+                            </p>
+                          )}
                         </div>
                       </motion.div>
 
@@ -1567,15 +1838,37 @@ export default function CreateSavingsPage() {
                       >
                         <div className="flex justify-between items-center mb-3">
                           <label className="block text-sm font-medium text-gray-700 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#81D7B4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5 mr-2 text-[#81D7B4]"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
                             </svg>
                             Early Withdrawal Penalty
                           </label>
                           <div className="bg-gray-100 rounded-full px-3 py-1 text-xs font-medium text-gray-600">
                             <span className="flex items-center">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4 mr-1"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
                               </svg>
                               Optional
                             </span>
@@ -1586,7 +1879,8 @@ export default function CreateSavingsPage() {
                           <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-blue-500/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
                           <p className="text-sm text-gray-600 mb-4 relative z-10">
-                            Setting a penalty helps you stay committed to your savings goal. If you withdraw funds before the end date, this percentage will be deducted.
+                            Setting a penalty helps you stay committed to your savings goal. If you
+                            withdraw funds before the end date, this percentage will be deducted.
                           </p>
 
                           <div className="flex gap-2 relative z-10">
@@ -1595,13 +1889,14 @@ export default function CreateSavingsPage() {
                                 key={p}
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.5 + (index * 0.1) }}
+                                transition={{ delay: 0.5 + index * 0.1 }}
                                 type="button"
                                 onClick={() => setPenalty(p)}
-                                className={`flex-1 py-3 rounded-xl border ${penalty === p
-                                  ? 'bg-gradient-to-r from-[#81D7B4]/20 to-[#81D7B4]/5 border-[#81D7B4]/30 text-[#81D7B4] shadow-[0_4px_10px_rgba(129,215,180,0.15)]'
-                                  : 'bg-white border-gray-200/50 text-gray-700 hover:bg-gray-50'
-                                  } transition-all font-medium text-center`}
+                                className={`flex-1 py-3 rounded-xl border ${
+                                  penalty === p
+                                    ? "bg-gradient-to-r from-[#81D7B4]/20 to-[#81D7B4]/5 border-[#81D7B4]/30 text-[#81D7B4] shadow-[0_4px_10px_rgba(129,215,180,0.15)]"
+                                    : "bg-white border-gray-200/50 text-gray-700 hover:bg-gray-50"
+                                } transition-all font-medium text-center`}
                               >
                                 {p}
                               </motion.button>
@@ -1609,11 +1904,32 @@ export default function CreateSavingsPage() {
                           </div>
 
                           <div className="mt-4 flex items-center text-sm text-gray-600 bg-amber-50/50 p-3 rounded-lg border border-amber-100/50 relative z-10">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-amber-500 mr-2 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5 text-amber-500 mr-2 flex-shrink-0"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                clipRule="evenodd"
+                              />
                             </svg>
                             <span>
-                              With <span className="font-medium text-amber-700">{penalty}</span> penalty, early withdrawal of <span className="font-medium text-amber-700">${amount || '1000'}</span> would cost you <span className="font-medium text-amber-700">${(Number(amount || '1000') * parseFloat(penalty) / 100).toFixed(2)}</span>.
+                              With <span className="font-medium text-amber-700">{penalty}</span>{" "}
+                              penalty, early withdrawal of{" "}
+                              <span className="font-medium text-amber-700">
+                                ${amount || "1000"}
+                              </span>{" "}
+                              would cost you{" "}
+                              <span className="font-medium text-amber-700">
+                                $
+                                {((Number(amount || "1000") * parseFloat(penalty)) / 100).toFixed(
+                                  2,
+                                )}
+                              </span>
+                              .
                             </span>
                           </div>
                         </div>
@@ -1631,8 +1947,17 @@ export default function CreateSavingsPage() {
                         onClick={handlePrevious}
                         className="inline-flex items-center justify-center px-5 sm:px-6 py-3 bg-white text-gray-700 font-medium rounded-xl border border-gray-200 shadow-sm hover:bg-gray-50 transition-all duration-300 transform hover:translate-y-[-2px]"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5 mr-2"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z"
+                            clipRule="evenodd"
+                          />
                         </svg>
                         Previous
                       </button>
@@ -1642,8 +1967,17 @@ export default function CreateSavingsPage() {
                         className="inline-flex items-center px-5 sm:px-6 py-3 bg-gradient-to-r from-[#81D7B4] to-[#81D7B4]/90 text-white font-medium rounded-xl shadow-[0_4px_10px_rgba(129,215,180,0.3)] hover:shadow-[0_6px_15px_rgba(129,215,180,0.4)] transition-all duration-300 transform hover:translate-y-[-2px]"
                       >
                         Next Step
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5 ml-2"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
+                            clipRule="evenodd"
+                          />
                         </svg>
                       </button>
                     </motion.div>
@@ -1666,7 +2000,9 @@ export default function CreateSavingsPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.1 }}
                     >
-                      <span className="bg-[#81D7B4]/10 w-8 h-8 rounded-full flex items-center justify-center text-[#81D7B4] mr-3 text-sm">3</span>
+                      <span className="bg-[#81D7B4]/10 w-8 h-8 rounded-full flex items-center justify-center text-[#81D7B4] mr-3 text-sm">
+                        3
+                      </span>
                       Review & Create
                     </motion.h2>
 
@@ -1688,18 +2024,26 @@ export default function CreateSavingsPage() {
 
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 relative z-10">
                           <div>
-                            <h3 className="text-lg font-bold text-gray-800">{name || "Untitled Plan"}</h3>
-                            <p className="text-sm text-gray-600 mt-1">Review your savings plan details</p>
+                            <h3 className="text-lg font-bold text-gray-800">
+                              {name || "Untitled Plan"}
+                            </h3>
+                            <p className="text-sm text-gray-600 mt-1">
+                              Review your savings plan details
+                            </p>
                           </div>
                           <div className="mt-3 sm:mt-0 flex items-center bg-white/70 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-white/60 shadow-sm">
                             <div className="bg-white rounded-full p-1 mr-2 shadow-sm">
                               <img
                                 src={
-                                  currency === 'Gooddollar' ? '/$g.png'
-                                  : currency === 'cUSD' ? '/cusd.png'
-                                  : currency === 'USDGLO' ? '/usdglo.png'
-                                  : currency === 'USDC' ? '/usdc.png'
-                                  : `/${currency.toLowerCase().replace('$', '')}.png`
+                                  currency === "Gooddollar"
+                                    ? "/$g.png"
+                                    : currency === "cUSD"
+                                      ? "/cusd.png"
+                                      : currency === "USDGLO"
+                                        ? "/usdglo.png"
+                                        : currency === "USDC"
+                                          ? "/usdc.png"
+                                          : `/${currency.toLowerCase().replace("$", "")}.png`
                                 }
                                 alt={currency}
                                 className="w-4 h-4"
@@ -1707,14 +2051,19 @@ export default function CreateSavingsPage() {
                             </div>
                             <span className="text-sm font-medium text-gray-700">{currency}</span>
                             <span className="mx-2 text-gray-300">|</span>
-                            {chains.map(c => c.id === chain && (
-                              <div key={c.id} className="flex items-center">
-                                <div className="bg-white rounded-full p-1 mr-1.5 shadow-sm">
-                                  <img src={c.logo} alt={c.name} className="w-4 h-4" />
-                                </div>
-                                <span className="text-sm font-medium text-gray-700">{c.name}</span>
-                              </div>
-                            ))}
+                            {chains.map(
+                              (c) =>
+                                c.id === chain && (
+                                  <div key={c.id} className="flex items-center">
+                                    <div className="bg-white rounded-full p-1 mr-1.5 shadow-sm">
+                                      <img src={c.logo} alt={c.name} className="w-4 h-4" />
+                                    </div>
+                                    <span className="text-sm font-medium text-gray-700">
+                                      {c.name}
+                                    </span>
+                                  </div>
+                                ),
+                            )}
                           </div>
                         </div>
 
@@ -1722,10 +2071,14 @@ export default function CreateSavingsPage() {
                           <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-white/60 shadow-sm">
                             <div className="flex justify-between items-center mb-3">
                               <span className="text-sm text-gray-500">Amount</span>
-                              <span className="text-xs px-2 py-1 bg-[#81D7B4]/10 text-[#81D7B4] rounded-full font-medium">Principal</span>
+                              <span className="text-xs px-2 py-1 bg-[#81D7B4]/10 text-[#81D7B4] rounded-full font-medium">
+                                Principal
+                              </span>
                             </div>
                             <div className="flex items-baseline">
-                              <span className="text-2xl font-bold text-gray-800">${amount || "0.00"}</span>
+                              <span className="text-2xl font-bold text-gray-800">
+                                ${amount || "0.00"}
+                              </span>
                               <span className="ml-1 text-gray-500">{currency}</span>
                             </div>
                           </div>
@@ -1741,36 +2094,45 @@ export default function CreateSavingsPage() {
                       >
                         <div className="divide-y divide-gray-100">
                           <div className="flex flex-col sm:flex-row sm:items-center py-3 px-4 sm:px-6">
-                            <span className="text-sm font-medium text-gray-500 sm:w-1/3">Start Date</span>
+                            <span className="text-sm font-medium text-gray-500 sm:w-1/3">
+                              Start Date
+                            </span>
                             <span className="text-sm text-gray-800 font-medium mt-1 sm:mt-0">
-                              {startDate ? format(startDate, 'MMMM d, yyyy') : 'Today'}
+                              {startDate ? format(startDate, "MMMM d, yyyy") : "Today"}
                             </span>
                           </div>
 
                           <div className="flex flex-col sm:flex-row sm:items-center py-3 px-4 sm:px-6">
-                            <span className="text-sm font-medium text-gray-500 sm:w-1/3">End Date</span>
+                            <span className="text-sm font-medium text-gray-500 sm:w-1/3">
+                              End Date
+                            </span>
                             <span className="text-sm text-gray-800 font-medium mt-1 sm:mt-0">
-                              {endDate ? format(endDate, 'MMMM d, yyyy') : 'Not selected'}
+                              {endDate ? format(endDate, "MMMM d, yyyy") : "Not selected"}
                             </span>
                           </div>
 
                           <div className="flex flex-col sm:flex-row sm:items-center py-3 px-4 sm:px-6">
-                            <span className="text-sm font-medium text-gray-500 sm:w-1/3">Duration</span>
+                            <span className="text-sm font-medium text-gray-500 sm:w-1/3">
+                              Duration
+                            </span>
                             <span className="text-sm text-gray-800 font-medium mt-1 sm:mt-0">
                               {startDate && endDate
                                 ? `${Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))} days`
-                                : 'Not calculated'}
+                                : "Not calculated"}
                             </span>
                           </div>
 
                           <div className="flex flex-col sm:flex-row sm:items-center py-3 px-4 sm:px-6">
-                            <span className="text-sm font-medium text-gray-500 sm:w-1/3">Early Withdrawal Penalty</span>
+                            <span className="text-sm font-medium text-gray-500 sm:w-1/3">
+                              Early Withdrawal Penalty
+                            </span>
                             <span className="flex flex-wrap items-center gap-2 mt-1 sm:mt-0">
                               <span className="inline-flex items-center bg-amber-50 text-amber-700 rounded-md px-2 py-0.5 text-xs font-semibold whitespace-nowrap">
                                 {penalty}
                               </span>
                               <span className="text-gray-500 text-xs sm:text-sm truncate">
-                                (${(Number(amount || '0') * parseFloat(penalty) / 100).toFixed(2)} fee on early withdrawal)
+                                (${((Number(amount || "0") * parseFloat(penalty)) / 100).toFixed(2)}{" "}
+                                fee on early withdrawal)
                               </span>
                             </span>
                           </div>
@@ -1782,26 +2144,53 @@ export default function CreateSavingsPage() {
                         {balanceWarning && (
                           <motion.div
                             initial={{ opacity: 0, y: -10, height: 0 }}
-                            animate={{ opacity: 1, y: 0, height: 'auto' }}
+                            animate={{ opacity: 1, y: 0, height: "auto" }}
                             exit={{ opacity: 0, y: -10, height: 0 }}
-                            transition={{ duration: 0.3, ease: 'easeInOut' }}
+                            transition={{ duration: 0.3, ease: "easeInOut" }}
                             className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4 relative overflow-hidden"
                           >
                             <div className="absolute -top-10 -right-10 w-20 h-20 bg-amber-200/20 rounded-full blur-2xl"></div>
                             <div className="flex items-start space-x-3 relative z-10">
                               <div className="flex-shrink-0 mt-0.5">
-                                <svg className="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                <svg
+                                  className="w-5 h-5 text-amber-600"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                    clipRule="evenodd"
+                                  />
                                 </svg>
                               </div>
                               <div className="flex-1">
-                                <h4 className="text-sm font-semibold text-amber-800 mb-1">Wallet Balance Warning</h4>
-                                <p className="text-sm text-amber-700 leading-relaxed">{balanceWarning}</p>
+                                <h4 className="text-sm font-semibold text-amber-800 mb-1">
+                                  Wallet Balance Warning
+                                </h4>
+                                <p className="text-sm text-amber-700 leading-relaxed">
+                                  {balanceWarning}
+                                </p>
                                 {isCheckingBalance && (
                                   <div className="flex items-center mt-2 text-xs text-amber-600">
-                                    <svg className="animate-spin w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24">
-                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    <svg
+                                      className="animate-spin w-3 h-3 mr-1"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <circle
+                                        className="opacity-25"
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        stroke="currentColor"
+                                        strokeWidth="4"
+                                      ></circle>
+                                      <path
+                                        className="opacity-75"
+                                        fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                      ></path>
                                     </svg>
                                     Checking balances...
                                   </div>
@@ -1812,7 +2201,11 @@ export default function CreateSavingsPage() {
                                 className="flex-shrink-0 text-amber-500 hover:text-amber-700 transition-colors"
                               >
                                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                    clipRule="evenodd"
+                                  />
                                 </svg>
                               </button>
                             </div>
@@ -1831,24 +2224,40 @@ export default function CreateSavingsPage() {
                           <div className="absolute -top-10 -right-10 w-20 h-20 bg-green-200/20 rounded-full blur-2xl"></div>
                           <div className="flex items-center space-x-3 relative z-10">
                             <div className="flex-shrink-0">
-                              <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              <svg
+                                className="w-5 h-5 text-green-600"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                  clipRule="evenodd"
+                                />
                               </svg>
                             </div>
                             <div className="flex-1">
-                              <h4 className="text-sm font-semibold text-green-800 mb-1">Wallet Ready</h4>
+                              <h4 className="text-sm font-semibold text-green-800 mb-1">
+                                Wallet Ready
+                              </h4>
                               <div className="text-xs text-green-700 space-y-1">
                                 <div className="flex justify-between">
                                   <span>{currency} Balance:</span>
-                                  <span className="font-medium">{parseFloat(tokenBalance).toFixed(4)} {currency}</span>
+                                  <span className="font-medium">
+                                    {parseFloat(tokenBalance).toFixed(4)} {currency}
+                                  </span>
                                 </div>
                                 <div className="flex justify-between">
                                   <span>ETH Balance:</span>
-                                  <span className="font-medium">{parseFloat(walletBalance).toFixed(6)} ETH</span>
+                                  <span className="font-medium">
+                                    {parseFloat(walletBalance).toFixed(6)} ETH
+                                  </span>
                                 </div>
                                 <div className="flex justify-between">
                                   <span>Est. Gas Fee:</span>
-                                  <span className="font-medium">~{parseFloat(estimatedGasFee).toFixed(6)} ETH</span>
+                                  <span className="font-medium">
+                                    ~{parseFloat(estimatedGasFee).toFixed(6)} ETH
+                                  </span>
                                 </div>
                               </div>
                             </div>
@@ -1874,7 +2283,8 @@ export default function CreateSavingsPage() {
                           />
                         </div>
                         <label htmlFor="terms" className="text-sm text-gray-600">
-                          I understand that my funds will be locked until the end date, and early withdrawals will incur a {penalty} penalty.
+                          I understand that my funds will be locked until the end date, and early
+                          withdrawals will incur a {penalty} penalty.
                         </label>
                       </motion.div>
                     </motion.div>
@@ -1890,8 +2300,17 @@ export default function CreateSavingsPage() {
                         onClick={handlePrevious}
                         className="inline-flex items-center justify-center px-5 sm:px-6 py-3 bg-white text-gray-700 font-medium rounded-xl border border-gray-200 shadow-sm hover:bg-gray-50 transition-all duration-300 transform hover:translate-y-[-2px] order-2 sm:order-1"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5 mr-2"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z"
+                            clipRule="evenodd"
+                          />
                         </svg>
                         Previous
                       </button>
@@ -1901,19 +2320,44 @@ export default function CreateSavingsPage() {
                         disabled={submitting || isLoading || !termsAgreed}
                         className="inline-flex items-center justify-center px-5 sm:px-6 py-3 bg-gradient-to-r from-[#81D7B4] to-[#81D7B4]/90 text-white font-medium rounded-xl shadow-[0_4px_10px_rgba(129,215,180,0.3)] hover:shadow-[0_6px_15px_rgba(129,215,180,0.4)] transition-all duration-300 transform hover:translate-y-[-2px] disabled:opacity-70 disabled:cursor-not-allowed order-1 sm:order-2"
                       >
-                        {(submitting || isLoading) ? (
+                        {submitting || isLoading ? (
                           <>
-                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            <svg
+                              className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              ></circle>
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              ></path>
                             </svg>
                             Creating Plan...
                           </>
                         ) : (
                           <>
                             Create Savings Plan
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5 ml-2"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clipRule="evenodd"
+                              />
                             </svg>
                           </>
                         )}
@@ -1927,5 +2371,5 @@ export default function CreateSavingsPage() {
         </div>
       </motion.div>
     </div>
-  )
+  );
 }

@@ -8,7 +8,7 @@ import type { ChainId } from "../types";
 
 export async function getJoiningFee(
   contractAddress: Address,
-  chainId: ChainId = config.state.chainId
+  chainId: ChainId = config.state.chainId,
 ) {
   const result = (await readContract(config, {
     abi: BITSAVE_ABI,
@@ -22,7 +22,7 @@ export async function getJoiningFee(
 
 export async function getCreateSavingsFee(
   contractAddress: Address,
-  chainId: ChainId = config.state.chainId
+  chainId: ChainId = config.state.chainId,
 ) {
   const result = (await readContract(config, {
     abi: BITSAVE_ABI,
@@ -57,7 +57,7 @@ export async function getAllUserSavings(childContract: string, chainId: ChainId)
 export async function getUserChildContract(
   contractAddress: Address,
   userAccount: string,
-  chainId: ChainId = config.state.chainId
+  chainId: ChainId = config.state.chainId,
 ) {
   return (await readContract(config, {
     abi: BITSAVE_ABI,

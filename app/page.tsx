@@ -1,13 +1,12 @@
-
 import { Metadata } from "next";
-import Header from './components/Header';
-import Hero from './components/Hero';
-import HowItWorks from './components/HowItWorks';
-import Security from './components/Security';
-import Features from './components/Features';
-import Team from './components/Team';
-import FAQ from './components/FAQ';
-import Footer from './components/Footer';
+import Header from "./components/Header";
+import Hero from "./components/Hero";
+import HowItWorks from "./components/HowItWorks";
+import Security from "./components/Security";
+import Features from "./components/Features";
+import Team from "./components/Team";
+import FAQ from "./components/FAQ";
+import Footer from "./components/Footer";
 import { APP_NAME, APP_DESCRIPTION, APP_OG_IMAGE_URL } from "../lib/constants";
 import { getMiniAppEmbedMetadata } from "../lib/utils";
 

@@ -1,24 +1,29 @@
-"use client"
-import { useState, useRef, useEffect } from 'react'
-import { motion } from 'framer-motion'
+"use client";
+import { useState, useRef, useEffect } from "react";
+import { motion } from "framer-motion";
 
 // Utility function to generate YouTube thumbnail URL with fallback
-const getYouTubeThumbnail = (videoId: string, quality: 'maxresdefault' | 'hqdefault' | 'mqdefault' | 'sddefault' = 'maxresdefault') => {
+const getYouTubeThumbnail = (
+  videoId: string,
+  quality: "maxresdefault" | "hqdefault" | "mqdefault" | "sddefault" = "maxresdefault",
+) => {
   return `https://img.youtube.com/vi/${videoId}/${quality}.jpg`;
 };
 
 // Function to fetch video title from YouTube oEmbed API
 const fetchVideoTitle = async (videoId: string): Promise<string> => {
   try {
-    const response = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
+    const response = await fetch(
+      `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`,
+    );
     if (response.ok) {
       const data = await response.json();
-      return data.title || 'Video Title';
+      return data.title || "Video Title";
     }
   } catch (error) {
-    console.error('Error fetching video title:', error);
+    console.error("Error fetching video title:", error);
   }
-  return 'Video Title'; // Fallback title
+  return "Video Title"; // Fallback title
 };
 
 // Video data will be passed as props
@@ -29,20 +34,20 @@ type Video = {
   url?: string;
   creator?: string;
   embedUrl?: string;
-}
+};
 
 const VideoCard = ({ video, index }: { video: Video; index: number }) => {
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [showPlayer, setShowPlayer] = useState(false)
-  const [isInView, setIsInView] = useState(false)
-  const [thumbnailError, setThumbnailError] = useState(false)
-  const [actualTitle, setActualTitle] = useState(video.title)
-  const [titleLoading, setTitleLoading] = useState(true)
-  const cardRef = useRef<HTMLDivElement>(null)
-  
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [showPlayer, setShowPlayer] = useState(false);
+  const [isInView, setIsInView] = useState(false);
+  const [thumbnailError, setThumbnailError] = useState(false);
+  const [actualTitle, setActualTitle] = useState(video.title);
+  const [titleLoading, setTitleLoading] = useState(true);
+  const cardRef = useRef<HTMLDivElement>(null);
+
   // Generate thumbnail URL with fallback
-  const thumbnailUrl = video.thumbnail || getYouTubeThumbnail(video.id)
-  const fallbackThumbnailUrl = getYouTubeThumbnail(video.id, 'hqdefault')
+  const thumbnailUrl = video.thumbnail || getYouTubeThumbnail(video.id);
+  const fallbackThumbnailUrl = getYouTubeThumbnail(video.id, "hqdefault");
 
   // Fetch actual video title
   useEffect(() => {
@@ -51,39 +56,39 @@ const VideoCard = ({ video, index }: { video: Video; index: number }) => {
         const title = await fetchVideoTitle(video.id);
         setActualTitle(title);
       } catch (error) {
-        console.error('Failed to fetch video title:', error);
+        console.error("Failed to fetch video title:", error);
       } finally {
         setTitleLoading(false);
       }
     };
-    
+
     getTitle();
   }, [video.id]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsInView(entry.isIntersecting)
+        setIsInView(entry.isIntersecting);
       },
-      { threshold: 0.1 }
-    )
+      { threshold: 0.1 },
+    );
 
-    const currentElement = cardRef.current
+    const currentElement = cardRef.current;
     if (currentElement) {
-      observer.observe(currentElement)
+      observer.observe(currentElement);
     }
 
     return () => {
       if (currentElement) {
-        observer.unobserve(currentElement)
+        observer.unobserve(currentElement);
       }
-      observer.disconnect()
-    }
-  }, [])
+      observer.disconnect();
+    };
+  }, []);
 
   const handlePlayClick = () => {
-    setShowPlayer(true)
-  }
+    setShowPlayer(true);
+  };
 
   return (
     <motion.div
@@ -130,14 +135,14 @@ const VideoCard = ({ video, index }: { video: Video; index: number }) => {
             <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
               <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z"/>
+                  <path d="M8 5v14l11-7z" />
                 </svg>
               </div>
             </div>
           </div>
         )}
       </div>
-      
+
       <div className="p-6">
         <h3 className="font-semibold text-lg text-gray-800 mb-4 line-clamp-2">
           {titleLoading ? (
@@ -160,36 +165,36 @@ const VideoCard = ({ video, index }: { video: Video; index: number }) => {
         </div>
       </div>
     </motion.div>
-  )
-}
+  );
+};
 
 const SavvyFinanceVideos = ({ videos }: { videos: Video[] }) => {
-  const scrollerRef = useRef<HTMLDivElement>(null)
-  const [isHovered, setIsHovered] = useState(false)
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    const scroller = scrollerRef.current
-    if (!scroller) return
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
 
-    let animationFrameId: number
+    let animationFrameId: number;
     const scroll = () => {
       if (!isHovered) {
-        scroller.scrollLeft += 0.3
+        scroller.scrollLeft += 0.3;
         if (scroller.scrollLeft >= scroller.scrollWidth / 2) {
-          scroller.scrollLeft = 0
+          scroller.scrollLeft = 0;
         }
       }
-      animationFrameId = requestAnimationFrame(scroll)
-    }
+      animationFrameId = requestAnimationFrame(scroll);
+    };
 
-    animationFrameId = requestAnimationFrame(scroll)
+    animationFrameId = requestAnimationFrame(scroll);
 
     return () => {
-      cancelAnimationFrame(animationFrameId)
-    }
-  }, [isHovered])
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [isHovered]);
 
-  const duplicatedVideos = [...videos, ...videos]
+  const duplicatedVideos = [...videos, ...videos];
 
   return (
     <div
@@ -200,11 +205,15 @@ const SavvyFinanceVideos = ({ videos }: { videos: Video[] }) => {
     >
       <div className="flex w-max gap-6 pb-4">
         {duplicatedVideos.map((video, index) => (
-          <VideoCard key={`${video.id}-${Math.floor(index / videos.length)}`} video={video} index={index} />
+          <VideoCard
+            key={`${video.id}-${Math.floor(index / videos.length)}`}
+            video={video}
+            index={index}
+          />
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SavvyFinanceVideos
+export default SavvyFinanceVideos;
