@@ -6,7 +6,10 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "format": "prettier --write .",
+    "check-format": "prettier --check .",
+    "ci": "npm run check-format && npm run build"
   },
   "dependencies": {
     "@farcaster/auth-client": "^0.7.0",
@@ -15,11 +18,12 @@
     "@farcaster/miniapp-sdk": "^0.1.9",
     "@farcaster/miniapp-wagmi-connector": "^1.0.0",
     "@hassanmojab/react-modern-calendar-datepicker": "^3.1.7",
+    "@neynar/react": "^1.2.9",
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-popover": "^1.1.6",
-    "@rainbow-me/rainbowkit": "^2.2.4",
     "@tanstack/react-query": "^5.69.0",
     "@types/react-datepicker": "^6.2.0",
+    "@wagmi/core": "^2.16.7",
     "axios": "^1.8.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -48,6 +52,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.2.2",
+    "prettier": "^3.6.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

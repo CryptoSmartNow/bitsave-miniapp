@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 💰 Bitsave — A Savings App for Farcaster Creators
 
-## Getting Started
+Bitsave is a Farcaster MiniApp that helps creators automatically save a portion of their onchain earnings. Designed with creators in mind, it integrates directly with Farcaster’s wallet to detect incoming payments, suggest savings, and reward consistent savers. Think of it as your onchain savings assistant — simple, social, and secure.
 
-First, run the development server:
+## 🚀 Features
+
+- 🏦 **Create a Savings Vault**
+  - Define name, amount, network (Base/Celo), token, duration & penalty.
+  - Optionally start with a $0 balance.
+
+- 💸 **Top Up Your Vault**
+  - Add funds manually to your plan at any time.
+
+- 🔔 **Earnings-Based Notifications**
+  - Automatic wallet monitoring.
+  - Get prompts like: _"You earned $10 this week. Save 30% now?"_
+
+- 📢 **Cast Your Save**
+  - Share your savings as a public Farcaster cast: _"I just saved $10 on Bitsave!"_
+
+- 🧠 **Smart Suggestions**
+  - Bitsave suggests top-ups based on past activity and earning history.
+
+- 🥇 **Savvy Leaderboard**
+  - Track top savers on Farcaster by:
+    - Total saved
+    - $BTS rewards earned
+    - Number of vaults
+  - Filter by: All users / Friends / Base / Celo
+
+- ⚙️ **Settings**
+  - Enable/disable notifications
+  - Auto-save (coming soon)
+
+## 🔧 Tech Stack
+
+- **Frontend:** V0 (React + Tailwind via prompts)
+- **Blockchain:** Solidity smart contracts deployed on Base & Celo
+- **Farcaster:** MiniApp SDK, Social Graph, Wallet integration
+- **Backend:** (optional) for notifications, analytics & vault metadata
+
+## 🧪 Local Development
 
 ```bash
+git clone https://github.com/your-username/bitsave-miniapp.git
+cd bitsave-miniapp
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+> Ensure you have a `.env` file configured with necessary API keys and contract addresses.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ✨ Inspiration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Creators earn directly from casts, tips, and swaps on Farcaster — but many forget to save. Bitsave helps automate good habits and makes saving a social signal. Save with intention, and show it off.
 
-## Learn More
+## 📜 License
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT © 2025 Bitsave

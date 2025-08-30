@@ -1,5 +1,25 @@
 import { type AccountAssociation } from "@farcaster/miniapp-core/src/manifest";
 
+export const BASE_CONTRACT_ADDRESS = "0x3593546078eecd0ffd1c19317f53ee565be6ca13";
+export const BASE_USDC_CONTRACT_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+export const CELO_CONTRACT_ADDRESS = "0x7d839923Eb2DAc3A0d1cABb270102E481A208F33";
+// Token address mapping for Celo
+export const CELO_TOKEN_MAP: {
+  [address: string]: { name: string; decimals: number; logo: string };
+} = {
+  "0x765de816845861e75a25fca122bb6898b8b1282a": { name: "cUSD", decimals: 18, logo: "/cusd.png" },
+  "0x4f604735c1cf31399c6e711d5962b2b3e0225ad3": {
+    name: "USDGLO",
+    decimals: 6,
+    logo: "/usdglo.png",
+  },
+  "0x62b8b11039fcfe5ab0c56e502b1c372a3d2a9c7a": {
+    name: "Gooddollar",
+    decimals: 18,
+    logo: "/$g.png",
+  },
+};
+
 /**
  * Application constants and configuration values.
  *
