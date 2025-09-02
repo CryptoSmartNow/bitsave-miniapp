@@ -36,7 +36,7 @@ export const CELO_TOKEN_MAP: {
  * The base URL of the application.
  * Used for generating absolute URLs for assets and API endpoints.
  */
-export const APP_URL: string = process.env.NEXT_PUBLIC_URL! ?? "https://bitsave.io";
+export const APP_URL: string = process.env.NEXT_PUBLIC_URL! ?? "https://bitsaveminiapp.netlify.app";
 
 /**
  * The name of the mini app as displayed to users.
