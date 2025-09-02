@@ -3,6 +3,7 @@ import { getFarcasterDomainManifest } from "@/lib/utils";
 
 export async function GET() {
   try {
+    return NextResponse.json({ hi: "world" });
     const config = await getFarcasterDomainManifest();
     return NextResponse.json(config);
   } catch (error) {
