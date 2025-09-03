@@ -1,4 +1,16 @@
 import { type AccountAssociation } from "@farcaster/miniapp-core/src/manifest";
+import { base, celo } from "wagmi/chains";
+
+export const SUPPORTED_CHAINS = [
+  {
+    id: base.id,
+    name: base.name,
+  },
+  {
+    id: celo.id,
+    name: celo.name,
+  },
+];
 
 export const BASE_CONTRACT_ADDRESS = "0x3593546078eecd0ffd1c19317f53ee565be6ca13";
 export const BASE_USDC_CONTRACT_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";

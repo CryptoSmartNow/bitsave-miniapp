@@ -14,6 +14,7 @@ import {
   APP_URL,
   APP_WEBHOOK_URL,
   APP_ACCOUNT_ASSOCIATION,
+  SUPPORTED_CHAINS,
 } from "./constants";
 
 export function cn(...inputs: ClassValue[]) {
@@ -59,4 +60,17 @@ export async function getFarcasterDomainManifest(): Promise<Manifest> {
       webhookUrl: APP_WEBHOOK_URL,
     },
   };
+}
+
+export function getChainLogo(chainId: number) {
+  const [base, celo] = SUPPORTED_CHAINS;
+
+  switch (chainId) {
+    case base.id:
+      return "/base.svg";
+    case celo.id:
+      return "/celo.png";
+    default:
+      return "/default.svg";
+  }
 }

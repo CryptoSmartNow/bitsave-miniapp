@@ -15,8 +15,14 @@ import axios from "axios";
 import sdk from "@farcaster/miniapp-sdk";
 import { getSaving, getUserChildContract, getUserVaultNames } from "@/lib/onchain";
 import { ethers } from "ethers";
-import { BASE_CONTRACT_ADDRESS, CELO_CONTRACT_ADDRESS, CELO_TOKEN_MAP } from "@/lib/constants";
+import {
+  BASE_CONTRACT_ADDRESS,
+  CELO_CONTRACT_ADDRESS,
+  CELO_TOKEN_MAP,
+  SUPPORTED_CHAINS,
+} from "@/lib/constants";
 import type { LeaderboardEntry, Update, ReadUpdate, SavingsPlan } from "@/types";
+import { getChainLogo } from "@/lib/utils";
 
 // Initialize the Space Grotesk font
 const spaceGrotesk = Space_Grotesk({
@@ -26,7 +32,6 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export default function Dashboard() {
-  const [isBaseNetwork, setIsBaseNetwork] = useState(config.state.chainId === base.id);
   const [mounted, setMounted] = useState(false);
   const { address, isConnected, isConnecting } = useAccount();
   const router = useRouter();
@@ -48,7 +53,7 @@ export default function Dashboard() {
   } | null>(null);
 
   // onchain hooks
-  const { switchChain, isPending: isSwitchingChain } = useSwitchChain();
+  const { switchChain, isPending: isSwitchingChain, data: currentChain } = useSwitchChain();
   // farcaster miniapp hook
   const { context } = useMiniApp();
 
@@ -254,7 +259,9 @@ export default function Dashboard() {
     const readyMiniapp = async () => {
       await sdk.actions.ready();
       setMounted(true);
-      fetchSavingsData();
+      setTimeout(() => {
+        fetchSavingsData();
+      }, 0);
     };
     if (sdk && !mounted) {
       readyMiniapp();
@@ -280,6 +287,14 @@ export default function Dashboard() {
     try {
       setIsLoading(true);
 
+      setSavingsData({
+        totalLocked: "0.00",
+        deposits: 0,
+        rewards: "0.00",
+        currentPlans: [],
+        completedPlans: [],
+      });
+
       // Fetch ETH price in parallel with wallet setup
       const currentEthPrice = await fetchEthPrice();
       const network = config.state;
@@ -289,7 +304,7 @@ export default function Dashboard() {
       const BASE_CHAIN_ID = base.id;
       const CELO_CHAIN_ID = celo.id;
 
-      setIsBaseNetwork(network.chainId === BASE_CHAIN_ID);
+      console.log("============================== current network", network);
 
       if (network.chainId !== BASE_CHAIN_ID && network.chainId !== CELO_CHAIN_ID) {
         setIsCorrectNetwork(false);
@@ -490,9 +505,7 @@ export default function Dashboard() {
                 tokenLogo,
               };
 
-              savingData?.isValid
-                ?  currentPlans.push(planData)
-                :  completedPlans.push(planData);
+              savingData?.isValid ? currentPlans.push(planData) : completedPlans.push(planData);
             } catch (err) {
               console.error(`Failed to process plan "${savingName}":`, err);
             }
@@ -1000,17 +1013,18 @@ export default function Dashboard() {
                 onClick={() =>
                   document.getElementById("chain-dropdown")?.classList.toggle("hidden")
                 }
+                disabled={isSwitchingChain || isLoading}
                 className="flex items-center bg-gray-100/80 backdrop-blur-sm rounded-lg px-3 py-2 md:px-4 md:py-2.5 border border-gray-200/50 hover:bg-gray-100 transition-all duration-300"
               >
                 <div className="bg-gray-100 rounded-full w-6 h-6 md:w-7 md:h-7 flex items-center justify-center mr-2 shadow-sm overflow-hidden">
                   <img
-                    src={`/${isBaseNetwork ? "base.svg" : "celo.png"}`}
-                    alt={isBaseNetwork ? "Base" : "Celo"}
+                    src={getChainLogo(currentChain?.id ?? base.id)}
+                    alt={currentChain?.name ?? "Base"}
                     className="w-5 h-5 md:w-6 md:h-6 object-contain"
                   />
                 </div>
                 <span className="text-gray-700 font-medium text-sm md:text-base">
-                  {isBaseNetwork ? "Base" : "Celo"}
+                  {currentChain?.name ?? "Base"}
                 </span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -1033,26 +1047,28 @@ export default function Dashboard() {
                 id="chain-dropdown"
                 className="absolute left-0 mt-2 w-48 bg-white/90 backdrop-blur-md rounded-lg shadow-lg border border-gray-200/50 z-10 hidden"
               >
-                {["Base", "Celo"].map((chain) => (
+                {SUPPORTED_CHAINS.map((chain) => (
                   <button
-                    key={chain}
+                    key={chain.id}
                     onClick={() => {
-                      if (chain === "Base" || chain === "Celo") {
-                        document.getElementById("chain-dropdown")?.classList.add("hidden");
-                        // Switch network when chain is selected
-                        switchChain({ chainId: chain === "Base" ? base.id : celo.id });
-                      }
+                      document.getElementById("chain-dropdown")?.classList.add("hidden");
+                      if (chain.id === currentChain?.id) return;
+                      console.log(`Switching to chain: ${chain.name} (${chain.id})`, currentChain);
+                      // Switch network when chain is selected
+                      switchChain({ chainId: chain.id });
+                      // fetch savings data
+                      setTimeout(() => fetchSavingsData(), 0);
                     }}
-                    className={`flex items-center w-full px-4 py-2 hover:bg-gray-100/80 text-left text-sm ${chain === "Arbitrum" ? "opacity-50 pointer-events-none" : ""} ${(chain === "Base" && isBaseNetwork) || (chain === "Celo" && !isBaseNetwork) ? "bg-gray-100/80" : ""}`}
+                    className={`flex items-center w-full px-4 py-2 hover:bg-gray-100/80 text-left text-sm bg-gray-100/80`}
                   >
                     <div className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center mr-2 overflow-hidden">
                       <img
-                        src={`/${chain.toLowerCase()}${chain === "Arbitrum" || chain === "Celo" ? ".png" : ".svg"}`}
-                        alt={chain}
+                        src={`/${chain.name.toLowerCase()}${chain.name === "Celo" ? ".png" : ".svg"}`}
+                        alt={chain.name}
                         className="w-4 h-4 object-contain"
                       />
                     </div>
-                    <div className="flex items-center">{chain}</div>
+                    <div className="flex items-center">{chain.name}</div>
                   </button>
                 ))}
               </div>
@@ -1253,11 +1269,11 @@ export default function Dashboard() {
                               {plan.isEth ? "ETH" : plan.tokenName}
                               <span className="mx-1 text-gray-300">|</span>
                               <img
-                                src={isBaseNetwork ? "/base.svg" : "/celo.png"}
-                                alt={isBaseNetwork ? "Base" : "Celo"}
+                                src={getChainLogo(currentChain?.id ?? base.id)}
+                                alt={currentChain?.name ?? "Base"}
                                 className="w-4 h-4 mr-1"
                               />
-                              {isBaseNetwork ? "Base" : "Celo"}
+                              {currentChain?.name ?? "Base"}
                             </span>
                           </div>
                         </div>
@@ -1512,11 +1528,11 @@ export default function Dashboard() {
                               {plan.isEth ? "ETH" : plan.tokenName}
                               <span className="mx-1 text-gray-300">|</span>
                               <img
-                                src={isBaseNetwork ? "/base.svg" : "/celo.png"}
-                                alt={isBaseNetwork ? "Base" : "Celo"}
+                                src={getChainLogo(currentChain?.id ?? base.id)}
+                                alt={currentChain?.name ?? "Base"}
                                 className="w-4 h-4 mr-1"
                               />
-                              {isBaseNetwork ? "Base" : "Celo"}
+                              {currentChain?.name ?? "Base"}
                             </span>
                           </div>
                         </div>
