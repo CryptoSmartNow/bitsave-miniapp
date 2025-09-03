@@ -74,3 +74,12 @@ export function getChainLogo(chainId: number) {
       return "/default.svg";
   }
 }
+
+export const getTokenLogo = (tokenName: string, tokenLogo?: string) => {
+  if (tokenLogo) return tokenLogo;
+  if (tokenName === "cUSD") return "/cusd.png";
+  if (tokenName === "USDGLO") return "/usdglo.png";
+  if (tokenName === "$G" || tokenName === "Gooddollar") return "/$g.png";
+  if (tokenName === "USDC") return "/usdc.png";
+  return `/${tokenName.toLowerCase()}.png`;
+};
