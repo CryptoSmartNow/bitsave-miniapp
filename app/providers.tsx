@@ -13,8 +13,8 @@ const chains = [base, celo] as const;
 export const config = createConfig({
   chains,
   transports: {
-    [base.id]: webSocket('wss://base.gateway.tenderly.co'),
-    [celo.id]: webSocket('wss://celo.drpc.org'),
+    [base.id]: webSocket("wss://base.gateway.tenderly.co"),
+    [celo.id]: webSocket("wss://celo.drpc.org"),
   },
   connectors: [farcasterFrame()],
 });
