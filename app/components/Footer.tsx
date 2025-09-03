@@ -58,7 +58,7 @@ export default function Footer() {
   return (
     <footer className="relative overflow-hidden bg-[#f8fafa] border-t border-[#81D7B4]/10">
       {/* Background Elements */}
-      <div className="absolute inset-0 bg-[url('/grain-texture.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+      <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
       <div className="absolute -z-10 w-[800px] h-[800px] bg-[#81D7B4]/5 rounded-full blur-[100px] -bottom-1/2 -right-1/2"></div>
       <div className="absolute -z-10 w-[600px] h-[600px] bg-[#81D7B4]/5 rounded-full blur-[100px] -top-1/2 -left-1/2"></div>
 

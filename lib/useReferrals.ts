@@ -34,6 +34,7 @@ export function useReferrals(): UseReferralsReturn {
   const [error, setError] = useState<string | null>(null);
 
   const generateReferralCode = async () => {
+    return;
     if (!address) {
       setError("Wallet not connected");
       return;

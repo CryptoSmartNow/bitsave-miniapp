@@ -54,8 +54,8 @@ export default function Team() {
       className="py-24 px-4 md:px-8 lg:px-16 relative overflow-hidden bg-[#f8fafa]"
     >
       {/* Enhanced background elements */}
-      <div className="absolute inset-0 -z-10 bg-[url('/grain-texture.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
-      <div className="absolute inset-0 -z-10 bg-[url('/circuit-pattern.svg')] opacity-[0.02] pointer-events-none"></div>
+      <div className="absolute inset-0 -z-10 opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
+      <div className="absolute inset-0 -z-10 opacity-[0.02] pointer-events-none"></div>
 
       {/* Floating Elements */}
       <div className="absolute -z-10 w-[600px] h-[600px] bg-[#81D7B4]/5 rounded-full blur-[100px] top-1/4 right-0 transform translate-x-1/3 animate-pulse-slow"></div>
@@ -103,7 +103,7 @@ export default function Team() {
 
                   {/* Animated Background Patterns */}
                   <div className="absolute inset-0">
-                    <div className="absolute top-0 left-0 w-full h-full bg-[url('/noise.png')] opacity-[0.02] mix-blend-overlay"></div>
+                    <div className="absolute top-0 left-0 w-full h-full opacity-[0.02] mix-blend-overlay"></div>
                     <div className="absolute -right-1/2 -top-1/2 w-full h-full bg-gradient-to-br from-[#81D7B4]/10 to-transparent rounded-full blur-3xl animate-pulse-slow"></div>
                     <div
                       className="absolute -left-1/2 -bottom-1/2 w-full h-full bg-gradient-to-tl from-[#81D7B4]/10 to-transparent rounded-full blur-3xl animate-pulse-slow"

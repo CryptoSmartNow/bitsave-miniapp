@@ -89,6 +89,7 @@ class InteractionTracker {
   }
 
   async trackInteraction(interaction: Omit<UserInteraction, "id" | "timestamp" | "sessionId">) {
+    return;
     const newInteraction: UserInteraction = {
       ...interaction,
       id: this.generateId(),
