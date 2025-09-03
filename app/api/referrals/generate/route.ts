@@ -3,6 +3,12 @@ import { getDatabase } from "@/lib/mongodb";
 import { nanoid } from "nanoid";
 
 export async function POST(request: NextRequest) {
+  return NextResponse.json({
+    referralCode: "referralCode",
+    referralLink: `https://bitsave.io/ref/{referralCode}`,
+    isNew: false,
+  });
+
   try {
     const { walletAddress } = await request.json();
 

@@ -30,7 +30,7 @@ export default function Header() {
   }, [mounted]);
 
   // Function to switch to Base network
-  const switchToBaseNetwork = async () => {
+  const switchToBaseNetwork = () => {
     if (!isConnected) return;
 
     // Try to switch to Base network
@@ -40,17 +40,16 @@ export default function Header() {
   // Add effect to redirect when wallet is connected and switch to Base network
   useEffect(() => {
     if (mounted && isConnected && address) {
-      // Track wallet connection
-      trackWalletConnect(address, {
-        networkSwitched: true,
-        redirectedToDashboard: true,
-      });
+      // TODO: Track wallet connection
+      // trackWalletConnect(address, {
+      //   networkSwitched: true,
+      //   redirectedToDashboard: true,
+      // });
 
       // Switch to Base network first
-      switchToBaseNetwork().then(() => {
-        // Then redirect to dashboard
-        router.push("/dashboard");
-      });
+      switchToBaseNetwork();
+      // Then redirect to dashboard
+      router.push("/dashboard");
     }
   }, [isConnected, mounted, router, address]);
 

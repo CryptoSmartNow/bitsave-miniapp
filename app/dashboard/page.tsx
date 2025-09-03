@@ -1,12 +1,8 @@
 "use client";
+
 import { useState, useEffect } from "react";
-import {
-  useAccount,
-  useSwitchChain,
-  useConnectorClient,
-  useWriteContract,
-  useReadContract,
-} from "wagmi";
+import { useAccount, useSwitchChain } from "wagmi";
+import { base, celo } from "viem/chains";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useMiniApp } from "@neynar/react";
@@ -20,6 +16,7 @@ import sdk from "@farcaster/miniapp-sdk";
 import { getSaving, getUserChildContract, getUserVaultNames } from "@/lib/onchain";
 import { ethers } from "ethers";
 import { BASE_CONTRACT_ADDRESS, CELO_CONTRACT_ADDRESS, CELO_TOKEN_MAP } from "@/lib/constants";
+import type { LeaderboardEntry, Update, ReadUpdate, SavingsPlan } from "@/types";
 
 // Initialize the Space Grotesk font
 const spaceGrotesk = Space_Grotesk({
@@ -29,12 +26,11 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export default function Dashboard() {
-  const [isBaseNetwork, setIsBaseNetwork] = useState(true);
+  const [isBaseNetwork, setIsBaseNetwork] = useState(config.state.chainId === base.id);
   const [mounted, setMounted] = useState(false);
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, isConnecting } = useAccount();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("current");
-  const [, setEthPrice] = useState<number | null>(null);
   const [topUpModal, setTopUpModal] = useState({
     isOpen: false,
     planName: "",
@@ -43,7 +39,6 @@ export default function Dashboard() {
     isGToken: false,
     tokenName: "",
   });
-  const [displayName, setDisplayName] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [selectedUpdate, setSelectedUpdate] = useState<{
@@ -53,64 +48,11 @@ export default function Dashboard() {
   } | null>(null);
 
   // onchain hooks
-  const { switchChain } = useSwitchChain();
-  const { data: walletClient } = useConnectorClient();
-  const { writeContractAsync } = useWriteContract();
-
+  const { switchChain, isPending: isSwitchingChain } = useSwitchChain();
   // farcaster miniapp hook
-  const { context, isInMiniApp } = useMiniApp();
+  const { context } = useMiniApp();
 
-  const [updates, setUpdates] = useState<
-    Array<{
-      id: string;
-      title: string;
-      content: string;
-      date: string;
-      isNew: boolean;
-    }>
-  >([]);
-
-  useEffect(() => {
-    if (mounted && address) {
-      // Check for Twitter username first
-      const xUsername = localStorage.getItem("xUsername");
-      const isXConnected = localStorage.getItem("isXConnected");
-
-      if (xUsername && isXConnected === "true") {
-        setDisplayName(`@${xUsername}`);
-      } else {
-        // Fall back to saved display name
-        const savedName = localStorage.getItem(`bitsave_displayname_${address}`);
-        if (savedName) {
-          setDisplayName(savedName);
-        } else {
-          // Default to truncated wallet address
-          setDisplayName(`${address.slice(0, 6)}...${address.slice(-4)}`);
-        }
-      }
-    }
-  }, [mounted, address]);
-
-  interface LeaderboardEntry {
-    useraddress: string;
-    totalamount: number;
-    chain: string;
-    datetime?: string;
-    rank?: number;
-  }
-
-  interface Update {
-    id: string;
-    title: string;
-    content: string;
-    date: string;
-    isNew: boolean;
-  }
-
-  interface ReadUpdate {
-    id: string;
-    isNew: boolean;
-  }
+  const [updates, setUpdates] = useState<Array<Update>>([]);
 
   // Function to fetch all updates
   const fetchAllUpdates = async () => {
@@ -224,37 +166,12 @@ export default function Dashboard() {
     totalLocked: "0.00",
     deposits: 0,
     rewards: "0.00",
-    currentPlans: [] as Array<{
-      id: string;
-      address: string;
-      name: string;
-      currentAmount: string;
-      targetAmount: string;
-      progress: number;
-      isEth: boolean;
-      maturityTime?: number;
-      penaltyPercentage: number;
-      tokenName: string; // Add this property
-      tokenLogo?: string; // Add this property
-    }>,
-    completedPlans: [] as Array<{
-      id: string;
-      address: string;
-      name: string;
-      currentAmount: string;
-      targetAmount: string;
-      progress: number;
-      isEth: boolean;
-      maturityTime?: number;
-      penaltyPercentage: number;
-      tokenName: string; // Add this property
-      tokenLogo?: string; // Add this property
-    }>,
+    currentPlans: [] as Array<SavingsPlan>,
+    completedPlans: [] as Array<SavingsPlan>,
   });
 
   const [isLoading, setIsLoading] = useState(true);
   const [isCorrectNetwork, setIsCorrectNetwork] = useState(true);
-  const [switchingNetwork, setSwitchingNetwork] = useState(false);
 
   // Add state for GoodDollar price
   const [goodDollarPrice, setGoodDollarPrice] = useState<number>(0.00009189);
@@ -337,76 +254,12 @@ export default function Dashboard() {
     const readyMiniapp = async () => {
       await sdk.actions.ready();
       setMounted(true);
+      fetchSavingsData();
     };
     if (sdk && !mounted) {
       readyMiniapp();
     }
   }, []);
-
-  // Function to switch to Base network
-  const switchToNetwork = async (networkName: string) => {
-    setSwitchingNetwork(true);
-    try {
-      if (networkName.toLowerCase() === "base") {
-        switchChain({ chainId: 8453 });
-      } else if (networkName.toLowerCase() === "celo") {
-        switchChain({ chainId: 42220 });
-      }
-      // Refresh data after switching
-      setIsCorrectNetwork(true);
-      fetchSavingsData();
-    } catch (error: unknown) {
-      // Type guard to check if error is an object with a code property
-      if (error && typeof error === "object" && "code" in error && error.code === 4902) {
-        try {
-          if (networkName.toLowerCase() === "base") {
-            await walletClient!.request({
-              method: "wallet_addEthereumChain",
-              params: [
-                {
-                  chainId: "0x2105", // Base chainId in hex
-                  chainName: "Base",
-                  nativeCurrency: {
-                    name: "ETH",
-                    symbol: "ETH",
-                    decimals: 18,
-                  },
-                  rpcUrls: ["https://mainnet.base.org"],
-                  blockExplorerUrls: ["https://basescan.org"],
-                },
-              ],
-            });
-          } else if (networkName.toLowerCase() === "celo") {
-            await walletClient!.request({
-              method: "wallet_addEthereumChain",
-              params: [
-                {
-                  chainId: "0xA4EC", // Celo chainId in hex
-                  chainName: "Celo",
-                  nativeCurrency: {
-                    name: "CELO",
-                    symbol: "CELO",
-                    decimals: 18,
-                  },
-                  rpcUrls: ["https://forno.celo.org"],
-                  blockExplorerUrls: ["https://explorer.celo.org"],
-                },
-              ],
-            });
-          }
-
-          // Try switching again after adding
-          await switchToNetwork(networkName);
-        } catch (addError) {
-          console.error(`Error adding ${networkName} network:`, addError);
-        }
-      } else {
-        console.error(`Error switching to ${networkName} network:`, error);
-      }
-    } finally {
-      setSwitchingNetwork(false);
-    }
-  };
 
   const fetchEthPrice = async () => {
     try {
@@ -421,6 +274,7 @@ export default function Dashboard() {
   };
 
   const fetchSavingsData = async () => {
+    console.log("fetching savings data...");
     if (!isConnected || !address) return;
 
     try {
@@ -431,10 +285,9 @@ export default function Dashboard() {
       const network = config.state;
 
       console.log(`Current ETH price: ${currentEthPrice}`);
-      setEthPrice(currentEthPrice || 3500);
 
-      const BASE_CHAIN_ID = 8453;
-      const CELO_CHAIN_ID = 42220;
+      const BASE_CHAIN_ID = base.id;
+      const CELO_CHAIN_ID = celo.id;
 
       setIsBaseNetwork(network.chainId === BASE_CHAIN_ID);
 
@@ -488,7 +341,7 @@ export default function Dashboard() {
 
       // Get savings names
       const savingsNamesArray = await getUserVaultNames(userChildContractAddress, network.chainId);
-      console.log("Savings names object:", savingsNamesArray);
+      console.log("Savings names:", savingsNamesArray);
 
       const currentPlans = [];
       const completedPlans = [];
@@ -532,13 +385,17 @@ export default function Dashboard() {
 
         const batchResults = await Promise.allSettled(batchPromises);
 
+        console.log("Batch results", batchResults);
+
         // Process successful results
         for (const result of batchResults) {
           if (result.status === "fulfilled" && result.value) {
             const { savingName, savingData } = result.value;
 
+            console.log("processing..", savingName, savingData);
+
             try {
-              if (!savingData?.isValid) continue;
+              // if (!savingData?.isValid) continue;
 
               const tokenId = savingData.tokenId;
               const isEth = tokenId.toLowerCase() === ethers.ZeroAddress.toLowerCase();
@@ -546,6 +403,9 @@ export default function Dashboard() {
               let tokenName = "USDC";
               let decimals = 6;
               let tokenLogo = "/usdc.png";
+
+              console.log("... saving data", savingData);
+
               if (isEth) {
                 tokenName = "ETH";
                 decimals = 18;
@@ -630,11 +490,9 @@ export default function Dashboard() {
                 tokenLogo,
               };
 
-              if (progress >= 100 || now >= maturityTime) {
-                completedPlans.push(planData);
-              } else {
-                currentPlans.push(planData);
-              }
+              savingData?.isValid
+                ?  currentPlans.push(planData)
+                :  completedPlans.push(planData);
             } catch (err) {
               console.error(`Failed to process plan "${savingName}":`, err);
             }
@@ -795,25 +653,12 @@ export default function Dashboard() {
     }
   }, [mounted]);
 
+  // Go back home if the user is not connected
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (mounted && address) {
-      // Add a small delay to prevent immediate heavy loading
-      const timer = setTimeout(() => {
-        fetchSavingsData();
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [mounted, address]);
-
-  useEffect(() => {
-    if (mounted && !isConnected) {
+    if (mounted && !isConnecting && !isConnected) {
       router.push("/");
     }
-  }, [isConnected, mounted, router]);
+  }, [isConnected, isConnecting, mounted, router]);
 
   if (!mounted) {
     return (
@@ -960,18 +805,18 @@ export default function Dashboard() {
             </span>
             <div className="ml-4 flex space-x-2">
               <button
-                onClick={() => switchToNetwork("Base")}
-                disabled={switchingNetwork}
+                onClick={() => switchChain({ chainId: base.id })}
+                disabled={isSwitchingChain}
                 className="bg-yellow-600 hover:bg-yellow-700 text-white text-xs font-medium py-1 px-3 rounded-full transition-colors disabled:opacity-70"
               >
-                {switchingNetwork ? "Switching..." : "Switch to Base"}
+                {isSwitchingChain ? "Switching..." : "Switch to Base"}
               </button>
               <button
-                onClick={() => switchToNetwork("Celo")}
-                disabled={switchingNetwork}
+                onClick={() => switchChain({ chainId: celo.id })}
+                disabled={isSwitchingChain}
                 className="bg-yellow-600 hover:bg-yellow-700 text-white text-xs font-medium py-1 px-3 rounded-full transition-colors disabled:opacity-70"
               >
-                {switchingNetwork ? "Switching..." : "Switch to Celo"}
+                {isSwitchingChain ? "Switching..." : "Switch to Celo"}
               </button>
             </div>
           </div>
@@ -1062,10 +907,7 @@ export default function Dashboard() {
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800 tracking-tight">Dashboard</h1>
           <p className="text-sm md:text-base text-gray-500 flex items-center">
             <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-            Welcome back,{" "}
-            {context?.user?.username ??
-              displayName ??
-              (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "User")}
+            Welcome back, {context?.user?.username ?? "User"}
           </p>
         </div>
         {/* Notification bell with responsive positioning - aligned with menu bar */}
@@ -1198,7 +1040,7 @@ export default function Dashboard() {
                       if (chain === "Base" || chain === "Celo") {
                         document.getElementById("chain-dropdown")?.classList.add("hidden");
                         // Switch network when chain is selected
-                        switchToNetwork(chain);
+                        switchChain({ chainId: chain === "Base" ? base.id : celo.id });
                       }
                     }}
                     className={`flex items-center w-full px-4 py-2 hover:bg-gray-100/80 text-left text-sm ${chain === "Arbitrum" ? "opacity-50 pointer-events-none" : ""} ${(chain === "Base" && isBaseNetwork) || (chain === "Celo" && !isBaseNetwork) ? "bg-gray-100/80" : ""}`}

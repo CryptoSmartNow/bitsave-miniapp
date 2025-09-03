@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { WagmiProvider, createConfig, http } from "wagmi";
+import { WagmiProvider, createConfig, http, webSocket } from "wagmi";
 import { base, celo } from "wagmi/chains";
 import { farcasterFrame } from "@farcaster/miniapp-wagmi-connector";
 import { MiniAppProvider } from "@neynar/react";
@@ -13,8 +13,8 @@ const chains = [base, celo] as const;
 export const config = createConfig({
   chains,
   transports: {
-    [base.id]: http(),
-    [celo.id]: http(),
+    [base.id]: webSocket('wss://base.gateway.tenderly.co'),
+    [celo.id]: webSocket('wss://celo.drpc.org'),
   },
   connectors: [farcasterFrame()],
 });
