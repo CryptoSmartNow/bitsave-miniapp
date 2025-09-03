@@ -34,9 +34,11 @@ export default function Hero() {
   // Handle wallet connection and redirect
   const handleOpenApp = async () => {
     if (isConnected) {
+      console.log("going to dashbaord...");
       // If already connected, redirect to dashboard
       router.push("/dashboard");
     } else {
+      console.log("connecting wallet...");
       // If in mini app, connect with farcaster connector
       connect({ connector: farcasterMiniApp() });
     }
