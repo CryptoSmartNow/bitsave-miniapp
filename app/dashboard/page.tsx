@@ -9,7 +9,6 @@ import { useMiniApp } from "@neynar/react";
 import { Space_Grotesk } from "next/font/google";
 import TopUpModal from "../../components/TopUpModal";
 import WithdrawModal from "../../components/WithdrawModal";
-import { motion } from "framer-motion";
 import { config } from "../providers";
 import axios from "axios";
 import sdk from "@farcaster/miniapp-sdk";
@@ -23,6 +22,8 @@ import {
 } from "@/lib/constants";
 import type { LeaderboardEntry, Update, ReadUpdate, SavingsPlan } from "@/types";
 import { getChainLogo } from "@/lib/utils";
+import EmptyCompletedSavings from "../components/EmptyCompletedSavings";
+import EmptyCurrentSavings from "../components/EmptyCurrentSavings";
 
 // Initialize the Space Grotesk font
 const spaceGrotesk = Space_Grotesk({
@@ -682,106 +683,6 @@ export default function Dashboard() {
       </div>
     );
   }
-
-  const EmptyCurrentSavings = () => (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="bg-white/80 backdrop-blur-xl rounded-2xl border border-white/60 shadow-sm p-8 text-center"
-    >
-      <div className="mx-auto w-24 h-24 bg-[#81D7B4]/10 rounded-full flex items-center justify-center mb-6">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          className="w-12 h-12 text-[#81D7B4]"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M12 6v12m-8-6h16"
-          />
-        </svg>
-      </div>
-      <h3 className="text-xl font-bold text-gray-800 mb-2">No Savings Plans Yet</h3>
-      <p className="text-gray-600 mb-6 max-w-md mx-auto">
-        Start your savings journey by creating your first savings plan.
-      </p>
-      <Link
-        href="/dashboard/create-savings"
-        className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#81D7B4] to-[#81D7B4]/90 text-white font-medium rounded-xl shadow-[0_4px_10px_rgba(129,215,180,0.3)] hover:shadow-[0_6px_15px_rgba(129,215,180,0.4)] transition-all duration-300 transform hover:translate-y-[-2px]"
-      >
-        Create Your First Plan
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5 ml-2"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fillRule="evenodd"
-            d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-            clipRule="evenodd"
-          />
-        </svg>
-      </Link>
-    </motion.div>
-  );
-
-  const EmptyCompletedSavings = () => (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="bg-white/80 backdrop-blur-xl rounded-2xl border border-white/60 shadow-sm p-8 text-center"
-    >
-      <div className="mx-auto w-24 h-24 bg-green-100/50 rounded-full flex items-center justify-center mb-6">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          className="w-12 h-12 text-green-500/70"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-          />
-        </svg>
-      </div>
-      <h3 className="text-xl font-bold text-gray-800 mb-2">No Completed Plans Yet</h3>
-      <p className="text-gray-600 mb-6 max-w-md mx-auto">
-        Your completed savings plans will appear here. Keep saving to reach your goals!
-      </p>
-      <div className="inline-flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl border border-gray-200/50 transition-all duration-300">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5 mr-2 text-gray-500"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fillRule="evenodd"
-            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 00-1 1v3a1 1 0 002 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z"
-            clipRule="evenodd"
-          />
-        </svg>
-        Keep Saving
-      </div>
-    </motion.div>
-  );
-
-  // Helper to get decimals for a token
-  // const getTokenDecimals = (tokenName: string) => {
-  //   if (tokenName === 'cUSD' || tokenName === '$G' || tokenName === 'Gooddollar') return 18;
-  //   if (tokenName === 'USDGLO') return 6;
-  //   return 6; // Default to 6 for USDC, etc.
-  // };
 
   // Helper to get logo for a token
   const getTokenLogo = (tokenName: string, tokenLogo?: string) => {
