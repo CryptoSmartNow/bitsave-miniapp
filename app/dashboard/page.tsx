@@ -26,6 +26,7 @@ import EmptyCompletedSavings from "../components/EmptyCompletedSavings";
 import EmptyCurrentSavings from "../components/EmptyCurrentSavings";
 import Loader from "../components/Loader";
 import ActiveSavingPlanCard from "../components/ActiveSavingPlanCard";
+import { usePrices } from "@/components/PriceComponents";
 
 // Initialize the Space Grotesk font
 const spaceGrotesk = Space_Grotesk({
@@ -61,6 +62,9 @@ export default function Dashboard() {
   const { context } = useMiniApp();
 
   const [updates, setUpdates] = useState<Array<Update>>([]);
+
+  // price provider
+  const { celoPrice, ethPrice, goodDollarPrice } = usePrices();
 
   // Function to fetch all updates
   const fetchAllUpdates = async () => {
@@ -182,31 +186,6 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCorrectNetwork, setIsCorrectNetwork] = useState(true);
 
-  // Add state for GoodDollar price
-  const [goodDollarPrice, setGoodDollarPrice] = useState<number>(0.00009189);
-
-  // Fetch GoodDollar price from Coingecko
-  const fetchGoodDollarPrice = async () => {
-    try {
-      const response = await fetch(
-        "https://api.coingecko.com/api/v3/simple/price?ids=gooddollar&vs_currencies=usd",
-      );
-      const data = await response.json();
-      console.log("GoodDollar API response:", data);
-      const price = data.gooddollar?.usd;
-      if (price && price > 0) {
-        console.log("Fetched GoodDollar price:", price);
-        return price;
-      } else {
-        console.log("Invalid price from API, using fallback");
-        return 0.00009189; // Updated fallback to current market price
-      }
-    } catch (error) {
-      console.error("Error fetching GoodDollar price:", error);
-      return 0.00009189; // Updated fallback to current market price
-    }
-  };
-
   const openUpdateModal = (update: Update) => {
     setSelectedUpdate(update);
     setShowUpdateModal(true);
@@ -223,13 +202,6 @@ export default function Dashboard() {
       fetchAllUpdates();
     }
   }, [mounted, address]);
-
-  // Fetch GoodDollar price on mount - run in parallel
-  useEffect(() => {
-    if (mounted) {
-      fetchGoodDollarPrice().then(setGoodDollarPrice);
-    }
-  }, [mounted]);
 
   // Function to close update modal
   const closeUpdateModal = () => {
@@ -272,18 +244,6 @@ export default function Dashboard() {
     }
   }, []);
 
-  const fetchEthPrice = async () => {
-    try {
-      const response = await axios.get(
-        "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd",
-      );
-      return response.data.ethereum.usd; // ETH price in USD
-    } catch (error) {
-      console.error("Error fetching ETH price:", error);
-      return 3500; // Fallback price if API fails
-    }
-  };
-
   const fetchSavingsData = async () => {
     console.log("fetching savings data...");
     if (!isConnected || !address) return;
@@ -301,7 +261,7 @@ export default function Dashboard() {
       });
 
       // Fetch ETH price in parallel with wallet setup
-      const currentEthPrice = await fetchEthPrice();
+      const currentEthPrice = ethPrice;
       const network = config.state;
 
       console.log(`Current ETH price: ${currentEthPrice}`);

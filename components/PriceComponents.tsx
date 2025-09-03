@@ -32,13 +32,13 @@ async function fetchPrice(id: string, fallback: number): Promise<number> {
 export function PriceProvider({ children }: { children: ReactNode }) {
   const { data: ethPrice } = useQuery({
     queryKey: ["ethPrice"],
-    queryFn: () => fetchPrice("ethereum", 2000),
+    queryFn: () => fetchPrice("ethereum", 4000),
     refetchInterval: 60_000,
   });
 
   const { data: celoPrice } = useQuery({
     queryKey: ["celoPrice"],
-    queryFn: () => fetchPrice("celo", 0.5),
+    queryFn: () => fetchPrice("celo", 0.3),
     refetchInterval: 60_000,
   });
 
