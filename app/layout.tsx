@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
+import { Providers } from "./providers";
+import ReferralTracker from "@/components/ReferralTracker";
+import { APP_NAME, APP_DESCRIPTION, APP_OG_IMAGE_URL } from "../lib/constants";
+import { getMiniAppEmbedMetadata } from "@/lib/utils";
 
 // Configure Space Grotesk font with all weights
 const spaceGrotesk = Space_Grotesk({
@@ -10,37 +14,21 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
 });
 
-import { Providers } from "./providers";
-import ReferralTracker from "@/components/ReferralTracker";
-import { APP_URL } from "@/lib/constants";
+export const revalidate = 300;
 
-export const metadata: Metadata = {
-  metadataBase: new URL(APP_URL),
-  title: "BitSave - Simplified Crypto Savings",
-  description:
-    "BitSave offers a simplified approach to crypto investing with professionally managed portfolios.",
-  openGraph: {
-    title: "BitSave - Simplified Crypto Savings",
-    description:
-      "BitSave offers a simplified approach to crypto investing with professionally managed portfolios.",
-    images: [
-      {
-        url: "/bitsavepreview.png",
-        width: 1200,
-        height: 630,
-        alt: "BitSave - Simplified Crypto Savings",
-      },
-    ],
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "BitSave - Simplified Crypto Savings",
-    description:
-      "BitSave offers a simplified approach to crypto investing with professionally managed portfolios.",
-    images: ["/bitsavepreview.png"],
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: APP_NAME,
+    openGraph: {
+      title: APP_NAME,
+      description: APP_DESCRIPTION,
+      images: [APP_OG_IMAGE_URL],
+    },
+    other: {
+      "fc:frame": JSON.stringify(getMiniAppEmbedMetadata()),
+    },
+  };
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
