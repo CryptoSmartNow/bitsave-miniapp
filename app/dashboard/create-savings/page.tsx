@@ -1735,7 +1735,7 @@ export default function CreateSavingsPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
                       >
-                        <label className="block text-sm font-medium text-gray-700 mb-3 flex items-center">
+                        <label className="text-sm font-medium text-gray-700 mb-3 flex items-center">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             className="h-5 w-5 mr-2 text-[#81D7B4]"
@@ -1835,7 +1835,7 @@ export default function CreateSavingsPage() {
                         transition={{ delay: 0.4 }}
                       >
                         <div className="flex justify-between items-center mb-3">
-                          <label className="block text-sm font-medium text-gray-700 flex items-center">
+                          <label className="text-sm font-medium text-gray-700 flex items-center">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               className="h-5 w-5 mr-2 text-[#81D7B4]"

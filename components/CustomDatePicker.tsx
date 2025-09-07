@@ -53,7 +53,7 @@ export default function CustomDatePicker({
             />
           </svg>
         </button>
-        <span className="text-base sm:text-xl font-bold text-gray-800 bg-gradient-to-r from-[#81D7B4] to-blue-400 bg-clip-text text-transparent px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg">
+        <span className="text-base sm:text-xl font-bold bg-gradient-to-r from-[#81D7B4] to-blue-400 bg-clip-text text-transparent px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg">
           {format(currentMonth, "MMMM yyyy")}
         </span>
         <button

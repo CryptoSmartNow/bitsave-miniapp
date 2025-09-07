@@ -92,7 +92,7 @@ export default function Footer() {
               </div>
               <button
                 type="submit"
-                className="flex-none rounded-xl bg-[#81D7B4] px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#81D7B4]/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#81D7B4] transition-all duration-300"
+                className="flex-none rounded-xl bg-[#81D7B4] px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#81D7B4]/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#81D7B4] transition-all duration-300"
               >
                 Sign up
               </button>
