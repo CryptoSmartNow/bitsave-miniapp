@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAccount, useSwitchChain } from "wagmi";
+import { useAccount, useSwitchChain, useChainId } from "wagmi";
 import { base, celo } from "viem/chains";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -9,7 +9,6 @@ import { useMiniApp } from "@neynar/react";
 import { Space_Grotesk } from "next/font/google";
 import TopUpModal from "../../components/TopUpModal";
 import WithdrawModal from "../../components/WithdrawModal";
-import { config } from "../providers";
 import axios from "axios";
 import sdk from "@farcaster/miniapp-sdk";
 import { getSaving, getUserChildContract, getUserVaultNames } from "@/lib/onchain";
@@ -57,15 +56,35 @@ export default function Dashboard() {
     date: string;
   } | null>(null);
 
-  // onchain hooks
-  const { switchChain, isPending: isSwitchingChain, data: currentChain } = useSwitchChain();
+    // onchain hooks
+  const { switchChain, isPending: isSwitchingChain } = useSwitchChain();
+  const chainId = useChainId();
   // farcaster miniapp hook
   const { context } = useMiniApp();
+
+  // Helper function to get current chain info
+  const getCurrentChain = () => {
+    if (!mounted) return base; // Safe default for SSR
+    return SUPPORTED_CHAINS.find(chain => chain.id === chainId) || base;
+  };
 
   const [updates, setUpdates] = useState<Array<Update>>([]);
 
   // price provider
   const { celoPrice, ethPrice, goodDollarPrice } = usePrices();
+
+  // Effect to handle chain changes and refetch data
+  useEffect(() => {
+    if (mounted && address && chainId && !isSwitchingChain) {
+      console.log('Chain changed, refetching data for chain:', chainId);
+      // Add a small delay to ensure the chain switch is complete
+      const timer = setTimeout(() => {
+        fetchSavingsData();
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [chainId, mounted, address, isSwitchingChain]);
 
   // Function to fetch all updates
   const fetchAllUpdates = async () => {
@@ -247,7 +266,8 @@ export default function Dashboard() {
 
   const fetchSavingsData = async () => {
     console.log("fetching savings data...");
-    if (!isConnected || !address) return;
+    if (!isConnected || !address || !chainId) return;
+    console.log("Current chain:", chainId);
 
     try {
       setIsLoading(true);
@@ -264,17 +284,15 @@ export default function Dashboard() {
       // Fetch ETH price in parallel with wallet setup
       const currentEthPrice = ethPrice;
       console.log("======================= current eth price", ethPrice);
-      1;
-      const network = config.state;
 
       console.log(`Current ETH price: ${currentEthPrice}`);
 
       const BASE_CHAIN_ID = base.id;
       const CELO_CHAIN_ID = celo.id;
 
-      console.log("============================== current network", network);
+      console.log("============================== current chain", chainId);
 
-      if (network.chainId !== BASE_CHAIN_ID && network.chainId !== CELO_CHAIN_ID) {
+      if (chainId !== BASE_CHAIN_ID && chainId !== CELO_CHAIN_ID) {
         setIsCorrectNetwork(false);
         setIsLoading(false);
         return;
@@ -283,7 +301,7 @@ export default function Dashboard() {
       setIsCorrectNetwork(true);
 
       const contractAddress =
-        network.chainId === BASE_CHAIN_ID ? BASE_CONTRACT_ADDRESS : CELO_CONTRACT_ADDRESS;
+        chainId === BASE_CHAIN_ID ? BASE_CONTRACT_ADDRESS : CELO_CONTRACT_ADDRESS;
 
       // Get user's child contract with timeout
       let userChildContractAddress;
@@ -292,7 +310,7 @@ export default function Dashboard() {
         userChildContractAddress = await getUserChildContract(
           contractAddress,
           address,
-          network.chainId,
+          chainId,
         );
 
         console.log("User child contract address:", userChildContractAddress);
@@ -325,7 +343,7 @@ export default function Dashboard() {
       }
 
       // Get savings names
-      const savingsNamesArray = await getUserVaultNames(userChildContractAddress, network.chainId);
+      const savingsNamesArray = await getUserVaultNames(userChildContractAddress, chainId);
       console.log("Savings names:", savingsNamesArray);
 
       const currentPlans = [];
@@ -358,7 +376,7 @@ export default function Dashboard() {
             const savingData = await getSaving(
               userChildContractAddress,
               savingName,
-              network.chainId,
+              chainId,
             );
             console.log("savingData for", savingName, ":", savingData);
 
@@ -396,7 +414,7 @@ export default function Dashboard() {
                 tokenName = "ETH";
                 decimals = 18;
                 tokenLogo = "/eth.png";
-              } else if (network.chainId === CELO_CHAIN_ID) {
+              } else if (chainId === CELO_CHAIN_ID) {
                 const tokenInfo = CELO_TOKEN_MAP[(tokenId as string).toLowerCase()];
                 if (tokenInfo) {
                   tokenName = tokenInfo.name;
@@ -407,7 +425,7 @@ export default function Dashboard() {
                   decimals = 6;
                   tokenLogo = "/usdglo.png";
                 }
-              } else if (network.chainId === BASE_CHAIN_ID) {
+              } else if (chainId === BASE_CHAIN_ID) {
                 if (tokenId.toLowerCase() === "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913") {
                   tokenName = "USDC";
                   decimals = 6;
@@ -651,7 +669,7 @@ export default function Dashboard() {
       className={`${spaceGrotesk.variable} font-sans p-4 sm:p-6 md:p-8 bg-[#f2f2f2] text-gray-800 relative min-h-screen pb-8 overflow-x-hidden`}
     >
       {/* Network Warning Banner - Only show if not on Base or Celo */}
-      {!isCorrectNetwork && address && (
+      {mounted && !isCorrectNetwork && address && (
         <div className="fixed top-0 left-0 right-0 bg-yellow-100 border-b border-yellow-200 z-50 p-3 flex items-center justify-center">
           <div className="flex items-center max-w-4xl mx-auto">
             <svg
@@ -773,7 +791,7 @@ export default function Dashboard() {
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800 tracking-tight">Dashboard</h1>
           <p className="text-sm md:text-base text-gray-500 flex items-center">
             <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-            Welcome back, {context?.user?.username ?? "User"}
+            Welcome back, {mounted ? (context?.user?.username ?? "User") : "User"}
           </p>
         </div>
         {/* Notification bell with responsive positioning - aligned with menu bar */}
@@ -797,7 +815,7 @@ export default function Dashboard() {
                 d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
               />
             </svg>
-            {updates.some((update) => update.isNew) && (
+            {updates && updates.some((update) => update.isNew) && (
               <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#81D7B4] rounded-full border-2 border-white"></span>
             )}
           </button>
@@ -810,7 +828,7 @@ export default function Dashboard() {
               </div>
 
               <div className="max-h-80 overflow-y-auto">
-                {updates.length > 0 ? (
+                {updates && updates.length > 0 ? (
                   updates.map((update) => (
                     <button
                       key={update.id}
@@ -871,28 +889,32 @@ export default function Dashboard() {
               >
                 <div className="bg-gray-100 rounded-full w-6 h-6 md:w-7 md:h-7 flex items-center justify-center mr-2 shadow-sm overflow-hidden">
                   <img
-                    src={getChainLogo(currentChain?.id ?? base.id)}
-                    alt={currentChain?.name ?? "Base"}
+                    src={getChainLogo(mounted ? chainId : base.id)}
+                    alt={getCurrentChain().name}
                     className="w-5 h-5 md:w-6 md:h-6 object-contain"
                   />
                 </div>
                 <span className="text-gray-700 font-medium text-sm md:text-base">
-                  {currentChain?.name ?? "Base"}
+                  {isSwitchingChain ? "Switching..." : getCurrentChain().name}
                 </span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  className="w-4 h-4 md:w-5 md:h-5 ml-2 text-gray-500"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
+                {isSwitchingChain ? (
+                  <div className="animate-spin h-4 w-4 md:h-5 md:w-5 ml-2 border-2 border-gray-300 border-t-[#81D7B4] rounded-full"></div>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    className="w-4 h-4 md:w-5 md:h-5 ml-2 text-gray-500"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                )}
               </button>
 
               {/* Dropdown menu */}
@@ -905,14 +927,15 @@ export default function Dashboard() {
                     key={chain.id}
                     onClick={() => {
                       document.getElementById("chain-dropdown")?.classList.add("hidden");
-                      if (chain.id === currentChain?.id) return;
-                      console.log(`Switching to chain: ${chain.name} (${chain.id})`, currentChain);
+                      if (!mounted || chain.id === chainId) return;
+                      console.log(`Switching to chain: ${chain.name} (${chain.id})`);
                       // Switch network when chain is selected
                       switchChain({ chainId: chain.id });
-                      // fetch savings data
-                      setTimeout(() => fetchSavingsData(), 0);
+                      // Data will be fetched automatically via useEffect when chainId changes
                     }}
-                    className={`flex items-center w-full px-4 py-2 hover:bg-gray-100/80 text-left text-sm bg-gray-100/80`}
+                    className={`flex items-center w-full px-4 py-2 hover:bg-gray-100/80 text-left text-sm ${
+                      mounted && chain.id === chainId ? "bg-[#81D7B4]/10 text-[#81D7B4]" : "bg-gray-100/80"
+                    }`}
                   >
                     <div className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center mr-2 overflow-hidden">
                       <img
