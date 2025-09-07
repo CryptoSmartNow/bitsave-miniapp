@@ -44,13 +44,6 @@ export default function Hero() {
     }
   };
 
-  // Effect to redirect to dashboard when connected
-  useEffect(() => {
-    if (isConnected) {
-      router.push("/dashboard");
-    }
-  }, [isConnected, router]);
-
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!heroRef.current) return;

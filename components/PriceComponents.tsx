@@ -33,19 +33,19 @@ export function PriceProvider({ children }: { children: ReactNode }) {
   const { data: ethPrice } = useQuery({
     queryKey: ["ethPrice"],
     queryFn: () => fetchPrice("ethereum", 4000),
-    refetchInterval: 60_000,
+    refetchInterval: 300_000,
   });
 
   const { data: celoPrice } = useQuery({
     queryKey: ["celoPrice"],
     queryFn: () => fetchPrice("celo", 0.3),
-    refetchInterval: 60_000,
+    refetchInterval: 300_000,
   });
 
   const { data: goodDollarPrice } = useQuery({
     queryKey: ["goodDollarPrice"],
     queryFn: () => fetchPrice("gooddollar", 0.00009189),
-    refetchInterval: 60_000,
+    refetchInterval: 300_000,
   });
 
   return (
