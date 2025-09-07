@@ -66,6 +66,7 @@ export function useReferrals(): UseReferralsReturn {
   };
 
   const trackReferralVisit = async (referralCode: string) => {
+    return;
     try {
       const response = await fetch("/api/referrals/track", {
         method: "POST",
@@ -89,6 +90,7 @@ export function useReferrals(): UseReferralsReturn {
   };
 
   const markReferralConversion = async (referralCode: string) => {
+    return;
     if (!address) {
       console.warn("Wallet not connected for referral conversion");
       return;
@@ -115,6 +117,7 @@ export function useReferrals(): UseReferralsReturn {
   };
 
   const refreshReferralData = async () => {
+    return;
     if (!address) {
       setReferralData(null);
       return;
