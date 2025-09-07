@@ -263,7 +263,8 @@ export default function Dashboard() {
 
       // Fetch ETH price in parallel with wallet setup
       const currentEthPrice = ethPrice;
-      console.log("======================= current eth price", ethPrice);1
+      console.log("======================= current eth price", ethPrice);
+      1;
       const network = config.state;
 
       console.log(`Current ETH price: ${currentEthPrice}`);
@@ -1132,10 +1133,7 @@ export default function Dashboard() {
               <>
                 {/* Show only first 3 completed plans on dashboard */}
                 {savingsData.completedPlans.slice(0, 3).map((plan) => (
-                  <CompletedSavingPlanCard
-                    key={plan.id}
-                    plan={plan}
-                  />
+                  <CompletedSavingPlanCard key={plan.id} plan={plan} />
                 ))}
               </>
             ) : (
