@@ -3,9 +3,9 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAccount, useSwitchChain } from "wagmi";
-import { useOptimizedDisconnect } from "../../lib/useOptimizedDisconnect";
-import { trackWalletConnect, trackPageVisit } from "../../lib/interactionTracker";
-import CustomConnectButton from "../../components/CustomConnectButton";
+import { useOptimizedDisconnect } from "../lib/useOptimizedDisconnect";
+import { trackWalletConnect, trackPageVisit } from "../lib/interactionTracker";
+import CustomConnectButton from "./CustomConnectButton";
 import sdk from "@farcaster/miniapp-sdk";
 import { base } from "viem/chains";
 

@@ -58,7 +58,7 @@ export function useReferrals(): UseReferralsReturn {
 
       // After generating, fetch the full referral data
       await refreshReferralData();
-    } catch (err) {
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setLoading(false);
@@ -84,7 +84,7 @@ export function useReferrals(): UseReferralsReturn {
       if (!response.ok) {
         console.warn("Failed to track referral visit");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.warn("Error tracking referral visit:", err);
     }
   };
@@ -111,7 +111,7 @@ export function useReferrals(): UseReferralsReturn {
       if (!response.ok) {
         console.warn("Failed to mark referral conversion");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.warn("Error marking referral conversion:", err);
     }
   };
@@ -140,7 +140,7 @@ export function useReferrals(): UseReferralsReturn {
 
       const data = await response.json();
       setReferralData(data);
-    } catch (err) {
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setLoading(false);

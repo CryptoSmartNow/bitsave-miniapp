@@ -1,5 +1,11 @@
-import { type AccountAssociation } from "@farcaster/miniapp-core/src/manifest";
 import { base, celo } from "wagmi/chains";
+
+// Type definition for AccountAssociation (from Farcaster miniapp core)
+interface AccountAssociation {
+  header: string;
+  payload: string;
+  signature: string;
+}
 
 export const SUPPORTED_CHAINS = [
   {

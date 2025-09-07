@@ -24,7 +24,7 @@ import type { LeaderboardEntry, Update, ReadUpdate, SavingsPlan } from "@/types"
 import { getChainLogo, getTokenLogo } from "@/lib/utils";
 import EmptyCompletedSavings from "../../components/EmptyCompletedSavings";
 import EmptyCurrentSavings from "../../components/EmptyCurrentSavings";
-import Loader from "../components/Loader";
+import Loader from "../../components/Loader";
 import ActiveSavingPlanCard from "../../components/ActiveSavingPlanCard";
 import CompletedSavingPlanCard from "../../components/CompletedSavingPlanCard";
 import { usePrices } from "@/components/PriceComponents";

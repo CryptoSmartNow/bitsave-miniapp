@@ -21,16 +21,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 });
     }
 
-    const usersCollection = db.collection("users");
+    // TypeScript assertion - we know db is not null after the check above
+    const usersCollection = db!.collection("users");
 
     // Check if user already exists
     const user = await usersCollection.findOne({ walletAddress });
 
-    if (user && user.referralCode) {
+    // Check if user exists and has a referral code
+    if (user && (user as any).referralCode) {
       // User already has a referral code
       return NextResponse.json({
-        referralCode: user.referralCode,
-        referralLink: `https://bitsave.io/ref/${user.referralCode}`,
+        referralCode: (user as any).referralCode,
+        referralLink: `https://bitsave.io/ref/${(user as any).referralCode}`,
         isNew: false,
       });
     }

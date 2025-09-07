@@ -1,6 +1,27 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Manifest } from "@farcaster/miniapp-core/src/manifest";
+
+// Type definitions for Farcaster miniapp core types
+interface AccountAssociation {
+  header: string;
+  payload: string;
+  signature: string;
+}
+
+interface Manifest {
+  accountAssociation: AccountAssociation;
+  miniapp: {
+    version: string;
+    name: string;
+    homeUrl: string;
+    iconUrl: string;
+    splashImageUrl: string;
+    splashBackgroundColor: string;
+    imageUrl: string;
+    buttonTitle: string;
+    webhookUrl: string;
+  };
+}
 import {
   APP_BUTTON_TEXT,
   APP_DESCRIPTION,
