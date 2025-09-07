@@ -6,11 +6,9 @@ import { usePrices } from "@/components/PriceComponents";
 
 type props = {
   plan: SavingsPlan;
-  openTopUpModal: (plan: SavingsPlan) => void;
-  openWithdrawModal: (plan: SavingsPlan) => void;
 };
 
-const CompletedSavingPlanCard = ({ plan, openTopUpModal, openWithdrawModal }: props) => {
+const CompletedSavingPlanCard = ({ plan }: props) => {
   const { data: currentChain } = useSwitchChain();
   const { goodDollarPrice } = usePrices();
 
@@ -59,12 +57,6 @@ const CompletedSavingPlanCard = ({ plan, openTopUpModal, openWithdrawModal }: pr
             </div>
           </div>
         </div>
-        <button
-          onClick={() => openTopUpModal(plan)}
-          className="bg-[#81D7B4] text-white text-xs font-semibold px-4 py-2 rounded-full border border-[#81D7B4]/20 shadow-sm hover:shadow-md transition-all duration-300"
-        >
-          Top Up
-        </button>
       </div>
 
       {/* Progress Bars Row */}
@@ -180,48 +172,6 @@ const CompletedSavingPlanCard = ({ plan, openTopUpModal, openWithdrawModal }: pr
           </span>
         </div>
       </div>
-
-      {/* Info Icon and Label */}
-      <div className="flex items-center gap-2 mb-2">
-        <span
-          className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#229ED9]/10 border border-[#229ED9]/30 text-[#229ED9] text-xs font-bold cursor-pointer group relative"
-          tabIndex={0}
-        >
-          i
-          <span className="absolute left-6 top-1/2 -translate-y-1/2 w-64 bg-white/90 text-[#163239] text-xs rounded-lg shadow-lg border border-[#81D7B4]/20 px-4 py-2 z-20 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-300 pointer-events-none">
-            Withdrawing before the set completion date will forfeit your $BTS rewards and incur a
-            penalty on your savings.
-          </span>
-        </span>
-        <span className="text-xs text-gray-500 font-medium">
-          Early withdrawal results in loss of rewards and a penalty fee.
-        </span>
-      </div>
-
-      {/* Withdraw Button */}
-      <button
-        onClick={() => {
-          const currentDate = new Date();
-          const maturityTimestamp = Number(plan.maturityTime || 0);
-          const maturityDate = new Date(maturityTimestamp * 1000);
-          const isCompleted = currentDate >= maturityDate;
-          openWithdrawModal(plan);
-        }}
-        className="w-full py-3 text-center text-sm font-bold text-white bg-[#81D7B4] rounded-xl shadow-[0_4px_12px_rgba(129,215,180,0.15)] hover:shadow-[0_8px_20px_rgba(129,215,180,0.18)] transition-all duration-300 transform hover:scale-[1.02] relative overflow-hidden group mt-2"
-      >
-        <span className="flex items-center justify-center gap-2">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4 text-white"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-          Withdraw
-        </span>
-      </button>
     </div>
   );
 };

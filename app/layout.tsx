@@ -14,9 +14,6 @@ import { Providers } from "./providers";
 import ReferralTracker from "@/components/ReferralTracker";
 import { APP_URL } from "@/lib/constants";
 
-// Add this import to your layout file
-// import "../styles/date-picker.css";
-
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: "BitSave - Simplified Crypto Savings",

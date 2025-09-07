@@ -263,6 +263,7 @@ export default function Dashboard() {
 
       // Fetch ETH price in parallel with wallet setup
       const currentEthPrice = ethPrice;
+      console.log("======================= current eth price", ethPrice);1
       const network = config.state;
 
       console.log(`Current ETH price: ${currentEthPrice}`);
@@ -1134,8 +1135,6 @@ export default function Dashboard() {
                   <CompletedSavingPlanCard
                     key={plan.id}
                     plan={plan}
-                    openTopUpModal={openTopUpModal}
-                    openWithdrawModal={openWithdrawModal}
                   />
                 ))}
               </>
