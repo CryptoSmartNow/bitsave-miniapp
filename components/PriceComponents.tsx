@@ -18,6 +18,7 @@ export function usePrices() {
 
 async function fetchPrice(id: string, fallback: number): Promise<number> {
   try {
+    console.log(`Fetching price for ${id} from CoinGecko`);
     const res = await fetch(
       `https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd`,
     );
