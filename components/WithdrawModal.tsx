@@ -25,6 +25,7 @@ interface WithdrawModalProps {
   penaltyPercentage?: number;
   tokenName?: string;
   isCompleted?: boolean;
+  onSuccess?: () => void;
 }
 
 export default function WithdrawModal({
@@ -36,6 +37,7 @@ export default function WithdrawModal({
   penaltyPercentage,
   tokenName,
   isCompleted = false,
+  onSuccess,
 }: WithdrawModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -213,6 +215,11 @@ export default function WithdrawModal({
 
       setSuccess(true);
       setShowTransactionModal(true);
+      
+      // Call onSuccess callback to refetch savings data
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error: unknown) {
       console.error("Error during ETH withdrawal:", error);
 
@@ -306,6 +313,11 @@ export default function WithdrawModal({
 
       setSuccess(true);
       setShowTransactionModal(true);
+      
+      // Call onSuccess callback to refetch savings data
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error: unknown) {
       console.error(`Error during ${currentTokenName} withdrawal:`, error);
 

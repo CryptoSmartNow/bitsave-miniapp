@@ -36,6 +36,7 @@ interface TopUpModalProps {
   planId: string;
   isEth?: boolean;
   tokenName?: string;
+  onSuccess?: () => void;
 }
 
 export default function TopUpModal({
@@ -44,6 +45,7 @@ export default function TopUpModal({
   planName,
   isEth = false,
   tokenName,
+  onSuccess,
 }: TopUpModalProps) {
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
@@ -235,13 +237,14 @@ export default function TopUpModal({
       console.log("Token Address:", tokenAddress);
       console.log("Token Amount:", tokenAmount.toString());
 
+      console.log("Chain Id", network.chainId)
+
       const approveERC20 = async (tokenAddress: string, amount: ethers.BigNumberish) => {
         const tx = await writeContractAsync({
           address: tokenAddress as `0x${string}`,
           abi: erc20ABI.abi,
           functionName: "approve",
           args: [contractAddress, amount],
-          chainId: network.chainId,
         });
 
         await waitForTransactionReceipt(config, { hash: tx, confirmations: 2 });
@@ -311,6 +314,11 @@ export default function TopUpModal({
 
       setSuccess(true);
       setShowTransactionModal(true);
+
+      // Call onSuccess callback to refetch savings data
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error: unknown) {
       console.error("Error topping up stablecoin savings plan:", error);
 
@@ -405,6 +413,11 @@ export default function TopUpModal({
 
       setSuccess(true);
       setShowTransactionModal(true);
+
+      // Call onSuccess callback to refetch savings data
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error: unknown) {
       console.error("Error topping up ETH savings plan:", error);
 
@@ -565,7 +578,7 @@ export default function TopUpModal({
               </h2>
 
               {/* Message */}
-              <p className="text-sm sm:text-base text-gray-500 text-center mb-5 sm:mb-8 max-w-xs sm:max-w-none mx-auto">
+              <div className="text-sm sm:text-base text-gray-500 text-center mb-5 sm:mb-8 max-w-xs sm:max-w-none mx-auto">
                 {success
                   ? `Great! Your savings plan "${planName}" has been topped up successfully. Keep building towards your goal! 💪`
                   : "Your top-up transaction failed. Please try again or contact our support team for assistance."}
@@ -636,7 +649,7 @@ export default function TopUpModal({
                     </div>
                   </span>
                 )}
-              </p>
+              </div>
 
               {/* Transaction ID Button */}
               <button

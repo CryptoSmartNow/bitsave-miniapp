@@ -607,6 +607,16 @@ export default function Dashboard() {
     });
   };
 
+  // Callback to refetch data after successful top-up
+  const handleTopUpSuccess = () => {
+    console.log("Top-up successful, refetching savings data...");
+    
+    // Add a small delay to ensure the transaction is processed
+    setTimeout(() => {
+      fetchSavingsData();
+    }, 2000);
+  };
+
   const [withdrawModal, setWithdrawModal] = useState({
     isOpen: false,
     planId: "",
@@ -639,6 +649,16 @@ export default function Dashboard() {
       tokenName: "",
       isCompleted: false,
     });
+  };
+
+  // Callback to refetch data after successful withdrawal
+  const handleWithdrawSuccess = () => {
+    console.log("Withdrawal successful, refetching savings data...");
+    
+    // Add a small delay to ensure the transaction is processed
+    setTimeout(() => {
+      fetchSavingsData();
+    }, 2000);
   };
 
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
@@ -765,6 +785,7 @@ export default function Dashboard() {
         planId={topUpModal.planId}
         isEth={topUpModal.isEth}
         tokenName={topUpModal.tokenName}
+        onSuccess={handleTopUpSuccess}
       />
 
       {/* Withdraw Modal */}
@@ -777,6 +798,7 @@ export default function Dashboard() {
         penaltyPercentage={withdrawModal.penaltyPercentage}
         tokenName={withdrawModal.tokenName}
         isCompleted={withdrawModal.isCompleted}
+        onSuccess={handleWithdrawSuccess}
       />
 
       {/* Update Modal */}
