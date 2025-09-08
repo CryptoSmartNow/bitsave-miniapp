@@ -78,10 +78,22 @@ export default function Dashboard() {
   useEffect(() => {
     if (mounted && address && chainId && !isSwitchingChain) {
       console.log('Chain changed, refetching data for chain:', chainId);
+      console.log('Current chain name:', getCurrentChain().name);
+      
+      // Clear existing data first to show fresh loading state
+      setSavingsData({
+        totalLocked: "0.00",
+        deposits: 0,
+        rewards: "0.00",
+        currentPlans: [],
+        readyPlans: [],
+        completedPlans: [],
+      });
+      
       // Add a small delay to ensure the chain switch is complete
       const timer = setTimeout(() => {
         fetchSavingsData();
-      }, 500);
+      }, 100);
       
       return () => clearTimeout(timer);
     }
@@ -234,6 +246,7 @@ export default function Dashboard() {
     function handleClickOutside(event: MouseEvent) {
       const notificationButton = document.getElementById("notification-button");
       const notificationDropdown = document.getElementById("notification-dropdown");
+      const chainDropdown = document.getElementById("chain-dropdown");
 
       if (
         showNotifications &&
@@ -243,6 +256,15 @@ export default function Dashboard() {
         !notificationDropdown.contains(event.target as Node)
       ) {
         setShowNotifications(false);
+      }
+
+      // Close chain dropdown when clicking outside
+      if (
+        chainDropdown &&
+        !chainDropdown.contains(event.target as Node) &&
+        !chainDropdown.classList.contains("hidden")
+      ) {
+        chainDropdown.classList.add("hidden");
       }
     }
 
@@ -266,9 +288,16 @@ export default function Dashboard() {
   }, []);
 
   const fetchSavingsData = async () => {
-    console.log("fetching savings data...");
-    if (!isConnected || !address || !chainId) return;
-    console.log("Current chain:", chainId);
+    console.log("=== Starting fetchSavingsData ===");
+    console.log("isConnected:", isConnected);
+    console.log("address:", address);
+    console.log("chainId:", chainId);
+    console.log("Current chain:", getCurrentChain().name);
+    
+    if (!isConnected || !address || !chainId) {
+      console.log("Missing required data for fetch");
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -292,17 +321,23 @@ export default function Dashboard() {
       const CELO_CHAIN_ID = celo.id;
 
       console.log("============================== current chain", chainId);
+      console.log("Base chain ID:", BASE_CHAIN_ID);
+      console.log("Celo chain ID:", CELO_CHAIN_ID);
 
       if (chainId !== BASE_CHAIN_ID && chainId !== CELO_CHAIN_ID) {
+        console.log("Not on supported network, setting isCorrectNetwork to false");
         setIsCorrectNetwork(false);
         setIsLoading(false);
         return;
       }
 
+      console.log("On supported network, proceeding with data fetch");
       setIsCorrectNetwork(true);
 
       const contractAddress =
         chainId === BASE_CHAIN_ID ? BASE_CONTRACT_ADDRESS : CELO_CONTRACT_ADDRESS;
+      
+      console.log("Using contract address:", contractAddress);
 
       // Get user's child contract with timeout
       let userChildContractAddress;
@@ -926,26 +961,38 @@ export default function Dashboard() {
                 {SUPPORTED_CHAINS.map((chain) => (
                   <button
                     key={chain.id}
-                    onClick={() => {
+                    onClick={async () => {
                       document.getElementById("chain-dropdown")?.classList.add("hidden");
-                      if (!mounted || chain.id === chainId) return;
+                      if (!mounted || chain.id === chainId || isSwitchingChain) return;
+                      
                       console.log(`Switching to chain: ${chain.name} (${chain.id})`);
-                      // Switch network when chain is selected
-                      switchChain({ chainId: chain.id });
-                      // Data will be fetched automatically via useEffect when chainId changes
+                      try {
+                        await switchChain({ chainId: chain.id });
+                        console.log(`Successfully switched to chain: ${chain.name}`);
+                      } catch (error) {
+                        console.error(`Failed to switch to chain ${chain.name}:`, error);
+                      }
                     }}
-                    className={`flex items-center w-full px-4 py-2 hover:bg-gray-100/80 text-left text-sm ${
-                      mounted && chain.id === chainId ? "bg-[#81D7B4]/10 text-[#81D7B4]" : "bg-gray-100/80"
+                    disabled={isSwitchingChain || chain.id === chainId}
+                    className={`flex items-center w-full px-4 py-2 hover:bg-gray-100/80 text-left text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                      mounted && chain.id === chainId 
+                        ? "bg-[#81D7B4]/10 text-[#81D7B4]" 
+                        : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
                     <div className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center mr-2 overflow-hidden">
                       <img
-                        src={`/${chain.name.toLowerCase()}${chain.name === "Celo" ? ".png" : ".svg"}`}
+                        src={getChainLogo(chain.id)}
                         alt={chain.name}
                         className="w-4 h-4 object-contain"
                       />
                     </div>
-                    <div className="flex items-center">{chain.name}</div>
+                    <div className="flex items-center">
+                      {chain.name}
+                      {isSwitchingChain && chain.id !== chainId && (
+                        <div className="animate-spin h-4 w-4 ml-2 border-2 border-gray-300 border-t-[#81D7B4] rounded-full"></div>
+                      )}
+                    </div>
                   </button>
                 ))}
               </div>
