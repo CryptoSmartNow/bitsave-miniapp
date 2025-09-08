@@ -20,6 +20,15 @@ export const config = createConfig({
   connectors: [farcasterFrame()],
 });
 
+config.connectors.forEach((connector) => {
+  if (!connector.getChainId) {
+    console.log("Patching connector to add getChainId method");
+    connector.getChainId = async () => {
+      return config.state.chainId;
+    };
+  }
+});
+
 const queryClient = new QueryClient();
 
 export function Providers({ children }: { children: ReactNode }) {
