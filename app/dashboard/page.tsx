@@ -278,14 +278,28 @@ export default function Dashboard() {
     const readyMiniapp = async () => {
       await sdk.actions.ready();
       setMounted(true);
-      setTimeout(() => {
+      
+      // Start fetching data in background without blocking UI
+      if (isConnected && address && chainId) {
         fetchSavingsData();
-      }, 0);
+      }
     };
     if (sdk && !mounted) {
       readyMiniapp();
     }
   }, []);
+
+  // Also trigger data fetch when connection state changes
+  useEffect(() => {
+    if (mounted && isConnected && address && chainId && !isSwitchingChain) {
+      // Small delay to ensure wallet is fully connected
+      const timer = setTimeout(() => {
+        fetchSavingsData();
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [mounted, isConnected, address, chainId, isSwitchingChain]);
 
   const fetchSavingsData = async () => {
     console.log("=== Starting fetchSavingsData ===");

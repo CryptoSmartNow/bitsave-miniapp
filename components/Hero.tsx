@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAccount, useConnect } from "wagmi";
 import sdk from "@farcaster/miniapp-sdk";
@@ -12,8 +12,9 @@ export default function Hero() {
     Array<{ width: number; top: number; rotation: number; duration: number; delay: number }>
   >([]);
   const router = useRouter();
-  const { isConnected } = useAccount();
+  const { isConnected, isConnecting } = useAccount();
   const { connect } = useConnect();
+  const [isNavigating, setIsNavigating] = useState(false);
 
   // Initialize shimmer elements data with fixed values to avoid hydration mismatch
   useEffect(() => {
@@ -29,16 +30,31 @@ export default function Hero() {
           delay: Math.random() * 2,
         }));
     }
-  }, []);
+
+    // Prefetch dashboard route for faster navigation
+    if (isConnected) {
+      router.prefetch('/dashboard');
+    }
+  }, [isConnected, router]);
 
   // Handle wallet connection and redirect
   const handleOpenApp = async () => {
     if (isConnected) {
-      console.log("going to dashbaord...");
-      // If already connected, redirect to dashboard
-      router.push("/dashboard");
+      console.log("Navigating to dashboard...");
+      setIsNavigating(true);
+      
+      try {
+        // Navigate immediately without delay
+        router.push("/dashboard");
+        
+        // Reset navigation state after a short delay
+        setTimeout(() => setIsNavigating(false), 1000);
+      } catch (error) {
+        console.error("Navigation error:", error);
+        setIsNavigating(false);
+      }
     } else {
-      console.log("connecting wallet...");
+      console.log("Connecting wallet...");
       // If in mini app, connect with farcaster connector
       connect({ connector: farcasterMiniApp() });
     }
@@ -66,6 +82,13 @@ export default function Hero() {
     document.addEventListener("mousemove", handleMouseMove);
     return () => document.removeEventListener("mousemove", handleMouseMove);
   }, []);
+
+  // Reset navigation state when wallet connection changes
+  useEffect(() => {
+    if (!isConnected) {
+      setIsNavigating(false);
+    }
+  }, [isConnected]);
 
   return (
     <section ref={heroRef} className="pt-32 pb-20 px-4 md:px-8 lg:px-16 relative overflow-hidden">
@@ -174,24 +197,56 @@ export default function Hero() {
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={handleOpenApp}
-                className="group relative px-8 py-4 bg-[#81D7B4] text-white font-semibold rounded-xl hover:bg-[#6bc49f] transition-all duration-300 transform hover:scale-105 hover:shadow-xl overflow-hidden"
+                disabled={isConnecting || isNavigating}
+                className="group relative px-8 py-4 bg-[#81D7B4] text-white font-semibold rounded-xl hover:bg-[#6bc49f] transition-all duration-300 transform hover:scale-105 hover:shadow-xl overflow-hidden disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-[#81D7B4] to-[#6bc49f] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <span className="relative z-10 flex items-center gap-2">
-                  {isConnected ? "Open Dashboard" : "Connect Wallet"}
-                  <svg
-                    className="w-5 h-5 transform group-hover:translate-x-1 transition-transform"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 7l5 5m0 0l-5 5m5-5H6"
-                    />
-                  </svg>
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  {isNavigating ? (
+                    <>
+                      <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+                      Opening Dashboard...
+                    </>
+                  ) : isConnecting ? (
+                    <>
+                      <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+                      Connecting...
+                    </>
+                  ) : isConnected ? (
+                    <>
+                      Open Dashboard
+                      <svg
+                        className="w-5 h-5 transform group-hover:translate-x-1 transition-transform"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 7l5 5m0 0l-5 5m5-5H6"
+                        />
+                      </svg>
+                    </>
+                  ) : (
+                    <>
+                      Connect Wallet
+                      <svg
+                        className="w-5 h-5 transform group-hover:translate-x-1 transition-transform"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 7l5 5m0 0l-5 5m5-5H6"
+                        />
+                      </svg>
+                    </>
+                  )}
                 </span>
               </button>
 
