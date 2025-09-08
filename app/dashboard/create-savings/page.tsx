@@ -15,6 +15,7 @@ import erc20ABI from "@/app/abi/erc20ABI.json";
 import { trackSavingsCreated, trackError, trackPageVisit } from "@/lib/interactionTracker";
 import { useReferrals } from "@/lib/useReferrals";
 import {
+  APP_URL,
   BASE_CONTRACT_ADDRESS,
   BASE_USDC_CONTRACT_ADDRESS,
   CELO_CONTRACT_ADDRESS,
@@ -25,6 +26,7 @@ import { getCreateSavingsFee, getJoiningFee, getUserChildContract } from "@/lib/
 import { Address } from "viem";
 import { base, celo } from "viem/chains";
 import sdk from "@farcaster/miniapp-sdk";
+import { FarcasterIcon } from "@/components/icons";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -1255,24 +1257,21 @@ export default function CreateSavingsPage() {
               {/* Tweet Button (only on success) */}
               {success &&
                 (() => {
-                  const referralLink = referralData?.referralLink || "https://bitsave.io";
+                  const referralLink = referralData?.referralLink ?? APP_URL;
                   const tweetText = `Just locked up some ${currency} for my future self on @bitsaveprotocol, no degen plays today, web3 savings never looked this good 💰\n\nYou should be doing #SaveFi → ${referralLink}`;
-                  const encodedTweetText = encodeURIComponent(tweetText);
                   return (
-                    <a
+                    <button
                       onClick={() => {
                         sdk.actions.composeCast({
                           text: tweetText,
                           embeds: [referralLink],
                         });
                       }}
-                      className="w-full py-2.5 sm:py-3 bg-[#7c65c1] text-white rounded-full text-sm sm:text-base font-semibold flex items-center justify-center gap-2 mb-3 sm:mb-4 hover:bg-gray-900 transition-colors"
+                      className="w-full py-2.5 sm:py-3 bg-[#7c65c1] text-white rounded-full text-sm sm:text-base font-semibold flex items-center justify-center gap-2 mb-3 sm:mb-4 hover:bg-[#7c65c1de] transition-colors"
                     >
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.209c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                      </svg>
+                      <FarcasterIcon className="w-5 h-5" />
                       Post on Farcaster
-                    </a>
+                    </button>
                   );
                 })()}
 
