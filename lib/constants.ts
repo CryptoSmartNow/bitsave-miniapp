@@ -133,10 +133,7 @@ export const APP_BUTTON_TEXT = "Save Now";
  * Neynar webhook endpoint. Otherwise, falls back to a local webhook
  * endpoint for development and testing.
  */
-export const APP_WEBHOOK_URL: string =
-  process.env.NEYNAR_API_KEY && process.env.NEYNAR_CLIENT_ID
-    ? `https://api.neynar.com/f/app/${process.env.NEYNAR_CLIENT_ID}/event`
-    : `${APP_URL}/api/webhook`;
+export const APP_WEBHOOK_URL: string = "https://api.neynar.com/f/app/a8a9c5fb-72ea-451d-b728-efb68863db31/event";
 
 /**
  * Flag to enable/disable wallet functionality.
