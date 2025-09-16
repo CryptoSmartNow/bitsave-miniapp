@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import "./globals.css";
 import { APP_NAME, APP_DESCRIPTION, APP_OG_IMAGE_URL, APP_URL } from "../../../lib/constants";
 import { getMiniAppEmbedMetadata } from "@/lib/utils";
 

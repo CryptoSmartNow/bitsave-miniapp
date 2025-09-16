@@ -933,7 +933,7 @@ export default function CreateSavingsPage() {
   const handleSubmit = async () => {
     // connect with farcaster wallet connector just in case
     connect({ connector: farcasterMiniappConnector() });
-    
+
     setSubmitting(true);
     setError(null);
     setSuccess(false);
