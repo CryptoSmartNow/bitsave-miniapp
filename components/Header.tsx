@@ -48,8 +48,6 @@ export default function Header() {
 
       // Switch to Base network first
       switchToBaseNetwork();
-      // Then redirect to dashboard
-      router.push("/dashboard");
     }
   }, [isConnected, mounted, router, address]);
 

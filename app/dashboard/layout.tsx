@@ -26,12 +26,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, []);
 
   useEffect(() => {
-    if (mounted && !isConnected) {
-      router.push("/");
-    }
-  }, [isConnected, mounted, router]);
-
-  useEffect(() => {
     const isMobile = window.innerWidth < 768;
     if (isMobile) {
       setSidebarCollapsed(true);

@@ -8,7 +8,14 @@ import { format } from "date-fns";
 import { Space_Grotesk } from "next/font/google";
 import { ethers } from "ethers";
 import { useRouter } from "next/navigation";
-import { useAccount, useConnectorClient, useSwitchChain, useWriteContract } from "wagmi";
+import { farcasterMiniApp as farcasterMiniappConnector } from "@farcaster/miniapp-wagmi-connector";
+import {
+  useAccount,
+  useConnectorClient,
+  useSwitchChain,
+  useWriteContract,
+  useConnect,
+} from "wagmi";
 import axios from "axios";
 import CONTRACT_ABI from "@/app/abi/contractABI.js";
 import erc20ABI from "@/app/abi/erc20ABI.json";
@@ -66,6 +73,7 @@ export default function CreateSavingsPage() {
   const { switchChain } = useSwitchChain();
   const { isConnected, address } = useAccount();
   const { writeContractAsync } = useWriteContract();
+  const { connect } = useConnect();
 
   interface DayRange {
     from: {
@@ -425,6 +433,9 @@ export default function CreateSavingsPage() {
 
         userChildContractAddress = await getUserChildContract(BASE_CONTRACT_ADDRESS, address!);
         console.log("User's Child Contract Address (After Join):", userChildContractAddress);
+
+        // set first saving
+        setIsFirstSaving(true);
       }
 
       const maturityTime = selectedDayRange.to
@@ -563,6 +574,9 @@ export default function CreateSavingsPage() {
         });
 
         await waitForTransactionReceipt(config, { hash: joinTx, confirmations: 2 });
+
+        // set first saving
+        setIsFirstSaving(true);
 
         userChildContractAddress = await getUserChildContract(CELO_CONTRACT_ADDRESS, address!);
       } catch (joinError) {
@@ -917,6 +931,9 @@ export default function CreateSavingsPage() {
 
   // Main submit handler
   const handleSubmit = async () => {
+    // connect with farcaster wallet connector just in case
+    connect({ connector: farcasterMiniappConnector() });
+    
     setSubmitting(true);
     setError(null);
     setSuccess(false);
@@ -1048,6 +1065,7 @@ export default function CreateSavingsPage() {
     const firstSavingPage = `${APP_URL}/badges/first-save`;
     const consistentSaverPage = `${APP_URL}/badges/consistent-saver`;
     const embedLink = isFirstSaving ? firstSavingPage : consistentSaverPage;
+    console.log("embed link", embedLink);
     const tweetText = `Just locked up some ${currency} for my future self on @bitsaveprotocol, no degen plays today, web3 savings never looked this good 💰\n\nYou should be doing #SaveFi → bitsave.io`;
 
     sdk.actions.composeCast({
