@@ -931,8 +931,10 @@ export default function CreateSavingsPage() {
 
   // Main submit handler
   const handleSubmit = async () => {
-    // connect with farcaster wallet connector just in case
-    connect({ connector: farcasterMiniappConnector() });
+    if (!isConnected) {
+      // connect with farcaster wallet connector
+      connect({ connector: farcasterMiniappConnector() });
+    }
 
     setSubmitting(true);
     setError(null);
@@ -1066,10 +1068,10 @@ export default function CreateSavingsPage() {
     const consistentSaverPage = `${APP_URL}/badges/consistent-saver`;
     const embedLink = isFirstSaving ? firstSavingPage : consistentSaverPage;
     console.log("embed link", embedLink);
-    const tweetText = `Just locked up some ${currency} for my future self on @bitsaveprotocol, no degen plays today, web3 savings never looked this good 💰\n\nYou should be doing #SaveFi → bitsave.io`;
+    const castText = `Just locked up some ${currency} for my future self on @bitsaveprotocol, no degen plays today, web3 savings never looked this good 💰\n\nYou should be doing #SaveFi → bitsave.io`;
 
     sdk.actions.composeCast({
-      text: tweetText,
+      text: castText,
       embeds: [embedLink],
     });
   }

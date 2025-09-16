@@ -5,10 +5,12 @@ import { motion } from "framer-motion";
 import { Space_Grotesk } from "next/font/google";
 import { ethers } from "ethers";
 import axios from "axios";
-import { useAccount, useWriteContract } from "wagmi";
+import { farcasterMiniApp as farcasterMiniAppConnector } from "@farcaster/miniapp-wagmi-connector";
+import { useAccount, useWriteContract, useConnect } from "wagmi";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
 import { trackTransaction, trackError } from "@/lib/interactionTracker";
+import { FarcasterIcon } from "@/components/icons";
 
 // Contract addresses and ABIs
 const BASE_CONTRACT_ADDRESS = "0x3593546078eecd0ffd1c19317f53ee565be6ca13";
@@ -23,6 +25,8 @@ import { config } from "@/app/providers";
 import { base } from "viem/chains";
 import { getBalance, getGasPrice, waitForTransactionReceipt } from "@wagmi/core";
 import { getUserChildContract } from "@/lib/onchain";
+import { APP_URL } from "@/lib/constants";
+import sdk from "@farcaster/miniapp-sdk";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -57,6 +61,7 @@ export default function TopUpModal({
 
   const { address, isConnected } = useAccount();
   const { writeContractAsync } = useWriteContract();
+  const { connect } = useConnect();
 
   // Wallet balance checking states
   const [walletBalance, setWalletBalance] = useState<string>("0");
@@ -161,6 +166,16 @@ export default function TopUpModal({
     }
   };
 
+  function handleShareToFarcaster() {
+    const embedUrl = `${APP_URL}/badges/top-up`;
+
+    const castText = `Just topped up my savings plan on @bitsaveprotocol! Keeping my future self secure with some extra funds. 💰 #SaveFi → bitsave.io`;
+    sdk.actions.composeCast({
+      text: castText,
+      embeds: [embedUrl],
+    });
+  }
+  
   // Check balances when amount changes
   useEffect(() => {
     if (address && amount && parseFloat(amount) > 0 && isOpen) {
@@ -183,8 +198,7 @@ export default function TopUpModal({
 
   const handleStablecoinTopUp = async (amount: string, savingsPlanName: string) => {
     if (!isConnected) {
-      setError("Please connect your wallet.");
-      return;
+      connect({ connector: farcasterMiniAppConnector() });
     }
 
     setLoading(true);
@@ -237,7 +251,7 @@ export default function TopUpModal({
       console.log("Token Address:", tokenAddress);
       console.log("Token Amount:", tokenAmount.toString());
 
-      console.log("Chain Id", network.chainId)
+      console.log("Chain Id", network.chainId);
 
       const approveERC20 = async (tokenAddress: string, amount: ethers.BigNumberish) => {
         const tx = await writeContractAsync({
@@ -657,26 +671,17 @@ export default function TopUpModal({
                 onClick={() => txHash && window.open(`${getExplorerUrl()}${txHash}`, "_blank")}
                 disabled={!txHash}
               >
-                View Transaction ID
+                View Transaction
               </button>
 
               {/* Action Buttons */}
               <div className="flex w-full gap-3 sm:gap-4 flex-col sm:flex-row">
                 <button
-                  className="w-full py-2.5 sm:py-3 bg-gray-100 rounded-full text-gray-700 text-sm sm:text-base font-medium flex items-center justify-center hover:bg-gray-200 transition-colors"
-                  onClick={() => txHash && window.open(`${getExplorerUrl()}${txHash}`, "_blank")}
-                  disabled={!txHash}
+                  onClick={handleShareToFarcaster}
+                  className="w-full py-2.5 sm:py-3 bg-[#7c65c1] text-white rounded-full text-sm sm:text-base font-semibold flex items-center justify-center gap-2 hover:bg-[#7c65c1de] transition-colors"
                 >
-                  Go To Explorer
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-3.5 w-3.5 sm:h-4 sm:w-4 ml-1.5 sm:ml-2"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
-                  </svg>
+                  <FarcasterIcon className="w-5 h-5" />
+                  Post on Farcaster
                 </button>
                 <button
                   className="w-full py-2.5 sm:py-3 bg-gray-700 rounded-full text-white text-sm sm:text-base font-medium hover:bg-gray-800 transition-colors"
