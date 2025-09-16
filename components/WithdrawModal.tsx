@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
-import { useAccount, useWriteContract } from "wagmi";
+import { useAccount, useWriteContract, useConnect } from "wagmi";
+import { farcasterMiniApp as farcasterMiniAppConnector } from "@farcaster/miniapp-wagmi-connector";
 import Image from "next/image";
 import childContractABI from "../app/abi/childContractABI.js";
 import CONTRACT_ABI from "@/app/abi/contractABI.js";
@@ -12,6 +13,9 @@ import { getSaving, getUserChildContract } from "@/lib/onchain";
 import { estimateGas, waitForTransactionReceipt } from "@wagmi/core";
 import { encodeFunctionData, Hex } from "viem";
 import CHILD_CONTRACT_ABI from "../app/abi/childContractABI.js";
+import { FarcasterIcon } from "@/components/icons";
+import { APP_URL } from "@/lib/constants";
+import sdk from "@farcaster/miniapp-sdk";
 
 const BASE_CONTRACT_ADDRESS = "0x3593546078eecd0ffd1c19317f53ee565be6ca13";
 const CELO_CONTRACT_ADDRESS = "0x7d839923Eb2DAc3A0d1cABb270102E481A208F33";
@@ -49,6 +53,17 @@ export default function WithdrawModal({
   const { address: userAddress, isConnected } = useAccount();
 
   const { writeContractAsync } = useWriteContract();
+  const { connect } = useConnect();
+
+  function handleShareToFarcaster() {
+    const embedUrl = `${APP_URL}/badges/completed-save`;
+    const composeText = `I just completed my "${planName}" savings plan on BitSave! 🎉\n\nYou should be doing #SaveFi → bitsave.io`;
+
+    sdk.actions.composeCast({
+      text: composeText,
+      embeds: [embedUrl],
+    });
+  }
 
   useEffect(() => {
     const detectNetwork = async () => {
@@ -126,11 +141,11 @@ export default function WithdrawModal({
 
     try {
       if (!isConnected || !userAddress) {
-        return;
+        connect({ connector: farcasterMiniAppConnector() });
       }
       const contractAddress = getContractAddress();
 
-      const userChildContractAddress = await getUserChildContract(contractAddress, userAddress);
+      const userChildContractAddress = await getUserChildContract(contractAddress, userAddress!);
 
       const savingData = await getSaving(
         userChildContractAddress,
@@ -215,7 +230,7 @@ export default function WithdrawModal({
 
       setSuccess(true);
       setShowTransactionModal(true);
-      
+
       // Call onSuccess callback to refetch savings data
       if (onSuccess) {
         onSuccess();
@@ -248,7 +263,7 @@ export default function WithdrawModal({
 
     try {
       if (!isConnected) {
-        throw new Error("Ethereum provider not found. Please install MetaMask.");
+        connect({ connector: farcasterMiniAppConnector() });
       }
 
       const contractAddress = getContractAddress();
@@ -313,7 +328,7 @@ export default function WithdrawModal({
 
       setSuccess(true);
       setShowTransactionModal(true);
-      
+
       // Call onSuccess callback to refetch savings data
       if (onSuccess) {
         onSuccess();
@@ -491,26 +506,17 @@ export default function WithdrawModal({
               onClick={() => txHash && window.open(`${getExplorerUrl()}${txHash}`, "_blank")}
               disabled={!txHash}
             >
-              View Transaction ID
+              View Transaction
             </button>
 
             {/* Action Buttons */}
             <div className="flex w-full gap-3 sm:gap-4 flex-col sm:flex-row">
               <button
-                className="w-full py-2.5 sm:py-3 bg-gray-100 rounded-full text-gray-700 text-sm sm:text-base font-medium flex items-center justify-center hover:bg-gray-200 transition-colors"
-                onClick={() => txHash && window.open(`${getExplorerUrl()}${txHash}`, "_blank")}
-                disabled={!txHash}
+                onClick={handleShareToFarcaster}
+                className="w-full py-2.5 sm:py-3 bg-[#7c65c1] text-white rounded-full text-sm sm:text-base font-semibold flex items-center justify-center gap-2 hover:bg-[#7c65c1de] transition-colors"
               >
-                Go To Explorer
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-3.5 w-3.5 sm:h-4 sm:w-4 ml-1.5 sm:ml-2"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                  <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
-                </svg>
+                <FarcasterIcon className="w-5 h-5" />
+                Post on Farcaster
               </button>
               <button
                 className="w-full py-2.5 sm:py-3 bg-gray-700 rounded-full text-white text-sm sm:text-base font-medium hover:bg-gray-800 transition-colors"
