@@ -48,6 +48,7 @@ export default function CreateSavingsPage() {
   const [startDate] = useState<Date | null>(new Date());
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [penalty, setPenalty] = useState("10%");
+  const [isFirstSaving, setIsFirstSaving] = useState(false);
 
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -1042,6 +1043,19 @@ export default function CreateSavingsPage() {
     }
   };
 
+  function handleShareToFarcaster() {
+    // const referralLink = referralData?.referralLink ?? APP_URL;
+    const firstSavingPage = `${APP_URL}/badges/first-save`;
+    const consistentSaverPage = `${APP_URL}/badges/consistent-saver`;
+    const embedLink = isFirstSaving ? firstSavingPage : consistentSaverPage;
+    const tweetText = `Just locked up some ${currency} for my future self on @bitsaveprotocol, no degen plays today, web3 savings never looked this good 💰\n\nYou should be doing #SaveFi → bitsave.io`;
+
+    sdk.actions.composeCast({
+      text: tweetText,
+      embeds: [embedLink],
+    });
+  }
+
   // Calculate GoodDollar equivalent when amount or price changes
   useEffect(() => {
     if (currency === "Gooddollar" && amount && goodDollarPrice) {
@@ -1255,25 +1269,15 @@ export default function CreateSavingsPage() {
                 )}
 
               {/* Tweet Button (only on success) */}
-              {success &&
-                (() => {
-                  const referralLink = referralData?.referralLink ?? APP_URL;
-                  const tweetText = `Just locked up some ${currency} for my future self on @bitsaveprotocol, no degen plays today, web3 savings never looked this good 💰\n\nYou should be doing #SaveFi → ${referralLink}`;
-                  return (
-                    <button
-                      onClick={() => {
-                        sdk.actions.composeCast({
-                          text: tweetText,
-                          embeds: [referralLink],
-                        });
-                      }}
-                      className="w-full py-2.5 sm:py-3 bg-[#7c65c1] text-white rounded-full text-sm sm:text-base font-semibold flex items-center justify-center gap-2 mb-3 sm:mb-4 hover:bg-[#7c65c1de] transition-colors"
-                    >
-                      <FarcasterIcon className="w-5 h-5" />
-                      Post on Farcaster
-                    </button>
-                  );
-                })()}
+              {success && (
+                <button
+                  onClick={handleShareToFarcaster}
+                  className="w-full py-2.5 sm:py-3 bg-[#7c65c1] text-white rounded-full text-sm sm:text-base font-semibold flex items-center justify-center gap-2 mb-3 sm:mb-4 hover:bg-[#7c65c1de] transition-colors"
+                >
+                  <FarcasterIcon className="w-5 h-5" />
+                  Post on Farcaster
+                </button>
+              )}
 
               {/* Action Buttons */}
               <div className="flex w-full gap-3 sm:gap-4 flex-col sm:flex-row">
