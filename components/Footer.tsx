@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import ShareMiniApp from "./ShareMiniApp";
 
 const footerLinks = {
   product: [
@@ -113,17 +114,26 @@ export default function Footer() {
               BitSave is revolutionizing crypto savings with our innovative stablecoin protocol.
               Save, earn rewards, and achieve your financial goals with confidence.
             </p>
-            <div className="flex space-x-5">
-              {socialLinks.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="text-gray-500 hover:text-[#81D7B4] transition-colors duration-300"
-                >
-                  <span className="sr-only">{item.name}</span>
-                  {item.icon}
-                </a>
-              ))}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="flex space-x-5">
+                {socialLinks.map((item) => (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    className="text-gray-500 hover:text-[#81D7B4] transition-colors duration-300"
+                  >
+                    <span className="sr-only">{item.name}</span>
+                    {item.icon}
+                  </a>
+                ))}
+              </div>
+              <ShareMiniApp 
+                variant="minimal"
+                size="sm"
+                customText="Share App"
+                customMessage="💎 Building my crypto wealth with BitSave - smart savings that protect against volatility while earning yield! 🔥"
+                className="text-gray-500 hover:text-[#81D7B4] hover:border-[#81D7B4]"
+              />
             </div>
           </div>
 

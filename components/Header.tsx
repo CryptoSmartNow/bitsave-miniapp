@@ -6,6 +6,7 @@ import { useAccount, useSwitchChain } from "wagmi";
 import { useOptimizedDisconnect } from "../lib/useOptimizedDisconnect";
 import { trackWalletConnect, trackPageVisit } from "../lib/interactionTracker";
 import CustomConnectButton from "./CustomConnectButton";
+import ShareMiniApp from "./ShareMiniApp";
 import sdk from "@farcaster/miniapp-sdk";
 import { base } from "viem/chains";
 
@@ -167,6 +168,11 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center space-x-4">
+          <ShareMiniApp 
+            variant="icon"
+            customMessage="💎 Building my crypto wealth with BitSave - smart savings that protect against volatility while earning yield! 🔥"
+            className="hidden sm:inline-flex"
+          />
           {mounted && isConnected ? (
             <button
               onClick={handleWalletAction}

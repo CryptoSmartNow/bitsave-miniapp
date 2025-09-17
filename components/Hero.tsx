@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAccount, useConnect } from "wagmi";
 import sdk from "@farcaster/miniapp-sdk";
 import farcasterMiniApp from "@farcaster/miniapp-wagmi-connector";
+import ShareMiniApp from "./ShareMiniApp";
 
 export default function Hero() {
   const heroRef = useRef<HTMLElement>(null);
@@ -197,7 +198,7 @@ export default function Hero() {
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={handleOpenApp}
-                disabled={isConnecting || isNavigating}
+                disabled={isNavigating}
                 className="group relative px-8 py-4 bg-[#81D7B4] text-white font-semibold rounded-xl hover:bg-[#6bc49f] transition-all duration-300 transform hover:scale-105 hover:shadow-xl overflow-hidden disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-[#81D7B4] to-[#6bc49f] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -261,6 +262,12 @@ export default function Hero() {
               >
                 Watch Demo
               </button>
+
+              <ShareMiniApp 
+                variant="secondary"
+                size="lg"
+                customMessage="🚀 Just discovered BitSave - the smartest way to save crypto without losing to market volatility! Check it out 👇"
+              />
             </div>
 
             {/* Stats */}

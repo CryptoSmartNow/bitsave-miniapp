@@ -9,6 +9,7 @@ import { useMiniApp } from "@neynar/react";
 import { Space_Grotesk } from "next/font/google";
 import TopUpModal from "../../components/TopUpModal";
 import WithdrawModal from "../../components/WithdrawModal";
+import ShareMiniApp from "../../components/ShareMiniApp";
 import axios from "axios";
 import sdk from "@farcaster/miniapp-sdk";
 import { getSaving, getUserChildContract, getUserVaultNames } from "@/lib/onchain";
@@ -57,7 +58,7 @@ export default function Dashboard() {
     date: string;
   } | null>(null);
 
-    // onchain hooks
+  // onchain hooks
   const { switchChain, isPending: isSwitchingChain } = useSwitchChain();
   const chainId = useChainId();
   // farcaster miniapp hook
@@ -66,7 +67,7 @@ export default function Dashboard() {
   // Helper function to get current chain info
   const getCurrentChain = () => {
     if (!mounted) return base; // Safe default for SSR
-    return SUPPORTED_CHAINS.find(chain => chain.id === chainId) || base;
+    return SUPPORTED_CHAINS.find((chain) => chain.id === chainId) || base;
   };
 
   const [updates, setUpdates] = useState<Array<Update>>([]);
@@ -77,9 +78,9 @@ export default function Dashboard() {
   // Effect to handle chain changes and refetch data
   useEffect(() => {
     if (mounted && address && chainId && !isSwitchingChain) {
-      console.log('Chain changed, refetching data for chain:', chainId);
-      console.log('Current chain name:', getCurrentChain().name);
-      
+      console.log("Chain changed, refetching data for chain:", chainId);
+      console.log("Current chain name:", getCurrentChain().name);
+
       // Clear existing data first to show fresh loading state
       setSavingsData({
         totalLocked: "0.00",
@@ -89,12 +90,12 @@ export default function Dashboard() {
         readyPlans: [],
         completedPlans: [],
       });
-      
+
       // Add a small delay to ensure the chain switch is complete
       const timer = setTimeout(() => {
         fetchSavingsData();
       }, 100);
-      
+
       return () => clearTimeout(timer);
     }
   }, [chainId, mounted, address, isSwitchingChain]);
@@ -278,7 +279,7 @@ export default function Dashboard() {
     const readyMiniapp = async () => {
       await sdk.actions.ready();
       setMounted(true);
-      
+
       // Start fetching data in background without blocking UI
       if (isConnected && address && chainId) {
         fetchSavingsData();
@@ -296,7 +297,7 @@ export default function Dashboard() {
       const timer = setTimeout(() => {
         fetchSavingsData();
       }, 100);
-      
+
       return () => clearTimeout(timer);
     }
   }, [mounted, isConnected, address, chainId, isSwitchingChain]);
@@ -307,7 +308,7 @@ export default function Dashboard() {
     console.log("address:", address);
     console.log("chainId:", chainId);
     console.log("Current chain:", getCurrentChain().name);
-    
+
     if (!isConnected || !address || !chainId) {
       console.log("Missing required data for fetch");
       return;
@@ -350,18 +351,14 @@ export default function Dashboard() {
 
       const contractAddress =
         chainId === BASE_CHAIN_ID ? BASE_CONTRACT_ADDRESS : CELO_CONTRACT_ADDRESS;
-      
+
       console.log("Using contract address:", contractAddress);
 
       // Get user's child contract with timeout
       let userChildContractAddress;
       try {
         // Add timeout to prevent hanging
-        userChildContractAddress = await getUserChildContract(
-          contractAddress,
-          address,
-          chainId,
-        );
+        userChildContractAddress = await getUserChildContract(contractAddress, address, chainId);
 
         console.log("User child contract address:", userChildContractAddress);
 
@@ -423,11 +420,7 @@ export default function Dashboard() {
             console.log("Fetching data for:", savingName);
 
             // get saving plan data
-            const savingData = await getSaving(
-              userChildContractAddress,
-              savingName,
-              chainId,
-            );
+            const savingData = await getSaving(userChildContractAddress, savingName, chainId);
             console.log("savingData for", savingName, ":", savingData);
 
             return { savingName, savingData };
@@ -610,7 +603,7 @@ export default function Dashboard() {
   // Callback to refetch data after successful top-up
   const handleTopUpSuccess = () => {
     console.log("Top-up successful, refetching savings data...");
-    
+
     // Add a small delay to ensure the transaction is processed
     setTimeout(() => {
       fetchSavingsData();
@@ -654,7 +647,7 @@ export default function Dashboard() {
   // Callback to refetch data after successful withdrawal
   const handleWithdrawSuccess = () => {
     console.log("Withdrawal successful, refetching savings data...");
-    
+
     // Add a small delay to ensure the transaction is processed
     setTimeout(() => {
       fetchSavingsData();
@@ -858,16 +851,14 @@ export default function Dashboard() {
       <div className="absolute bottom-20 left-10 md:left-20 w-40 md:w-80 h-40 md:h-80 bg-blue-500/10 rounded-full blur-3xl -z-10"></div>
 
       {/* Header - responsive adjustments */}
-      <div className="flex justify-between items-center mb-6 md:mb-8 overflow-x-hidden">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 tracking-tight">Dashboard</h1>
-          <p className="text-sm md:text-base text-gray-500 flex items-center">
-            <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-            Welcome back, {mounted ? (context?.user?.username ?? "User") : "User"}
-          </p>
-        </div>
-        {/* Notification bell with responsive positioning - aligned with menu bar */}
-        <div className="flex items-center space-x-3 relative mr-12 md:mr-0 mb-10 px-3 py-3">
+      <div className="flex justify-end mr-12 items-center overflow-x-hidden">
+        <div className="flex justify-end items-center space-x-3">
+          <ShareMiniApp
+            variant="minimal"
+            size="sm"
+            customMessage="💰 Been using BitSave to grow my crypto savings safely! The yields are amazing and I don't worry about market dips anymore 📈"
+            className="hidden sm:inline-flex"
+          />
           <button
             id="notification-button"
             onClick={() => setShowNotifications(!showNotifications)}
@@ -891,57 +882,64 @@ export default function Dashboard() {
               <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#81D7B4] rounded-full border-2 border-white"></span>
             )}
           </button>
-
-          {/* Notifications dropdown - improved positioning for mobile */}
-          {showNotifications && (
-            <div className="fixed right-4 md:right-4 top-20 w-[calc(100vw-2rem)] md:w-80 max-w-sm bg-white/95 backdrop-blur-xl rounded-xl shadow-xl border border-white/60 z-[9999] overflow-hidden">
-              <div className="p-4 border-b border-gray-100">
-                <h3 className="font-semibold text-gray-800">Updates</h3>
-              </div>
-
-              <div className="max-h-80 overflow-y-auto">
-                {updates && updates.length > 0 ? (
-                  updates.map((update) => (
-                    <button
-                      key={update.id}
-                      onClick={() => openUpdateModal(update)}
-                      className="w-full text-left p-4 hover:bg-[#81D7B4]/5 border-b border-gray-100 last:border-b-0 transition-colors relative"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="font-medium text-gray-800 text-sm">{update.title}</h4>
-                          <p className="text-gray-500 text-xs mt-1 line-clamp-2">
-                            {update.content}
-                          </p>
-                          <span className="text-gray-400 text-xs mt-2 block">
-                            {new Date(update.date).toLocaleDateString()}
-                          </span>
-                        </div>
-                        {update.isNew && (
-                          <span className="bg-[#81D7B4] text-white text-xs px-2 py-0.5 rounded-full">
-                            New
-                          </span>
-                        )}
-                      </div>
-                    </button>
-                  ))
-                ) : (
-                  <div className="p-4 text-center text-gray-500 text-sm">No new updates</div>
-                )}
-              </div>
-
-              <div className="p-3 bg-gray-50/80 border-t border-gray-100">
-                <button
-                  onClick={() => setShowNotifications(false)}
-                  className="w-full py-2 text-xs font-medium text-gray-600 hover:text-gray-800 transition-colors"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          )}
         </div>
       </div>
+      <div className="mt-4 mb-6 md:mb-8 space-y-1">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 tracking-tight">Dashboard</h1>
+          <p className="text-sm md:text-base text-gray-500 flex items-center">
+            <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+            Welcome back, {mounted ? (context?.user?.username ?? "User") : "User"}
+          </p>
+        </div>
+      </div>
+
+      {/* Notifications dropdown - improved positioning for mobile */}
+      {showNotifications && (
+        <div className="fixed right-4 md:right-4 top-20 w-[calc(100vw-2rem)] md:w-80 max-w-sm bg-white/95 backdrop-blur-xl rounded-xl shadow-xl border border-white/60 z-[9999] overflow-hidden">
+          <div className="p-4 border-b border-gray-100">
+            <h3 className="font-semibold text-gray-800">Updates</h3>
+          </div>
+
+          <div className="max-h-80 overflow-y-auto">
+            {updates && updates.length > 0 ? (
+              updates.map((update) => (
+                <button
+                  key={update.id}
+                  onClick={() => openUpdateModal(update)}
+                  className="w-full text-left p-4 hover:bg-[#81D7B4]/5 border-b border-gray-100 last:border-b-0 transition-colors relative"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="font-medium text-gray-800 text-sm">{update.title}</h4>
+                      <p className="text-gray-500 text-xs mt-1 line-clamp-2">{update.content}</p>
+                      <span className="text-gray-400 text-xs mt-2 block">
+                        {new Date(update.date).toLocaleDateString()}
+                      </span>
+                    </div>
+                    {update.isNew && (
+                      <span className="bg-[#81D7B4] text-white text-xs px-2 py-0.5 rounded-full">
+                        New
+                      </span>
+                    )}
+                  </div>
+                </button>
+              ))
+            ) : (
+              <div className="p-4 text-center text-gray-500 text-sm">No new updates</div>
+            )}
+          </div>
+
+          <div className="p-3 bg-gray-50/80 border-t border-gray-100">
+            <button
+              onClick={() => setShowNotifications(false)}
+              className="w-full py-2 text-xs font-medium text-gray-600 hover:text-gray-800 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         {/* Total Value Card - responsive padding */}
@@ -1000,7 +998,7 @@ export default function Dashboard() {
                     onClick={async () => {
                       document.getElementById("chain-dropdown")?.classList.add("hidden");
                       if (!mounted || chain.id === chainId || isSwitchingChain) return;
-                      
+
                       console.log(`Switching to chain: ${chain.name} (${chain.id})`);
                       try {
                         await switchChain({ chainId: chain.id });
@@ -1011,8 +1009,8 @@ export default function Dashboard() {
                     }}
                     disabled={isSwitchingChain || chain.id === chainId}
                     className={`flex items-center w-full px-4 py-2 hover:bg-gray-100/80 text-left text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                      mounted && chain.id === chainId 
-                        ? "bg-[#81D7B4]/10 text-[#81D7B4]" 
+                      mounted && chain.id === chainId
+                        ? "bg-[#81D7B4]/10 text-[#81D7B4]"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
