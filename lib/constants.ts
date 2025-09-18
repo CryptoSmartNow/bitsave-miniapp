@@ -112,10 +112,10 @@ export const APP_SPLASH_BACKGROUND_COLOR: string = "#81D7B4";
  */
 export const APP_ACCOUNT_ASSOCIATION: AccountAssociation | undefined = {
   header:
-    "eyJmaWQiOjg5MTM2MSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDIxRDE3N0ZmNzkzYkI4OGYyODAwZTlEYjFEMDVERDI3MzA0NkEzMzgifQ",
+    "eyJmaWQiOjEzMzkzMjcsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHgwNzAzN2Q1NURhZjUzODIyMkVCNWUwN0VmN0YyODY1NEM5QWI2NzEyIn0",
   payload: "eyJkb21haW4iOiJiaXRzYXZlLW1pbmlhcHAudmVyY2VsLmFwcCJ9",
   signature:
-    "MHg0OTI3MmYxMDRlNTA0YzMzZDk3MmI4ODk4MzRjNWMzYTI5MWJhMWFlYzdlMGJlNGI3MGUyZTczMmE5YzQxMWZiNTUzMzQ1ZWY0NDY3ZmY2MmVmMzRkNjE2ODA2MDRmMDc1ZGRiNTljN2MwZTcxZDcwZDc5MmUyNTk0NjIwZDU5MDFi",
+    "MHhlNDgxODlkZjVhOTk4ZTAzYTBlNGZkMjRkYTBhMzI2OTAxYzliZWM0ZGE2MTRlNjI3ZWRjNGNkNWM3ZjExNjVmMzA5NmIzZDJjZjZmMTBlYzA4NTEwNGE1OTA4NjZkZTk3ZTI4MzhlNzFhODJlNzU2NTk2YTZmNjRhMGVkZDEyNzFj",
 };
 
 // --- UI Configuration ---
@@ -133,7 +133,8 @@ export const APP_BUTTON_TEXT = "Save Now";
  * Neynar webhook endpoint. Otherwise, falls back to a local webhook
  * endpoint for development and testing.
  */
-export const APP_WEBHOOK_URL: string = "https://api.neynar.com/f/app/a8a9c5fb-72ea-451d-b728-efb68863db31/event";
+export const APP_WEBHOOK_URL: string =
+  "https://api.neynar.com/f/app/a8a9c5fb-72ea-451d-b728-efb68863db31/event";
 
 /**
  * Flag to enable/disable wallet functionality.
