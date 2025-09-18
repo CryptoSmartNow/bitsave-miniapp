@@ -1068,7 +1068,7 @@ export default function CreateSavingsPage() {
     const consistentSaverPage = `${APP_URL}/badges/consistent-saver`;
     const embedLink = isFirstSaving ? firstSavingPage : consistentSaverPage;
     console.log("embed link", embedLink);
-    const castText = `Just locked up some ${currency} for my future self on @bitsaveprotocol, no degen plays today, web3 savings never looked this good 💰\n\nYou should be doing #SaveFi → bitsave.io`;
+    const castText = `Just locked up some ${currency} for my future self on @bitsave, no degen plays today, web3 savings never looked this good 💰\n\nYou should be doing #SaveFi → bitsave.io`;
 
     sdk.actions.composeCast({
       text: castText,

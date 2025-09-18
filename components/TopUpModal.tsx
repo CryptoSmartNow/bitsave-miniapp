@@ -169,7 +169,7 @@ export default function TopUpModal({
   function handleShareToFarcaster() {
     const embedUrl = `${APP_URL}/badges/top-up`;
 
-    const castText = `Just topped up my savings plan on @bitsaveprotocol! Keeping my future self secure with some extra funds. 💰 #SaveFi → bitsave.io`;
+    const castText = `Just topped up my savings plan on @bitsave! Keeping my future self secure with some extra funds. 💰 #SaveFi → bitsave.io`;
     sdk.actions.composeCast({
       text: castText,
       embeds: [embedUrl],
