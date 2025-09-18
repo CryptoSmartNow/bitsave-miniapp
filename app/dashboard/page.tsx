@@ -1062,69 +1062,6 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-
-        {/* Leaderboard - responsive adjustments */}
-        <div className="bg-white/80 backdrop-blur-md rounded-2xl p-4 md:p-6 border border-white/50 shadow-[0_10px_25px_-15px_rgba(0,0,0,0.1)] hover:shadow-[0_15px_30px_-15px_rgba(0,0,0,0.2)] transition-all duration-300 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('/noise.jpg')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
-          <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-[#81D7B4]/10 rounded-full blur-2xl"></div>
-          <div className="absolute -right-20 -top-20 w-60 h-60 bg-[#81D7B4]/5 rounded-full blur-3xl"></div>
-
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-800">Leaderboard</h2>
-            <Link
-              href="/dashboard/leaderboard"
-              className="text-xs font-medium text-[#81D7B4] bg-[#81D7B4]/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-[#81D7B4]/20 hover:bg-[#81D7B4]/20 transition-all duration-300 flex items-center"
-            >
-              View All
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                className="w-3 h-3 ml-1"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </Link>
-          </div>
-
-          <div className="space-y-4">
-            {isLeaderboardLoading ? (
-              <div className="flex justify-center items-center py-8">
-                <div className="animate-spin h-6 w-6 border-t-2 border-b-2 border-[#81D7B4] rounded-full"></div>
-              </div>
-            ) : leaderboardData.length > 0 ? (
-              leaderboardData.map((item) => (
-                <div
-                  key={item.rank}
-                  className="flex items-center justify-between p-3 rounded-xl hover:bg-[#81D7B4]/5 transition-all duration-300 border border-transparent hover:border-[#81D7B4]/20"
-                >
-                  <div className="flex items-center">
-                    <div className="w-7 h-7 flex items-center justify-center font-bold text-sm bg-[#81D7B4]/10 rounded-full mr-3 text-[#81D7B4] border border-[#81D7B4]/30">
-                      {item.rank}
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-gray-700 font-medium text-xs sm:text-sm truncate max-w-[120px] sm:max-w-[180px]">
-                        {item.useraddress.slice(0, 6)}...{item.useraddress.slice(-4)}
-                      </span>
-                      <span className="text-xs text-gray-500">{item.chain}</span>
-                    </div>
-                  </div>
-                  <span className="font-medium text-[#81D7B4] bg-[#81D7B4]/10 px-2.5 py-1 rounded-full text-sm shadow-sm">
-                    ${item.totalamount.toFixed(2)}
-                  </span>
-                </div>
-              ))
-            ) : (
-              <div className="text-center py-8 text-gray-500">No leaderboard data available</div>
-            )}
-          </div>
-        </div>
       </div>
 
       {/* Add Savings Button - responsive padding */}
