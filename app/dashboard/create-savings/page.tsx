@@ -1875,25 +1875,6 @@ export default function CreateSavingsPage() {
                             </svg>
                             Early Withdrawal Penalty
                           </label>
-                          <div className="bg-gray-100 rounded-full px-3 py-1 text-xs font-medium text-gray-600">
-                            <span className="flex items-center">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-4 w-4 mr-1"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                              </svg>
-                              Optional
-                            </span>
-                          </div>
                         </div>
 
                         <div className="bg-white/70 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-sm p-4 sm:p-5 relative overflow-hidden group">
