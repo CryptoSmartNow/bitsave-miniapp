@@ -134,7 +134,7 @@ export const APP_BUTTON_TEXT = "Save Now";
  * endpoint for development and testing.
  */
 export const APP_WEBHOOK_URL: string =
-  "https://api.neynar.com/f/app/a8a9c5fb-72ea-451d-b728-efb68863db31/event";
+  "https://api.neynar.com/f/app/743a84e9-07c8-4bbd-9b78-dfca504ca20a/event";
 
 /**
  * Flag to enable/disable wallet functionality.
