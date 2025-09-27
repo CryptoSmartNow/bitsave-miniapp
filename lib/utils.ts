@@ -20,6 +20,8 @@ interface Manifest {
     imageUrl: string;
     buttonTitle: string;
     webhookUrl: string;
+    primaryCategory?: string;
+    tags?: string[];
   };
   baseBuilder: {
     allowedAddresses: string[];
@@ -82,6 +84,8 @@ export async function getFarcasterDomainManifest(): Promise<Manifest> {
       imageUrl: APP_OG_IMAGE_URL,
       buttonTitle: APP_BUTTON_TEXT ?? "Launch Mini App",
       webhookUrl: APP_WEBHOOK_URL,
+      primaryCategory: APP_PRIMARY_CATEGORY,
+      tags: APP_TAGS,
     },
     baseBuilder: {
       allowedAddresses: ["0xba24854359D5EBba0BDB9f00c77a4e4B22f8AFB2"],
