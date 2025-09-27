@@ -78,7 +78,7 @@ export const APP_PRIMARY_CATEGORY = "finance";
  * Tags associated with the mini app.
  * Used for search and discovery in app stores.
  */
-export const APP_TAGS = ["saving", "bitsave", "savefi", "yield", "vault", "stablecoins"];
+export const APP_TAGS = ["saving", "yield", "vault", "stablecoins"];
 
 // --- Asset URLs ---
 /**
