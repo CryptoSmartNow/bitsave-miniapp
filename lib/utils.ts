@@ -13,6 +13,7 @@ interface Manifest {
   miniapp: {
     version: string;
     name: string;
+    description?: string;
     homeUrl: string;
     iconUrl: string;
     splashImageUrl: string;
@@ -77,6 +78,7 @@ export async function getFarcasterDomainManifest(): Promise<Manifest> {
     miniapp: {
       version: "1",
       name: APP_NAME ?? "Neynar Starter Kit",
+      description: APP_DESCRIPTION ?? "Saving made simple with BitSave",
       homeUrl: APP_URL,
       iconUrl: APP_ICON_URL,
       splashImageUrl: APP_SPLASH_URL,
