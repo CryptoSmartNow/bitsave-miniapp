@@ -21,6 +21,9 @@ interface Manifest {
     buttonTitle: string;
     webhookUrl: string;
   };
+  baseBuilder: {
+    allowedAddresses: string[];
+  };
 }
 import {
   APP_BUTTON_TEXT,
@@ -79,6 +82,9 @@ export async function getFarcasterDomainManifest(): Promise<Manifest> {
       imageUrl: APP_OG_IMAGE_URL,
       buttonTitle: APP_BUTTON_TEXT ?? "Launch Mini App",
       webhookUrl: APP_WEBHOOK_URL,
+    },
+    baseBuilder: {
+      allowedAddresses: ["0xba24854359D5EBba0BDB9f00c77a4e4B22f8AFB2"],
     },
   };
 }
