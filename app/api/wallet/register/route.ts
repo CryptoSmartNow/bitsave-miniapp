@@ -2,6 +2,7 @@ import { type User } from "@/types";
 import { UserDatabase, connectToDatabase } from "@/lib/mongodb";
 import { NextResponse } from "next/server";
 import { alchemyService } from "@/lib/alchemy";
+import { isAddress } from "ethers";
 
 export async function POST(request: Request) {
   await connectToDatabase();
@@ -12,8 +13,14 @@ export async function POST(request: Request) {
 
   const userDb = new UserDatabase();
 
+  // validate the wallet address is an evm wallet
+  if (!isAddress(walletAddress)) {
+    return NextResponse.json({ message: "Invalid wallet address" }, { status: 400 });
+  }
+
   // Check if user already exists
-  const existingUser = await userDb.getUserByFid(fid);
+  const existingUser = await userDb.getUserByWallet(walletAddress);
+
   if (existingUser) {
     return NextResponse.json({ message: "User already exists" }, { status: 409 });
   }

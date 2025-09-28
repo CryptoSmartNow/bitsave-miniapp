@@ -75,6 +75,39 @@ export default function Dashboard() {
   // price provider
   const { celoPrice, ethPrice, goodDollarPrice } = usePrices();
 
+  // automatically ask user to add miniapp and silently register wallet on connection
+  useEffect(() => {
+    async function registerUserForNotifications() {
+      try {
+        const result = await sdk.actions.addMiniApp();
+        console.log("Add miniapp result:", result);
+
+        const response = await fetch("/api/wallet/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            walletAddress: address,
+            fid: context?.user.fid,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to register wallet");
+        }
+
+        console.log("Wallet registered successfully");
+      } catch (error) {
+        console.error("Error registering user for notifications:", error);
+      }
+    }
+
+    setTimeout(() => {
+      registerUserForNotifications();
+    }, 1000);
+  }, [isConnected, address]);
+
   // Effect to handle chain changes and refetch data
   useEffect(() => {
     if (mounted && address && chainId && !isSwitchingChain) {
