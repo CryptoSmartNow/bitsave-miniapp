@@ -1,106 +1,124 @@
-import { MongoClient, Db, Collection, ReadPreference, WriteConcern } from "mongodb";
+import { type User as UserType } from "@/types";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
-const uri = process.env.MONGODB_URI;
-const dbName = process.env.MONGODB_DB_NAME || "bitsave";
+const uri = process.env.MONGODB_URI || "mongodb://localhost:27017/mydatabase";
 
-// MongoDB is optional - app can work without it
-const MONGODB_ENABLED = !!uri;
+// mapping wallet to farcaster id
+const UserSchema = new Schema(
+  {
+    fid: { type: String, required: true, unique: true },
+    walletAddress: { type: String, required: true, unique: true },
+  },
+  { timestamps: true },
+);
 
-const options = {
-  serverSelectionTimeoutMS: 10000, // Increase timeout to 10s
-  connectTimeoutMS: 10000, // Give up initial connection after 10s
-  socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
-  maxPoolSize: 10, // Maintain up to 10 socket connections
-  retryWrites: true,
-  writeConcern: new WriteConcern("majority"),
-  directConnection: false, // Allow driver to discover all nodes
-  readPreference: ReadPreference.PRIMARY,
-};
+const User = mongoose.models.User || mongoose.model<UserType & Document>("User", UserSchema);
 
-let client: MongoClient | null = null;
-let clientPromise: Promise<MongoClient> | null = null;
+// Connection management
+let isConnected = false;
 
-interface GlobalWithMongo {
-  _mongoClientPromise?: Promise<MongoClient> | null;
+export async function connectToDatabase(): Promise<void> {
+  if (isConnected) {
+    return;
+  }
+
+  try {
+    const options = {
+      bufferCommands: true, // Enable buffering to allow operations before connection is complete
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    };
+
+    await mongoose.connect(uri, options);
+    isConnected = true;
+
+    mongoose.connection.on("error", (error: any) => {
+      console.error("MongoDB connection error:", error);
+      isConnected = false;
+    });
+
+    mongoose.connection.on("disconnected", () => {
+      console.log("MongoDB disconnected");
+      isConnected = false;
+    });
+
+    console.log("✅ Connected to MongoDB via Mongoose");
+  } catch (error) {
+    console.error("❌ Failed to connect to MongoDB:", error);
+    throw new Error("Database connection failed");
+  }
 }
 
-const globalWithMongo = globalThis as GlobalWithMongo;
-
-if (MONGODB_ENABLED) {
-  if (process.env.NODE_ENV === "development") {
-    if (!globalWithMongo._mongoClientPromise) {
-      client = new MongoClient(uri!, options);
-      globalWithMongo._mongoClientPromise = client.connect();
+export class UserDatabase {
+  constructor() {
+    // Ensure connection on instantiation
+    if (!isConnected) {
+      connectToDatabase();
     }
-    clientPromise = globalWithMongo._mongoClientPromise;
-  } else {
-    client = new MongoClient(uri!, options);
-    clientPromise = client.connect();
+  }
+
+  async getUserByFid(fid: string): Promise<UserType | null> {
+    try {
+      await connectToDatabase();
+      return await User.findOne({ fid }).exec();
+    } catch (error) {
+      console.error("Error getting user by fid:", error);
+      throw error;
+    }
+  }
+
+  async getUserByWallet(walletAddress: string): Promise<UserType | null> {
+    try {
+      await connectToDatabase();
+      return await User.findOne({ walletAddress }).exec();
+    } catch (error) {
+      console.error("Error getting user by wallet address:", error);
+      throw error;
+    }
+  }
+
+  async createUser(fid: string, walletAddress: string): Promise<UserType> {
+    try {
+      await connectToDatabase();
+
+      const user = new User({ fid, walletAddress });
+      return await user.save();
+    } catch (error) {
+      console.error("Error creating user:", error);
+      throw error;
+    }
+  }
+
+  async updateUser(fid: string, walletAddress: string): Promise<UserType | null> {
+    try {
+      await connectToDatabase();
+
+      const user = await User.findOneAndUpdate(
+        { fid },
+        { walletAddress },
+        { new: true, runValidators: true },
+      ).exec();
+
+      return user;
+    } catch (error) {
+      console.error("Error updating user:", error);
+      throw error;
+    }
+  }
+
+  async deleteUser(fid: string): Promise<boolean> {
+    try {
+      await connectToDatabase();
+
+      const result = await User.deleteOne({ fid }).exec();
+      return result.deletedCount > 0;
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      throw error;
+    }
   }
 }
 
-export default clientPromise;
-
-export async function getDatabase(): Promise<Db | null> {
-  if (!MONGODB_ENABLED || !clientPromise) {
-    console.warn("MongoDB is not enabled or configured");
-    return null;
-  }
-
-  try {
-    const client = await clientPromise;
-    return client.db(dbName);
-  } catch (error) {
-    console.error("Failed to connect to MongoDB:", error);
-    return null;
-  }
-}
-
-export async function getUserInteractionsCollection(): Promise<Collection | null> {
-  if (!MONGODB_ENABLED) {
-    console.warn("MongoDB is not enabled");
-    return null;
-  }
-
-  try {
-    const db = await getDatabase();
-    if (!db) return null;
-    return db.collection("user_interactions");
-  } catch (error) {
-    console.error("Failed to get user interactions collection:", error);
-    return null;
-  }
-}
-
-export interface UserInteraction {
-  type: string;
-  walletAddress?: string;
-  userAgent?: string;
-  data: Record<string, unknown>;
-  id: string;
-  timestamp: string;
-  sessionId: string;
-  ip: string;
-}
-
-// Health check function to test MongoDB connectivity
-export async function checkMongoDBHealth(): Promise<{ connected: boolean; error?: string }> {
-  if (!MONGODB_ENABLED || !clientPromise) {
-    return {
-      connected: false,
-      error: "MongoDB is not enabled or configured",
-    };
-  }
-
-  try {
-    const client = await clientPromise;
-    await client.db("admin").command({ ping: 1 });
-    return { connected: true };
-  } catch (error) {
-    console.error("MongoDB health check failed:", error);
-    return {
-      connected: false,
-      error: error instanceof Error ? error.message : "Unknown error",
-    };
-  }
-}
+export const userDatabase = new UserDatabase();
+export { User };

@@ -36,3 +36,8 @@ export interface SavingsPlan {
   tokenName: string; // Add this property
   tokenLogo?: string; // Add this property
 }
+
+export interface User {
+  fid: string;
+  walletAddress: string;
+}
