@@ -107,7 +107,7 @@ export class UserDatabase {
     }
   }
 
-  async deleteUser(fid: string): Promise<boolean> {
+  async deleteUserByFid(fid: string): Promise<boolean> {
     try {
       await connectToDatabase();
 
