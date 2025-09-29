@@ -79,8 +79,15 @@ export default function Dashboard() {
   useEffect(() => {
     async function registerUserForNotifications() {
       try {
-        const result = await sdk.actions.addMiniApp();
-        console.log("Add miniapp result:", result);
+        console.log("Registering user for notifications");
+
+        try {
+          const result = await sdk.actions.addMiniApp();
+
+          console.log("Add miniapp result:", result);
+        } catch (error) {
+          console.error("Error adding miniapp:", error);
+        }
 
         const response = await fetch("/api/wallet/register", {
           method: "POST",
@@ -104,7 +111,7 @@ export default function Dashboard() {
     }
 
     setTimeout(() => {
-      registerUserForNotifications();
+      isConnected && !!address && registerUserForNotifications();
     }, 1000);
   }, [isConnected, address]);
 

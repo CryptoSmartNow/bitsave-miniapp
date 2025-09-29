@@ -1,17 +1,12 @@
 import { type User } from "@/types";
-import { UserDatabase, connectToDatabase } from "@/lib/mongodb";
+import { userDatabase as userDb, connectToDatabase } from "@/lib/mongodb";
 import { NextResponse } from "next/server";
 import { alchemyService } from "@/lib/alchemy";
 import { isAddress } from "ethers";
 
 export async function POST(request: Request) {
-  await connectToDatabase();
-  console.log("Received wallet activity webhook");
-
   const body: User = await request.json();
   const { fid, walletAddress } = body;
-
-  const userDb = new UserDatabase();
 
   // validate the wallet address is an evm wallet
   if (!isAddress(walletAddress)) {
@@ -35,7 +30,14 @@ export async function POST(request: Request) {
       addRequests.push(alchemyService.updateWebhookAddresses(webhookId, [walletAddress], []));
   });
 
-  await Promise.all(addRequests);
+  const responses = await Promise.all(addRequests);
+
+  responses.forEach(async (res) => {
+    console.log("registered wallet for webhook:", await res.text());
+    if (!res.ok) {
+      console.error("Failed to register wallet for webhook:", res.statusText);
+    }
+  });
 
   return NextResponse.json(newUser, { status: 201 });
 }

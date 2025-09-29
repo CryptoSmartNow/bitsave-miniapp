@@ -10,10 +10,11 @@ import { v5 as uuidv5 } from "uuid";
 
 export async function POST(request: Request) {
   console.log("Received wallet activity webhook");
-  console.log("payload", JSON.stringify(await request.json()));
+  const body = await request.json();
+  console.log("payload", JSON.stringify(body, null, 2));
 
   // make sure webhook id is valid
-  const { webhookId } = await request.json();
+  const { webhookId } = body;
   const webhookIds = Object.values(alchemyService.WEBHOOK_IDS);
   if (!webhookId || !webhookIds.includes(webhookId)) {
     return NextResponse.json({ status: "error", message: "Invalid webhook ID" }, { status: 400 });
@@ -24,21 +25,25 @@ export async function POST(request: Request) {
 
   console.log("chain", chain);
 
-  const transactions = (await request.json()).event.activity;
+  const transactions = body.event?.activity;
+
+  if (!transactions || transactions.length === 0) {
+    return NextResponse.json({ status: "ok", message: "No transactions to process" });
+  }
 
   for (const tx of transactions) {
     console.log(`[${chain}] New transaction: ${tx.hash}`);
 
     const asset = tx.asset;
     const amount = tx.value;
-    const to = tx.to;
+    const to = tx.toAddress;
 
     // we only care about incoming transactions with amount > 10
     if (amount < 10) continue;
 
     // check if asset is supported
-    if (!alchemyService.SUPPORTED_TOKENS.includes(asset.symbol)) {
-      console.log(`Asset ${asset.symbol} is not supported`);
+    if (!alchemyService.SUPPORTED_TOKENS.includes(asset)) {
+      console.log(`Asset ${asset} is not supported`);
       continue;
     }
 
@@ -52,19 +57,23 @@ export async function POST(request: Request) {
 
     const fid = user.fid;
 
-    console.log(
-      `User ${fid} received ${amount} ${asset.symbol} on ${chain} in transaction ${tx.hash}`,
-    );
+    console.log(`User ${fid} received ${amount} ${asset} on ${chain} in transaction ${tx.hash}`);
 
     // send notification to user
     const notification: SendFrameNotificationsReqBodyNotification = {
-      body: `You received ${amount} ${asset.symbol}. Save 30% of it for later on Bitsave!`,
+      body: `You received ${amount} ${asset}. Save 30% of it for later on Bitsave!`,
       title: "Incoming Transaction",
-      target_url: "https://bitsave-miniapp.vercel.app/dashboard/create-savings",
-      uuid: uuidv5(tx.hash, uuidv5.DNS)
+      target_url: "https://bitsave-miniapp.vercel.app/dashboard",
+      uuid: uuidv5(tx.hash, uuidv5.DNS),
     };
+
+    console.log("sending notification", notification);
+
     const notificationResponse: SendFrameNotificationsResponse =
       await neynarService.sendNotification(notification, [Number(fid)]);
+
+    console.log("notification response", notificationResponse);
+
     const notificationDelivery = notificationResponse.notification_deliveries?.[0];
     if (notificationDelivery?.status !== "success") {
       // remove user from db and unregister webhooks
