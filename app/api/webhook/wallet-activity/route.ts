@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     const to = tx.toAddress;
 
     // we only care about incoming transactions with amount > 10
-    if (amount < 10) continue;
+    if (amount < 1) continue; // TODO: increase to 10
 
     // check if asset is supported
     if (!alchemyService.SUPPORTED_TOKENS.includes(asset)) {
