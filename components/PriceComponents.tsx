@@ -17,12 +17,16 @@ export function usePrices() {
 }
 
 // Function to fetch prices from our API
-async function fetchPricesFromAPI(): Promise<{ ethPrice: number; celoPrice: number; goodDollarPrice: number }> {
+async function fetchPricesFromAPI(): Promise<{
+  ethPrice: number;
+  celoPrice: number;
+  goodDollarPrice: number;
+}> {
   try {
-    console.log('Fetching prices from internal API');
-    const res = await fetch('/api/prices?tokens=ethereum,celo,gooddollar', {
+    console.log("Fetching prices from internal API");
+    const res = await fetch("/api/prices?tokens=ethereum,celo,gooddollar", {
       headers: {
-        'Accept': 'application/json',
+        Accept: "application/json",
       },
     });
 
@@ -31,7 +35,7 @@ async function fetchPricesFromAPI(): Promise<{ ethPrice: number; celoPrice: numb
     }
 
     const data = await res.json();
-    
+
     if (data.success && data.prices) {
       return {
         ethPrice: data.prices.ethereum || 4000,
@@ -39,10 +43,10 @@ async function fetchPricesFromAPI(): Promise<{ ethPrice: number; celoPrice: numb
         goodDollarPrice: data.prices.gooddollar || 0.00009189,
       };
     } else {
-      throw new Error('Invalid API response');
+      throw new Error("Invalid API response");
     }
   } catch (error) {
-    console.error('Error fetching prices from API:', error);
+    console.error("Error fetching prices from API:", error);
     // Return fallback prices
     return {
       ethPrice: 4000,
@@ -65,7 +69,11 @@ async function fetchIndividualPrice(endpoint: string, fallback: number): Promise
 
 export function PriceProvider({ children }: { children: ReactNode }) {
   // Primary query: fetch all prices from our bulk API
-  const { data: allPrices, isLoading, error } = useQuery({
+  const {
+    data: allPrices,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["allPrices"],
     queryFn: fetchPricesFromAPI,
     refetchInterval: 5 * 60 * 1000, // 5 minutes
@@ -102,9 +110,5 @@ export function PriceProvider({ children }: { children: ReactNode }) {
     goodDollarPrice: allPrices?.goodDollarPrice ?? goodDollarPrice ?? 0.00009189,
   };
 
-  return (
-    <PriceContext.Provider value={finalPrices}>
-      {children}
-    </PriceContext.Provider>
-  );
+  return <PriceContext.Provider value={finalPrices}>{children}</PriceContext.Provider>;
 }

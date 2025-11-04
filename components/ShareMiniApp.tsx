@@ -26,23 +26,26 @@ export default function ShareMiniApp({
 
   const defaultMessages = {
     hero: "Just discovered BitSave - the smartest way to save crypto without losing to market volatility! Check it out 👇",
-    dashboard: "Been using BitSave to grow my crypto savings safely! I don't worry about market dips anymore 📈",
-    success: "Just completed another savings milestone with BitSave! Building wealth in crypto has never been this secure 💪",
-    default: "Building my crypto wealth with BitSave - smart savings that protect against volatility while earning yield! 🔥",
+    dashboard:
+      "Been using BitSave to grow my crypto savings safely! I don't worry about market dips anymore 📈",
+    success:
+      "Just completed another savings milestone with BitSave! Building wealth in crypto has never been this secure 💪",
+    default:
+      "Building my crypto wealth with BitSave - smart savings that protect against volatility while earning yield! 🔥",
   };
 
   const handleShare = async () => {
     try {
       setIsSharing(true);
-      
+
       const message = customMessage || defaultMessages.default;
       const currentUrl = window.location.origin;
-      
+
       await sdk.actions.composeCast({
         text: message,
         embeds: [currentUrl],
       });
-      
+
       onSuccess?.();
     } catch (error) {
       console.error("Failed to share miniapp:", error);
@@ -55,7 +58,7 @@ export default function ShareMiniApp({
   const getButtonText = () => {
     if (customText) return customText;
     if (isSharing) return "Sharing...";
-    
+
     switch (variant) {
       case "minimal":
         return "Share";

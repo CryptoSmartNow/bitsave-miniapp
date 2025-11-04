@@ -1,1 +1,1 @@
-export { default as FarcasterIcon } from './FarcasterIcon';
+export { default as FarcasterIcon } from "./FarcasterIcon";

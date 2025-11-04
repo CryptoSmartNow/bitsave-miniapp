@@ -1,12 +1,12 @@
 ---
-applyTo: '**'
+applyTo: "**"
 ---
+
 # Farcaster Mini Apps
 
 ## Blog
 
 ::blog-posts
-
 
 ## Why Farcaster Doesn't Need OAuth 2.0
 
@@ -15,21 +15,21 @@ that collapses this triangle:
 
 ### 1. Identity & Authentication
 
-* **User-owned keys:** A user controlled crypotgraphic signature proves control of a Farcaster ID—no intermediary.
-* **Dev mappings**
-  * Sign In with X → Sign-in with Farcaster (SIWF)
-  * OAuth 2.0 Authorization Flow → Quick Auth
+- **User-owned keys:** A user controlled crypotgraphic signature proves control of a Farcaster ID—no intermediary.
+- **Dev mappings**
+  - Sign In with X → Sign-in with Farcaster (SIWF)
+  - OAuth 2.0 Authorization Flow → Quick Auth
 
 ### 2. Data Access & Permissions
 
-* **Open, replicated data:** Social data like casts, reactions, and profiles live on Snapchain and can be read by anyone.
-* **No permission scopes:** Everything is already public; you filter what you need instead of requesting scopes.
-* **Zero-cost reads:** Sync the chain yourself or hit a public indexer—no rate caps, no $5k +/month fire-hoses.
-* **Cryptographic writes:** Users can delegate a key to applications so the applications can writes on their behalf.
-* **Dev mappings**
-  * Centralized APIs → Snapchain + infra services (e.g. Neynar)
-  * Access token → no equivalent, data is public
-  * Write permissions → App Keys
+- **Open, replicated data:** Social data like casts, reactions, and profiles live on Snapchain and can be read by anyone.
+- **No permission scopes:** Everything is already public; you filter what you need instead of requesting scopes.
+- **Zero-cost reads:** Sync the chain yourself or hit a public indexer—no rate caps, no $5k +/month fire-hoses.
+- **Cryptographic writes:** Users can delegate a key to applications so the applications can writes on their behalf.
+- **Dev mappings**
+  - Centralized APIs → Snapchain + infra services (e.g. Neynar)
+  - Access token → no equivalent, data is public
+  - Write permissions → App Keys
 
 ### Builder Takeaways
 
@@ -39,10 +39,9 @@ that collapses this triangle:
 
 ### Resources
 
-* [Quick Auth](https://miniapps.farcaster.xyz/docs/sdk/quick-auth)
-* [Neynar SDK for one-call Snapchain queries](https://docs.neynar.com/reference/quickstart)
-* [App Keys](https://docs.farcaster.xyz/reference/warpcast/signer-requests)
-
+- [Quick Auth](https://miniapps.farcaster.xyz/docs/sdk/quick-auth)
+- [Neynar SDK for one-call Snapchain queries](https://docs.neynar.com/reference/quickstart)
+- [App Keys](https://docs.farcaster.xyz/reference/warpcast/signer-requests)
 
 ## Getting Started
 
@@ -59,10 +58,10 @@ with the user's wallet.
 
 Before getting started, make sure you have:
 
-* **Node.js 22.11.0 or higher** (LTS version recommended)
-  * Check your version: `node --version`
-  * Download from [nodejs.org](https://nodejs.org/)
-* A package manager (npm, pnpm, or yarn)
+- **Node.js 22.11.0 or higher** (LTS version recommended)
+  - Check your version: `node --version`
+  - Download from [nodejs.org](https://nodejs.org/)
+- A package manager (npm, pnpm, or yarn)
 
 :::warning
 If you encounter installation errors, verify you're using Node.js 22.11.0 or higher. Earlier versions are not supported.
@@ -88,6 +87,7 @@ For new projects, you can set up an app using the
 CLI. This will prompt you to set up a project for your app.
 
 :::code-group
+
 ```bash [npm]
 npm create @farcaster/mini-app
 ```
@@ -99,6 +99,7 @@ pnpm create @farcaster/mini-app
 ```bash [yarn]
 yarn create @farcaster/mini-app
 ```
+
 :::
 
 Remember, you can use whatever your favorite web framework is to build Mini
@@ -112,6 +113,7 @@ For existing projects, install the MiniApp SDK:
 #### Package Manager
 
 :::code-group
+
 ```bash [npm]
 npm install @farcaster/miniapp-sdk
 ```
@@ -123,6 +125,7 @@ pnpm add @farcaster/miniapp-sdk
 ```bash [yarn]
 yarn add @farcaster/miniapp-sdk
 ```
+
 :::
 
 #### CDN
@@ -133,7 +136,7 @@ the bottom of your HTML file with the following content.
 
 ```html
 <script type="module">
-  import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk'
+  import { sdk } from "https://esm.sh/@farcaster/miniapp-sdk";
 </script>
 ```
 
@@ -142,10 +145,10 @@ the bottom of your HTML file with the following content.
 After your app loads, you must call `sdk.actions.ready()` to hide the splash screen and display your content:
 
 ```javascript
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // After your app is fully loaded and ready to display
-await sdk.actions.ready()
+await sdk.actions.ready();
 ```
 
 :::warning
@@ -160,21 +163,22 @@ If you encounter installation or build errors, the most common cause is using an
 
 **Common error messages:**
 
-* `npm ERR! engine Unsupported platform`
-* `npm ERR! peer dep missing`
-* Build failures with cryptic error messages
-* Package installation failures
+- `npm ERR! engine Unsupported platform`
+- `npm ERR! peer dep missing`
+- Build failures with cryptic error messages
+- Package installation failures
 
 **Solution:**
 
 1. Check your Node.js version:
+
    ```bash
    node --version
    ```
 
 2. If you're using Node.js \< 22.11.0, update to the latest LTS version:
-   * Visit [nodejs.org](https://nodejs.org/) to download the latest LTS
-   * Or use a version manager like `nvm`:
+   - Visit [nodejs.org](https://nodejs.org/) to download the latest LTS
+   - Or use a version manager like `nvm`:
      ```bash
      nvm install --lts
      nvm use --lts
@@ -193,7 +197,7 @@ applications.
 <video autoPlay muted playsInline loop>
   <source src="/ask_in_chatgpt.mp4" type="video/mp4" />
 
-  Your browser does not support the video tag.
+Your browser does not support the video tag.
 </video>
 
 2. Use the <a class="vocs_Anchor vocs_Link vocs_Link_accent" href="/llms-full.txt">llms-full.txt</a> to keep your LLM up to date with these docs:
@@ -220,7 +224,6 @@ You'll need to do a few more things before distributing your app to users:
 
 1. publish the app by providing information about who created it and how it should displayed
 2. make it sharable in feeds
-
 
 ## Specification
 
@@ -338,26 +341,26 @@ is maintained within the code base to document all changes.
 
 #### API
 
-* [context](/docs/sdk/context) - provides information about the context the Mini App is running in
+- [context](/docs/sdk/context) - provides information about the context the Mini App is running in
 
 ##### Actions
 
-* [addMiniApp](/docs/sdk/actions/add-miniapp) - Prompts the user to add the Mini App
-* [close](/docs/sdk/actions/close) - Closes the Mini App
-* [composeCast](/docs/sdk/actions/compose-cast) - Prompt the user to cast
-* [ready](/docs/sdk/actions/ready) - Hides the Splash Screen
-* [signin](/docs/sdk/actions/sign-in) - Prompts the user to Sign In with Farcaster
-* [openUrl](/docs/sdk/actions/open-url) - Open an external URL
-* [viewProfile](/docs/sdk/actions/view-profile) - View a Farcaster profile
-* [viewCast](/docs/sdk/actions/view-cast) - View a specific cast
-* [swapToken](/docs/sdk/actions/swap-token) - Prompt the user to swap tokens
-* [sendToken](/docs/sdk/actions/send-token) - Prompt the user to send tokens
-* [viewToken](/docs/sdk/actions/view-token) - View a token
+- [addMiniApp](/docs/sdk/actions/add-miniapp) - Prompts the user to add the Mini App
+- [close](/docs/sdk/actions/close) - Closes the Mini App
+- [composeCast](/docs/sdk/actions/compose-cast) - Prompt the user to cast
+- [ready](/docs/sdk/actions/ready) - Hides the Splash Screen
+- [signin](/docs/sdk/actions/sign-in) - Prompts the user to Sign In with Farcaster
+- [openUrl](/docs/sdk/actions/open-url) - Open an external URL
+- [viewProfile](/docs/sdk/actions/view-profile) - View a Farcaster profile
+- [viewCast](/docs/sdk/actions/view-cast) - View a specific cast
+- [swapToken](/docs/sdk/actions/swap-token) - Prompt the user to swap tokens
+- [sendToken](/docs/sdk/actions/send-token) - Prompt the user to send tokens
+- [viewToken](/docs/sdk/actions/view-token) - View a token
 
 ##### Wallet
 
-* [getEthereumProvider](/docs/sdk/wallet) - [EIP-1193 Ethereum Provider](https://eips.ethereum.org/EIPS/eip-1193)
-* [getSolanaProvider](/docs/sdk/solana) - Experimental Solana provider
+- [getEthereumProvider](/docs/sdk/wallet) - [EIP-1193 Ethereum Provider](https://eips.ethereum.org/EIPS/eip-1193)
+- [getSolanaProvider](/docs/sdk/solana) - Experimental Solana provider
 
 #### Events
 
@@ -382,8 +385,8 @@ version bump.
 
 #### Schema
 
-| Property           | Type   | Required  | Description                                      |
-| ------------------ | ------ | --------- | ------------------------------------------------ |
+| Property           | Type   | Required   | Description                                      |
+| ------------------ | ------ | ---------- | ------------------------------------------------ |
 | accountAssociation | object | ✅ **Yes** | Verifies domain ownership to a Farcaster account |
 | miniapp (or frame) | object | ✅ **Yes** | Metadata about the Mini App                      |
 
@@ -491,10 +494,10 @@ added apps.
 The Host server POSTs 4 types of events to the Mini App server at the
 `webhookUrl` specified in its Mini App manifest:
 
-* `miniapp_added`
-* `miniapp_removed`
-* `notifications_enabled`
-* `notifications_disabled`
+- `miniapp_added`
+- `miniapp_removed`
+- `notifications_enabled`
+- `notifications_disabled`
 
 The body looks like this:
 
@@ -513,7 +516,7 @@ are signed with the app key of the user. The final format is:
 All 3 values are `base64url` encoded. The payload and header can be decoded to
 JSON, where the payload is different per event.
 
-##### miniapp\_added
+##### miniapp_added
 
 This event may happen when an open frame calls `actions.addMiniApp` to prompt the
 user to favorite it, or when the frame is closed and the user adds the frame
@@ -540,12 +543,12 @@ Webhook payload:
 
 ```ts
 type EventMiniAppAddedPayload = {
-  event: 'miniapp_added';
+  event: "miniapp_added";
   notificationDetails?: MiniAppNotificationDetails;
 };
 ```
 
-##### miniapp\_removed
+##### miniapp_removed
 
 A user can remove a frame, which means that any notification tokens for that
 fid and client app (based on signer requester) should be considered invalid:
@@ -558,7 +561,7 @@ Webhook payload:
 }
 ```
 
-##### notifications\_disabled
+##### notifications_disabled
 
 A user can disable frame notifications from e.g. a settings panel in the client
 app. Any notification tokens for that fid and client app (based on signer
@@ -572,7 +575,7 @@ Webhook payload:
 }
 ```
 
-##### notifications\_enabled
+##### notifications_enabled
 
 A user can enable frame notifications (e.g. after disabling them). The client
 backend again sends a `notificationUrl` and a `token`, with a backend-only
@@ -592,7 +595,7 @@ Webhook payload:
 
 ```ts
 type EventNotificationsEnabledPayload = {
-  event: 'notifications_enabled';
+  event: "notifications_enabled";
   notificationDetails: MiniAppNotificationDetails;
 };
 ```
@@ -621,8 +624,8 @@ import SendNotificationResponseSchema from '../../snippets/sendNotificationRespo
 
 Once a user has been notified, when clicking the notification the client app will:
 
-* Open `targetUrl`
-* Set the context to the notification, see `NotificationLaunchContext`
+- Open `targetUrl`
+- Set the context to the notification, see `NotificationLaunchContext`
 
 ##### Idempotency
 
@@ -634,8 +637,8 @@ notification requests.
 
 Host servers should impose rate limits per `token` to prevent intentional or accidentally abuse. The recommended rate limits are:
 
-* 1 notification per 30 seconds per `token`
-* 100 notifications per day per `token`
+- 1 notification per 30 seconds per `token`
+- 100 notifications per day per `token`
 
 ##### Displaying notifications
 
@@ -648,11 +651,10 @@ Hosts should display a user's Mini App notifications from their UI as follows:
 Hosts should provide controls for the user to toggle their notification
 settings for their apps.
 
-* Users should be able to navigate to settings for any Mini App they've added
+- Users should be able to navigate to settings for any Mini App they've added
   and be able to enable or disable notifications from this menu
-* Users should be able to disable notifications for a Mini App directly from a
+- Users should be able to disable notifications for a Mini App directly from a
   notification from that Mini App
-
 
 import { ManifestSchemaRenderer, SchemaRenderer } from '../../../components/ManifestRender.tsx'
 import { domainManifestSchema } from '@farcaster/miniapp-sdk'
@@ -665,38 +667,38 @@ You are an AI agent helping developers troubleshoot Farcaster Mini Apps. This ch
 
 As an AI agent, follow these guidelines:
 
-* **Ask clarifying questions** until you have high confidence in the task. Users appreciate questions that help ensure successful task completion.
-* **Be specific** when something is unclear or inaccessible. Ask for file paths, URLs, or specific error messages.
-* **Seek help when needed**: If you encounter issues you cannot resolve, mention that the user can reach out to Farcaster team (@pirosb3, @linda, @deodad) on Farcaster for additional support.
-* **Verify assumptions** before making changes. It's better to confirm than to proceed with uncertainty.
+- **Ask clarifying questions** until you have high confidence in the task. Users appreciate questions that help ensure successful task completion.
+- **Be specific** when something is unclear or inaccessible. Ask for file paths, URLs, or specific error messages.
+- **Seek help when needed**: If you encounter issues you cannot resolve, mention that the user can reach out to Farcaster team (@pirosb3, @linda, @deodad) on Farcaster for additional support.
+- **Verify assumptions** before making changes. It's better to confirm than to proceed with uncertainty.
 
 ### Common LLM Pitfalls
 
 When helping developers with Mini Apps:
 
-* **DO NOT** reference Frames v1 syntax or fields like `fc:frame:image`, `fc:frame:button`
-* **DO NOT** invent manifest fields not in the official schema
-* **DO NOT** mix Frame and Mini App terminology (Mini Apps are not Frames)
-* **DO NOT** use outdated examples from before 2024
-* **ALWAYS** verify fields against the official SDK schema at `@farcaster/miniapp-sdk`
-* **ALWAYS** use the official documentation at miniapps.farcaster.xyz
-* **ALWAYS** check that examples use `miniapp` or `frame` (not `frames`) in manifest
+- **DO NOT** reference Frames v1 syntax or fields like `fc:frame:image`, `fc:frame:button`
+- **DO NOT** invent manifest fields not in the official schema
+- **DO NOT** mix Frame and Mini App terminology (Mini Apps are not Frames)
+- **DO NOT** use outdated examples from before 2024
+- **ALWAYS** verify fields against the official SDK schema at `@farcaster/miniapp-sdk`
+- **ALWAYS** use the official documentation at miniapps.farcaster.xyz
+- **ALWAYS** check that examples use `miniapp` or `frame` (not `frames`) in manifest
 
 If using example code, ensure it's from:
 
-* Official Mini Apps documentation (this site)
-* The @farcaster/miniapp-sdk package
-* Examples that use `"version": "1"` not `"version": "next"`
+- Official Mini Apps documentation (this site)
+- The @farcaster/miniapp-sdk package
+- Examples that use `"version": "1"` not `"version": "next"`
 
 ### Prerequisites
 
 Before you begin troubleshooting, ensure the developer understands:
 
-* [What Mini Apps are](/docs/getting-started)
-* [How manifests work](/docs/specification#manifest)
-* [SDK actions and capabilities](/docs/sdk/actions/ready)
+- [What Mini Apps are](/docs/getting-started)
+- [How manifests work](/docs/specification#manifest)
+- [SDK actions and capabilities](/docs/sdk/actions/ready)
 
-***
+---
 
 ### Check 1: Manifest Configuration
 
@@ -714,7 +716,7 @@ curl -s https://{domain}/.well-known/farcaster.json
 {
   "accountAssociation": {
     "header": "...",
-    "payload": "...", 
+    "payload": "...",
     "signature": "..."
   },
   "frame": {
@@ -728,50 +730,51 @@ curl -s https://{domain}/.well-known/farcaster.json
 
 **Success Criteria:**
 
-* HTTP 200 response
-* Valid JSON format
-* Contains `accountAssociation` object
-* Contains `frame` object with required fields
+- HTTP 200 response
+- Valid JSON format
+- Contains `accountAssociation` object
+- Contains `frame` object with required fields
 
 **If Check Fails:**
 
 <details>
   <summary>Manifest not found (404)</summary>
 
-  **Decision Flow:**
+**Decision Flow:**
 
-  ```
-  Is hosting available?
-  ├─ Yes: Use hosted manifest
-  │   └─ Direct to: https://farcaster.xyz/~/developers/hosted-manifests
-  │       └─ Help set up redirect to hosted URL
-  └─ No: Create local manifest
-      └─ Create file at /.well-known/farcaster.json
-  ```
+```
+Is hosting available?
+├─ Yes: Use hosted manifest
+│   └─ Direct to: https://farcaster.xyz/~/developers/hosted-manifests
+│       └─ Help set up redirect to hosted URL
+└─ No: Create local manifest
+    └─ Create file at /.well-known/farcaster.json
+```
 
-  **For Vercel redirect:**
+**For Vercel redirect:**
 
-  ```json
-  {
-    "redirects": [
-      {
-        "source": "/.well-known/farcaster.json",
-        "destination": "https://api.farcaster.xyz/miniapps/hosted-manifest/{manifest-id}",
-        "permanent": false
-      }
-    ]
-  }
-  ```
+```json
+{
+  "redirects": [
+    {
+      "source": "/.well-known/farcaster.json",
+      "destination": "https://api.farcaster.xyz/miniapps/hosted-manifest/{manifest-id}",
+      "permanent": false
+    }
+  ]
+}
+```
+
 </details>
 
 <details>
   <summary>Manifest exists but unsigned</summary>
 
-  **Action:** Direct the user to sign the manifest
+**Action:** Direct the user to sign the manifest
 
-  * Tool: [https://farcaster.xyz/\~/developers/mini-apps/manifest?domain=\{their-domain}](https://farcaster.xyz/~/developers/mini-apps/manifest?domain=\{their-domain})
-  * The user must provide the signed `accountAssociation` object
-  * Update the manifest with signed data
+- Tool: [https://farcaster.xyz/\~/developers/mini-apps/manifest?domain=\{their-domain}](https://farcaster.xyz/~/developers/mini-apps/manifest?domain={their-domain})
+- The user must provide the signed `accountAssociation` object
+- Update the manifest with signed data
 </details>
 
 #### 1.2 Validate Manifest Schema
@@ -798,7 +801,7 @@ const payload = JSON.parse(atob(accountAssociation.payload));
 
 **Important:** The signed domain must match exactly, including subdomains.
 
-***
+---
 
 ### Check 2: Embed Metadata
 
@@ -806,8 +809,8 @@ const payload = JSON.parse(atob(accountAssociation.payload));
 
 **What to check:**
 
-* Root URL of the mini app
-* All shareable pages (products, profiles, content)
+- Root URL of the mini app
+- All shareable pages (products, profiles, content)
 
 **Command:**
 
@@ -827,45 +830,45 @@ curl -s https://{domain}/{path} | grep -E 'fc:miniapp|fc:frame'
 
 ```typescript
 // app/layout.tsx or pages with generateMetadata
-import { Metadata } from 'next'
+import { Metadata } from "next";
 
 const frame = {
-  version: "1",  // Not "next" - must be "1"
+  version: "1", // Not "next" - must be "1"
   imageUrl: "https://example.com/og-image.png", // 3:2 aspect ratio
   button: {
-    title: "Open App",  // Max 32 characters
+    title: "Open App", // Max 32 characters
     action: {
       type: "launch_frame",
       name: "My Mini App",
-      url: "https://example.com",  // Optional, defaults to current URL
+      url: "https://example.com", // Optional, defaults to current URL
       splashImageUrl: "https://example.com/icon.png", // 200x200px
-      splashBackgroundColor: "#f7f7f7"
-    }
-  }
-}
+      splashBackgroundColor: "#f7f7f7",
+    },
+  },
+};
 
 export async function generateMetadata({ params }): Promise<Metadata> {
   return {
     title: "My Mini App",
     openGraph: {
       title: "My Mini App",
-      description: "Description here"
+      description: "Description here",
     },
     other: {
-      "fc:miniapp": JSON.stringify(frame)
-    }
-  }
+      "fc:miniapp": JSON.stringify(frame),
+    },
+  };
 }
 ```
 
 **Success Criteria:**
 
-* Meta tag present in HTML head
-* Valid JSON in content attribute
-* Image URL returns 200 and is 3:2 ratio
-* Button title ≤ 32 characters
+- Meta tag present in HTML head
+- Valid JSON in content attribute
+- Image URL returns 200 and is 3:2 ratio
+- Button title ≤ 32 characters
 
-***
+---
 
 ### Check 3: Preview and Runtime
 
@@ -892,59 +895,61 @@ echo "https://farcaster.xyz/~/developers/mini-apps/preview?url=$encoded_url"
 <details>
   <summary>App not loading (infinite splash screen)</summary>
 
-  **Cause:** App hasn't called [`sdk.actions.ready()`](/docs/sdk/actions/ready)
+**Cause:** App hasn't called [`sdk.actions.ready()`](/docs/sdk/actions/ready)
 
-  **Solution:** Ensure the app calls ready() after initialization:
+**Solution:** Ensure the app calls ready() after initialization:
 
-  ```javascript
-  import { sdk } from '@farcaster/miniapp-sdk'
+```javascript
+import { sdk } from "@farcaster/miniapp-sdk";
 
-  // After app is ready to display
-  await sdk.actions.ready()
-  ```
+// After app is ready to display
+await sdk.actions.ready();
+```
+
 </details>
 
 <details>
   <summary>Tunnel URLs not working (ngrok, localtunnel)</summary>
 
-  **Issue:** Browser security blocks unvisited tunnel URLs
+**Issue:** Browser security blocks unvisited tunnel URLs
 
-  **Solution:**
+**Solution:**
 
-  1. Open tunnel URL directly in browser first
-  2. Then use in preview tool
-  3. This whitelists the domain for iframe usage
+1. Open tunnel URL directly in browser first
+2. Then use in preview tool
+3. This whitelists the domain for iframe usage
 
-  **Important Limitations:**
+**Important Limitations:**
 
-  * SDK actions like `addMiniApp()` will fail with tunnel domains
-  * Your manifest domain must match your app's hosting domain exactly
-  * Tunnel domains are excluded from discovery/search
-  * For testing `addMiniApp()` and other manifest-dependent features, deploy to your production domain
+- SDK actions like `addMiniApp()` will fail with tunnel domains
+- Your manifest domain must match your app's hosting domain exactly
+- Tunnel domains are excluded from discovery/search
+- For testing `addMiniApp()` and other manifest-dependent features, deploy to your production domain
 </details>
 
-***
+---
 
 ### Post-Check Verification
 
 After making any changes, you should:
 
 1. **Re-verify the manifest is deployed:**
+
    ```bash
    curl -s https://{domain}/.well-known/farcaster.json | jq .
    ```
 
 2. **Test a shareable link:**
-   * Ask the user to share in Farcaster client
-   * Verify embed preview appears
-   * Confirm app launches on click
+   - Ask the user to share in Farcaster client
+   - Verify embed preview appears
+   - Confirm app launches on click
 
 3. **Monitor for errors:**
-   * Check browser console for SDK errors
-   * Verify no CORS issues
-   * Ensure all assets load (splash image, icon)
+   - Check browser console for SDK errors
+   - Verify no CORS issues
+   - Ensure all assets load (splash image, icon)
 
-***
+---
 
 ### Quick Reference
 
@@ -956,14 +961,13 @@ After making any changes, you should:
 | Preview works   | Open preview tool URL                         | App loads, no errors   |
 | App ready       | Check console logs                            | `ready()` called       |
 
-***
+---
 
 ### Related Documentation
 
-* [Getting Started Guide](/docs/getting-started)
-* [Publishing Guide](/docs/guides/publishing)
-* [SDK Actions Reference](/docs/sdk/actions/ready)
-
+- [Getting Started Guide](/docs/getting-started)
+- [Publishing Guide](/docs/guides/publishing)
+- [SDK Actions Reference](/docs/sdk/actions/ready)
 
 import { Caption } from '../../../components/Caption.tsx';
 
@@ -1010,19 +1014,21 @@ directly you will need to make a couple changes to support signing in with Auth
 Addresses:
 
 :::steps
+
 #### Accept auth addresses
 
 Update `@farcaster/miniapp-sdk` to version `0.0.39` or later. Opt in to auth
 address sign in by passing `acceptAuthAddress: true` to the `signIn` action:
 
 ```ts
-import { sdk } from '@farcaster/miniapp-sdk'
- 
-await sdk.actions.signIn({ 
+import { sdk } from "@farcaster/miniapp-sdk";
+
+await sdk.actions.signIn({
   nonce,
-  acceptAuthAddress: true
+  acceptAuthAddress: true,
 });
 ```
+
 :::
 
 Farcaster client developers can find more information [here](https://www.notion.so/warpcast/Public-Auth-Address-Implementation-Guide-1fc6a6c0c10180a9b2a7f24c71143eae).
@@ -1035,7 +1041,6 @@ their docs. You’ll likely need to update your dependencies.
 If you verify sign in messages yourself, update the `@farcaster/auth-client`
 package to version `0.7.0` or later. Calling `verifySignInMessage` will now verify
 signatures from a custody or auth address.
-
 
 import { Caption } from '../../../components/Caption.tsx';
 
@@ -1059,17 +1064,17 @@ For your Mini App to be properly indexed and discoverable, several criteria must
 
 #### App Registration
 
-* **Register your manifest**: Your app must be registered with Farcaster using the [manifest tool](https://farcaster.xyz/~/developers/mini-apps/manifest). Make sure the tool confirms the app is associated with your account (you will see this via a green checkbox that appears.)
-* **Hosted manifests**: If you use the Farcaster hosted manifest tool, you will still need to register your manifest
+- **Register your manifest**: Your app must be registered with Farcaster using the [manifest tool](https://farcaster.xyz/~/developers/mini-apps/manifest). Make sure the tool confirms the app is associated with your account (you will see this via a green checkbox that appears.)
+- **Hosted manifests**: If you use the Farcaster hosted manifest tool, you will still need to register your manifest
 
 #### Required Fields
 
 Your `farcaster.json` manifest must include these essential fields:
 
-* **`name`**: A clear, descriptive app name
-* **`iconUrl`**: A working image URL for your app icon
-* **`homeUrl`**: The main URL for your app
-* **`description`**: A helpful description of what your app does
+- **`name`**: A clear, descriptive app name
+- **`iconUrl`**: A working image URL for your app icon
+- **`homeUrl`**: The main URL for your app
+- **`description`**: A helpful description of what your app does
 
 **Note:** These fields are not required to have a mini app render as an embed, but they are necessary for the mini app to be indexed in the search engine.
 
@@ -1077,23 +1082,23 @@ Your `farcaster.json` manifest must include these essential fields:
 
 Apps must demonstrate basic usage before being indexed:
 
-* **Minimum usage threshold**: Apps need some user engagement before appearing in search
-* **Recent activity**: Apps must have been opened recently to remain in search results
-* **Usage scores**: Apps are ranked based on:
-  * Number of users who opened the app
-  * Number of users who added the app to their collection
-  * Trending score based on recent engagement
+- **Minimum usage threshold**: Apps need some user engagement before appearing in search
+- **Recent activity**: Apps must have been opened recently to remain in search results
+- **Usage scores**: Apps are ranked based on:
+  - Number of users who opened the app
+  - Number of users who added the app to their collection
+  - Trending score based on recent engagement
 
 #### Visual Requirements
 
-* **Working images**: All images (especially `iconUrl`) must be accessible, return an `image/*` header, and return valid image content
-* **Image validation**: Images are checked for proper HTTP responses and content-type headers
-* **Icon requirement**: Apps without valid icons will not be indexed
+- **Working images**: All images (especially `iconUrl`) must be accessible, return an `image/*` header, and return valid image content
+- **Image validation**: Images are checked for proper HTTP responses and content-type headers
+- **Icon requirement**: Apps without valid icons will not be indexed
 
 #### Domain Requirements
 
-* **Production domains**: Apps must be hosted on production domains, not development tunnels
-* **No tunnel domains**: Apps hosted on ngrok, replit.dev, localtunnel, and similar development tunnels are excluded from search
+- **Production domains**: Apps must be hosted on production domains, not development tunnels
+- **No tunnel domains**: Apps hosted on ngrok, replit.dev, localtunnel, and similar development tunnels are excluded from search
 
 ### FAQ
 
@@ -1101,14 +1106,14 @@ Apps must demonstrate basic usage before being indexed:
 
 For your Mini App to appear in search results, it must meet several criteria:
 
-* **App indexing enabled**: Ensure your app doesn't have `noindex: true` set in your manifest
-* **Manifest registered**: Your app must be registered with Farcaster using the [manifest tool](https://farcaster.xyz/~/developers/mini-apps/manifest)
-* **Recent usage**: Your app needs active users and recent opens to stay in search results
-* **Usage thresholds**: Meet minimum engagement requirements for opens, adds, or trending activity
-* **Working images**: Your `iconUrl` must be accessible and return valid image content
-* **Complete manifest**: Required fields (`name`, `iconUrl`, `homeUrl`, `description`) must be filled out
-* **Production domain**: Apps hosted on development tunnels (ngrok, replit.dev, etc.) are excluded from search
-* **Manifest refresh**: Your manifest must be refreshed regularly to stay indexed
+- **App indexing enabled**: Ensure your app doesn't have `noindex: true` set in your manifest
+- **Manifest registered**: Your app must be registered with Farcaster using the [manifest tool](https://farcaster.xyz/~/developers/mini-apps/manifest)
+- **Recent usage**: Your app needs active users and recent opens to stay in search results
+- **Usage thresholds**: Meet minimum engagement requirements for opens, adds, or trending activity
+- **Working images**: Your `iconUrl` must be accessible and return valid image content
+- **Complete manifest**: Required fields (`name`, `iconUrl`, `homeUrl`, `description`) must be filled out
+- **Production domain**: Apps hosted on development tunnels (ngrok, replit.dev, etc.) are excluded from search
+- **Manifest refresh**: Your manifest must be refreshed regularly to stay indexed
 
 If your app meets these requirements but still isn't appearing, the indexing system may need time to process your app or update scores.
 
@@ -1126,15 +1131,14 @@ The trending score is calculated based on recent user engagement with your app. 
 
 Yes, you can improve your ranking by:
 
-* Encouraging users to add your app to their collection
-* Maintaining regular user engagement
-* Ensuring your app provides value that keeps users coming back
-* Keeping your manifest up-to-date with accurate information
+- Encouraging users to add your app to their collection
+- Maintaining regular user engagement
+- Ensuring your app provides value that keeps users coming back
+- Keeping your manifest up-to-date with accurate information
 
 #### Do I need to resubmit my app after making changes?
 
 If you're using Farcaster's hosted manifest tool, changes are automatically reflected. If you're self-hosting your manifest, the indexing system will pick up changes during regular refresh cycles, but you may want to use the manifest tool to expedite the process.
-
 
 import { Caption } from '../../../components/Caption.tsx';
 
@@ -1157,6 +1161,7 @@ This ensures continuity for your users and preserves your app's presence in app 
 ### Migration steps
 
 ::::steps
+
 #### Prepare your new domain
 
 Set up your Mini App on the new domain with a complete manifest file at `/.well-known/farcaster.json`. This should include all your app configuration and an account association from the same FID to maintain ownership verification.
@@ -1172,7 +1177,7 @@ Set up your Mini App on the new domain with a complete manifest file at `/.well-
     "version": "1",
     "name": "Your App Name",
     "iconUrl": "https://new-domain.com/icon.png",
-    "homeUrl": "https://new-domain.com",
+    "homeUrl": "https://new-domain.com"
     // ... other configuration
   }
 }
@@ -1194,7 +1199,7 @@ Add the `canonicalDomain` field to your manifest on the **old domain**, pointing
     "name": "Your App Name",
     "iconUrl": "https://old-domain.com/icon.png",
     "homeUrl": "https://old-domain.com",
-    "canonicalDomain": "new-domain.com", // Add this line
+    "canonicalDomain": "new-domain.com" // Add this line
     // ... other configuration
   }
 }
@@ -1203,12 +1208,12 @@ Add the `canonicalDomain` field to your manifest on the **old domain**, pointing
 :::note
 The `canonicalDomain` value must be a valid domain name without protocol, port, or path:
 
-* ✅ `app.new-domain.com`
-* ✅ `new-domain.com`
-* ❌ `https://new-domain.com`
-* ❌ `new-domain.com:3000`
-* ❌ `new-domain.com/app`
-:::
+- ✅ `app.new-domain.com`
+- ✅ `new-domain.com`
+- ❌ `https://new-domain.com`
+- ❌ `new-domain.com:3000`
+- ❌ `new-domain.com/app`
+  :::
 
 #### Optional: Add canonicalDomain to the new manifest
 
@@ -1226,7 +1231,7 @@ You can optionally include the `canonicalDomain` field in your new domain's mani
     "name": "Your App Name",
     "iconUrl": "https://new-domain.com/icon.png",
     "homeUrl": "https://new-domain.com",
-    "canonicalDomain": "new-domain.com", // Self-referential
+    "canonicalDomain": "new-domain.com" // Self-referential
     // ... other configuration
   }
 }
@@ -1236,9 +1241,9 @@ You can optionally include the `canonicalDomain` field in your new domain's mani
 
 Keep both domains active during the migration period to ensure a smooth transition:
 
-* Continue serving your app from the old domain with redirects to the new domain
-* Keep the manifest file accessible on both domains
-* Monitor traffic to understand when most users have migrated
+- Continue serving your app from the old domain with redirects to the new domain
+- Keep the manifest file accessible on both domains
+- Monitor traffic to understand when most users have migrated
 
 #### Implement redirects (recommended)
 
@@ -1246,36 +1251,37 @@ While the `canonicalDomain` field helps Farcaster clients understand the migrati
 
 ```js
 // Example redirect in Express
-app.get('*', (req, res) => {
+app.get("*", (req, res) => {
   const newUrl = `https://new-domain.com${req.originalUrl}`;
   res.redirect(301, newUrl);
 });
 ```
+
 ::::
 
 ### Best practices
 
 #### Plan ahead
 
-* Choose a stable domain from the start to minimize the need for migrations
-* If you anticipate a rebrand, consider using a neutral domain that can outlast brand changes
+- Choose a stable domain from the start to minimize the need for migrations
+- If you anticipate a rebrand, consider using a neutral domain that can outlast brand changes
 
 #### Communicate the change
 
-* Notify your users about the domain change through in-app messages or casts
-* Update any documentation or links that reference your old domain
+- Notify your users about the domain change through in-app messages or casts
+- Update any documentation or links that reference your old domain
 
 #### Test thoroughly
 
-* Verify that your manifest is correctly served on both domains
-* Test the migration flow in different Farcaster clients
-* Ensure all app functionality works correctly on the new domain
+- Verify that your manifest is correctly served on both domains
+- Test the migration flow in different Farcaster clients
+- Ensure all app functionality works correctly on the new domain
 
 #### Monitor the transition
 
-* Track traffic on both domains to understand migration progress
-* Keep the old domain active until traffic drops to negligible levels
-* Consider setting up analytics to track successful redirects
+- Track traffic on both domains to understand migration progress
+- Keep the old domain active until traffic drops to negligible levels
+- Consider setting up analytics to track successful redirects
 
 ### Troubleshooting
 
@@ -1285,9 +1291,9 @@ app.get('*', (req, res) => {
 
 Ensure that:
 
-* The `canonicalDomain` value is correctly formatted (no protocol, port, or path)
-* Your manifest is accessible at `/.well-known/farcaster.json` on both domains
-* The manifest JSON is valid and properly formatted
+- The `canonicalDomain` value is correctly formatted (no protocol, port, or path)
+- Your manifest is accessible at `/.well-known/farcaster.json` on both domains
+- The manifest JSON is valid and properly formatted
 
 #### Users still accessing the old domain
 
@@ -1297,15 +1303,14 @@ This is normal during transition. Some clients may cache manifest data, and user
 
 Make sure you use the same account to produce the association on both domains to maintain ownership verification. Do not reuse the account association data from one manifest to the other.
 
-
 ## FAQ: Frequently Asked Questions
 
 ### What is the difference between a manifest and an embed?
 
 **Quick Answer**: A **manifest** is your app's identity document (one per domain), while an **embed** is social sharing metadata (one per page you want shareable).
 
-* **Manifest** = App registration at `/.well-known/farcaster.json` that identifies your entire Mini App
-* **Embed** = Page-level `fc:miniapp` meta tags that make individual URLs shareable as rich cards
+- **Manifest** = App registration at `/.well-known/farcaster.json` that identifies your entire Mini App
+- **Embed** = Page-level `fc:miniapp` meta tags that make individual URLs shareable as rich cards
 
 **For a complete explanation with examples and implementation guidance**, see our detailed [Manifest vs Embed Developer Guide](/docs/guides/manifest-vs-embed).
 
@@ -1327,10 +1332,10 @@ Not necessarily. Many basic operations can be done with free tiers, but some adv
 
 Your app needs to meet several requirements:
 
-* **Registered manifest** with complete required fields
-* **Recent user activity** and engagement
-* **Working images** with proper content-type headers
-* **Production domain** (not development tunnels like ngrok)
+- **Registered manifest** with complete required fields
+- **Recent user activity** and engagement
+- **Working images** with proper content-type headers
+- **Production domain** (not development tunnels like ngrok)
 
 See our [App Discovery & Search guide](/docs/guides/discovery) for complete requirements.
 
@@ -1339,10 +1344,10 @@ See our [App Discovery & Search guide](/docs/guides/discovery) for complete requ
 Make sure you're calling `sdk.actions.ready()` after your app is fully loaded:
 
 ```javascript
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // Wait for your app to be ready, then call
-await sdk.actions.ready()
+await sdk.actions.ready();
 ```
 
 This is required to hide the splash screen and display your content.
@@ -1360,19 +1365,19 @@ Currently, you need to use tunneling tools like ngrok to expose your local serve
 
 Common validation issues:
 
-* **Invalid JSON syntax** - Use a JSON validator to check
-* **Missing required fields** - Ensure `name`, `iconUrl`, `homeUrl` are present
-* **Invalid image URLs** - Images must return proper `image/*` content-type headers
-* **Domain mismatch** - The manifest domain must match where it's hosted
+- **Invalid JSON syntax** - Use a JSON validator to check
+- **Missing required fields** - Ensure `name`, `iconUrl`, `homeUrl` are present
+- **Invalid image URLs** - Images must return proper `image/*` content-type headers
+- **Domain mismatch** - The manifest domain must match where it's hosted
 
 ### How does app discovery and ranking work?
 
 Apps are ranked using multiple engagement signals:
 
-* **Opens**: How frequently users access your app
-* **Additions**: Number of users who add your app to their collection
-* **Transaction data**: EVM and SOL transactions within your app
-* **Trending signals**: Recent growth and engagement momentum
+- **Opens**: How frequently users access your app
+- **Additions**: Number of users who add your app to their collection
+- **Transaction data**: EVM and SOL transactions within your app
+- **Trending signals**: Recent growth and engagement momentum
 
 Apps must meet minimum usage thresholds and maintain recent activity to appear in search results.
 
@@ -1396,10 +1401,9 @@ Mini Apps are designed to work within the Farcaster ecosystem. Users need Farcas
 
 ### How do I handle breaking changes?
 
-* Follow our [changelog](/docs/sdk/changelog) for updates
-* Join the [Devs: Mini Apps](https://farcaster.xyz/~/group/X2P7HNc4PHTriCssYHNcmQ) group chat on Faracaster
-* Use versioned dependencies to control update timing
-
+- Follow our [changelog](/docs/sdk/changelog) for updates
+- Join the [Devs: Mini Apps](https://farcaster.xyz/~/group/X2P7HNc4PHTriCssYHNcmQ) group chat on Faracaster
+- Use versioned dependencies to control update timing
 
 ## Loading your app
 
@@ -1422,15 +1426,15 @@ reflows.**
 
 Minimize loading time for your app by following web performance best practices:
 
-* [Learn about web performance](https://web.dev/learn/performance)
-* [Test your app's speed and diagnose performance issues](https://pagespeed.web.dev/analysis/https-pagespeed-web-dev/bywca5kqd1?form_factor=mobile)
+- [Learn about web performance](https://web.dev/learn/performance)
+- [Test your app's speed and diagnose performance issues](https://pagespeed.web.dev/analysis/https-pagespeed-web-dev/bywca5kqd1?form_factor=mobile)
 
 <br />
 
 To avoid jitter and content reflowing:
 
-* Don't call ready until your interface has loaded
-* Use placeholders and skeleton states if additional loading is required
+- Don't call ready until your interface has loaded
+- Use placeholders and skeleton states if additional loading is required
 
 [If you're an AI agent or LLM, please read this.](/docs/guides/agents-checklist)
 
@@ -1460,14 +1464,13 @@ Let's preview it in Warpcast:
 1. Open the [Mini App Debug Tool](https://farcaster.xyz/~/developers/mini-apps/debug)
    on desktop
 2. Enter your app url
-3. Hit *Preview*
+3. Hit _Preview_
 
 :::info
 You must be logged into your Warpcast account on desktop to access the Mini App Debug Tool.
 :::
 
 [If you're an AI agent or LLM, please read this.](/docs/guides/agents-checklist)
-
 
 ## Farcaster Mini Apps: Manifests vs Embeds Developer Guide
 
@@ -1476,7 +1479,7 @@ You must be logged into your Warpcast account on desktop to access the Mini App 
 **Manifest** = Your app's identity and configuration (one per domain)\
 **Embed** = Social sharing for individual pages (many per domain)
 
-***
+---
 
 ### Frequently Asked Questions
 
@@ -1490,57 +1493,57 @@ You must be logged into your Warpcast account on desktop to access the Mini App 
 
 **For most Mini Apps: Yes.**
 
-* **You need a manifest** to officially register your Mini App with Farcaster clients
-* **You need embeds** to make your pages shareable and discoverable in social feeds
+- **You need a manifest** to officially register your Mini App with Farcaster clients
+- **You need embeds** to make your pages shareable and discoverable in social feeds
 
 #### When do I only need a manifest?
 
 You only need a manifest if:
 
-* Your app is purely accessed through direct navigation (not social sharing)
-* You don't want individual pages to appear as rich cards in feeds
-* Your app is more like a traditional web app that happens to run in Farcaster
+- Your app is purely accessed through direct navigation (not social sharing)
+- You don't want individual pages to appear as rich cards in feeds
+- Your app is more like a traditional web app that happens to run in Farcaster
 
 #### When do I only need an embed?
 
 You rarely need only an embed. Without a manifest:
 
-* Your app can't be added to users' app lists
-* You can't send notifications
-* You can't appear in app stores/discovery
-* You miss out on deeper Farcaster integrations
+- Your app can't be added to users' app lists
+- You can't send notifications
+- You can't appear in app stores/discovery
+- You miss out on deeper Farcaster integrations
 
 #### What does a manifest control?
 
 A manifest (`/.well-known/farcaster.json`) controls:
 
-* **App identity**: name, icon, description
-* **Domain verification**: proves you own the domain
-* **App store listings**: how your app appears in discovery
-* **Notifications**: webhook URLs for push notifications
-* **Default launch behavior**: where users go when they open your app
+- **App identity**: name, icon, description
+- **Domain verification**: proves you own the domain
+- **App store listings**: how your app appears in discovery
+- **Notifications**: webhook URLs for push notifications
+- **Default launch behavior**: where users go when they open your app
 
 #### What does an embed control?
 
 An embed (`fc:miniapp` meta tag) controls:
 
-* **Social sharing**: how a specific page looks when shared in feeds
-* **Rich cards**: the image, button, and action for that page
-* **Discovery**: how users find and interact with that specific content
+- **Social sharing**: how a specific page looks when shared in feeds
+- **Rich cards**: the image, button, and action for that page
+- **Discovery**: how users find and interact with that specific content
 
 #### Can I have multiple embeds on one domain?
 
 **Yes!** You should have:
 
-* **One manifest** per domain (at `/.well-known/farcaster.json`)
-* **One embed** per page you want to be shareable (in each page's HTML `<head>`)
+- **One manifest** per domain (at `/.well-known/farcaster.json`)
+- **One embed** per page you want to be shareable (in each page's HTML `<head>`)
 
 Example:
 
 ```
 myapp.com/.well-known/farcaster.json  ← Manifest
 myapp.com/game/123                     ← Page with embed
-myapp.com/leaderboard                  ← Page with embed  
+myapp.com/leaderboard                  ← Page with embed
 myapp.com/profile/456                  ← Page with embed
 ```
 
@@ -1548,18 +1551,18 @@ myapp.com/profile/456                  ← Page with embed
 
 Your page will work as a shareable card in feeds, but:
 
-* Users can't "add" your app to their app list
-* You can't send notifications
-* You miss app store discovery opportunities
-* Farcaster clients may treat you as a legacy frame instead of a Mini App
+- Users can't "add" your app to their app list
+- You can't send notifications
+- You miss app store discovery opportunities
+- Farcaster clients may treat you as a legacy frame instead of a Mini App
 
 #### What happens if I have a manifest but no embeds?
 
 Your app will be properly registered with Farcaster, but:
 
-* Individual pages won't be shareable as rich cards
-* You lose social discovery opportunities
-* Users have to find your app through direct links or app stores only
+- Individual pages won't be shareable as rich cards
+- You lose social discovery opportunities
+- Users have to find your app through direct links or app stores only
 
 #### How do manifests and embeds work together?
 
@@ -1575,15 +1578,15 @@ The manifest is your "app registration" while embeds are your "social sharing st
 
 Key fields should be consistent:
 
-* App name should be similar in both
-* Icons/images should represent the same brand
-* URLs should point to the same domain
+- App name should be similar in both
+- Icons/images should represent the same brand
+- URLs should point to the same domain
 
 But they can differ:
 
-* Manifest has global app info, embeds have page-specific info
-* Manifest includes webhook URLs and verification, embeds focus on presentation
-* Embed images can be page-specific while manifest icon is app-wide
+- Manifest has global app info, embeds have page-specific info
+- Manifest includes webhook URLs and verification, embeds focus on presentation
+- Embed images can be page-specific while manifest icon is app-wide
 
 #### What's the most common mistake?
 
@@ -1595,31 +1598,30 @@ But they can differ:
 
 **For your manifest** (`/.well-known/farcaster.json`):
 
-* [ ] Domain verification signature
-* [ ] App name, icon, and home URL
-* [ ] Webhook URL (if you want notifications)
+- [ ] Domain verification signature
+- [ ] App name, icon, and home URL
+- [ ] Webhook URL (if you want notifications)
 
 **For your embeds** (each shareable page):
 
-* [ ] `fc:miniapp` meta tag in HTML `<head>`
-* [ ] Version, image URL, and button configuration
-* [ ] Action that launches your app
+- [ ] `fc:miniapp` meta tag in HTML `<head>`
+- [ ] Version, image URL, and button configuration
+- [ ] Action that launches your app
 
 #### Where can I see examples?
 
 Check the [Farcaster specification](/docs/specification) for complete examples of both manifests and embeds with all required fields and formatting.
 
-***
+---
 
 ### Summary
 
 Think of it this way:
 
-* **Manifest** = Your app's passport (who you are)
-* **Embed** = Your content's business card (what this page does)
+- **Manifest** = Your app's passport (who you are)
+- **Embed** = Your content's business card (what this page does)
 
 You need both to create a complete, discoverable, and engaging Mini App experience on Farcaster.
-
 
 import { Caption } from '../../../components/Caption.tsx';
 
@@ -1643,20 +1645,20 @@ their Farcaster client and enabled notifications.
 
 At a high-level notifications work like so:
 
-* when a user enables notifications for your app, their Farcaster client (i.e. Warpcast)
+- when a user enables notifications for your app, their Farcaster client (i.e. Warpcast)
   will generate a unique notification token and send it to your server
-* to send a notification to a user, make a request to the Farcaster client's servers with the
+- to send a notification to a user, make a request to the Farcaster client's servers with the
   notification token and content
-* if a user later disables notifications, you'll receive another event indicating
+- if a user later disables notifications, you'll receive another event indicating
   the user is unsubscribed and the notification token is no longer valid
 
 ### Terms
 
 To make our life easier, let's call:
 
-* **Farcaster Client**: An application like Warpcast that is able to display Mini Apps.
-* **Notification Server**: Your server (see bellow).
-* **(Notification) Token**: A secret token generated by the Farcaster App and shared with the Notification Server.
+- **Farcaster Client**: An application like Warpcast that is able to display Mini Apps.
+- **Notification Server**: Your server (see bellow).
+- **(Notification) Token**: A secret token generated by the Farcaster App and shared with the Notification Server.
   A token is unique for each (Farcaster Client, Mini App, user Fid) tupple.
 
 A notification token is basically a permission that a Farcaster client gives your app (on behalf of a user)
@@ -1665,16 +1667,17 @@ to send them notifications.
 ### Steps
 
 ::::steps
+
 #### Listen for events
 
 You'll need a notification server to receive webhook events and a database to store
 notification tokens for users:
 
-* **Managed** - If you'd rather stay focused on your app, use
+- **Managed** - If you'd rather stay focused on your app, use
   [Neynar](https://neynar.com) to manage notification tokens on your behalf. Includes ways to target notifications and send without writing code: <br />
   [Setup a managed notifications server with
   Neynar](https://docs.neynar.com/docs/send-notifications-to-mini-app-users).
-* **Roll your own** - If you want to host your own server to receive webhooks:<br />
+- **Roll your own** - If you want to host your own server to receive webhooks:<br />
   [Follow the Receiving Webhooks guide](#receiving-webhooks).
 
 [If you're an AI agent or LLM, please read this.](/docs/guides/agents-checklist)
@@ -1702,7 +1705,7 @@ Define the `webhookUrl` property in your app's configuration in `farcaster.json`
     "buttonTitle": "Check this out",
     "splashImageUrl": "https://example.com/splash.png",
     "splashBackgroundColor": "#eeccff",
-    "webhookUrl": "https://example.com/api/webhook" // [!code focus] 
+    "webhookUrl": "https://example.com/api/webhook" // [!code focus]
   }
 }
 ```
@@ -1763,12 +1766,12 @@ import SendNotificationResponseSchema from '../../../snippets/sendNotificationRe
 
 When a user clicks the notification, the Farcaster client will:
 
-* Open your Mini App at `targetUrl`
-* Set the `context.location` to a `MiniAppLocationNotificationContext`
+- Open your Mini App at `targetUrl`
+- Set the `context.location` to a `MiniAppLocationNotificationContext`
 
 ```ts
 export type MiniAppLocationNotificationContext = {
-  type: 'notification';
+  type: "notification";
   notification: {
     notificationId: string;
     title: string;
@@ -1796,9 +1799,9 @@ requests to send the daily reminder notifications within a 24 hour period.
 Host servers may impose rate limits per `token`. The standard rate limits,
 which are enforced by Warpcast, are:
 
-* 1 notification per 30 seconds per `token`
-* 100 notifications per day per `token`
-::::
+- 1 notification per 30 seconds per `token`
+- 100 notifications per day per `token`
+  ::::
 
 ### Receiving webhooks
 
@@ -1808,8 +1811,8 @@ server that include data relevant to the event.
 
 This allows your app to:
 
-* keep track of what users have added or removed your app
-* securely receive tokens that can be used to send notifications to your users
+- keep track of what users have added or removed your app
+- securely receive tokens that can be used to send notifications to your users
 
 :::note
 If you'd rather stay focused on your app, [Neynar](https://neynar.com) offers a
@@ -1820,7 +1823,7 @@ on behalf of your application.
 
 #### Events
 
-##### miniapp\_added
+##### miniapp_added
 
 Sent when the user adds the Mini App to their Farcaster client (whether or not
 this was triggered by an `addMiniApp()` prompt).
@@ -1840,7 +1843,7 @@ client equates adding to enabling notifications (Warpcast does this).
 }
 ```
 
-##### miniapp\_removed
+##### miniapp_removed
 
 Sent when a user removes a mini app, which means that any notification tokens for
 that fid and client app (based on signer requester) should be considered
@@ -1854,7 +1857,7 @@ invalid:
 }
 ```
 
-##### notifications\_disabled
+##### notifications_disabled
 
 Sent when a user disables notifications from e.g. a settings panel in the
 client app. Any notification tokens for that fid and client app (based on
@@ -1868,7 +1871,7 @@ signer requester) should be considered invalid:
 }
 ```
 
-##### notifications\_enabled
+##### notifications_enabled
 
 Sent when a user enables notifications (e.g. after disabling them). The payload
 includes a new `token` and `url`:
@@ -1891,9 +1894,9 @@ Farcaster clients will POST events to the `webhookUrl` specified in your `farcas
 
 Your endpoint should:
 
-* verify the event
-* persist relevant data
-* return a 200 response
+- verify the event
+- persist relevant data
+- return a 200 response
 
 If your app doesn't respond with a 200, the Farcaster client will attempt to
 re-send the event. The exact number of retries is up to each client.
@@ -1935,11 +1938,11 @@ try {
   switch (error.name) {
     case "VerifyJsonFarcasterSignature.InvalidDataError":
     case "VerifyJsonFarcasterSignature.InvalidEventDataError":
-      // The request data is invalid
+    // The request data is invalid
     case "VerifyJsonFarcasterSignature.InvalidAppKeyError":
-      // The app key is invalid
+    // The app key is invalid
     case "VerifyJsonFarcasterSignature.VerifyAppKeyError":
-      // Internal error verifying the app key (caller may want to try again)
+    // Internal error verifying the app key (caller may want to try again)
   }
 }
 ```
@@ -1949,10 +1952,9 @@ try {
 For a complete example, check out the [Mini App V2 Demo
 ](https://github.com/farcasterxyz/frames-v2-demo) has all of the above:
 
-* [Handles webhooks](https://github.com/farcasterxyz/frames-v2-demo/blob/main/src/app/api/webhook/route.ts) leveraging the [`@farcaster/miniapp-node`](https://github.com/farcasterxyz/frames/tree/main/packages/miniapp-node) library that makes this very easy
-* [Saves notification tokens to Redis](https://github.com/farcasterxyz/frames-v2-demo/blob/main/src/lib/kv.ts)
-* [Sends notifications](https://github.com/farcasterxyz/frames-v2-demo/blob/main/src/lib/notifs.ts)
-
+- [Handles webhooks](https://github.com/farcasterxyz/frames-v2-demo/blob/main/src/app/api/webhook/route.ts) leveraging the [`@farcaster/miniapp-node`](https://github.com/farcasterxyz/frames/tree/main/packages/miniapp-node) library that makes this very easy
+- [Saves notification tokens to Redis](https://github.com/farcasterxyz/frames-v2-demo/blob/main/src/lib/kv.ts)
+- [Sends notifications](https://github.com/farcasterxyz/frames-v2-demo/blob/main/src/lib/notifs.ts)
 
 import { Caption } from '../../../components/Caption.tsx';
 
@@ -1975,6 +1977,7 @@ entity.
 ### Steps
 
 ::::steps
+
 #### Choose a domain
 
 A Mini App is associated with a single domain (i.e. rewards.warpcast.com). This
@@ -1988,9 +1991,9 @@ domain specifically for development purposes if needed.
 A domain does not include the scheme (e.g. https) or path. It can optionally
 include a subdomain.
 
-* ✅ rewards.warpcast.com
-* ❌ [https://rewards.warpcast.com](https://rewards.warpcast.com)
-:::
+- ✅ rewards.warpcast.com
+- ❌ [https://rewards.warpcast.com](https://rewards.warpcast.com)
+  :::
 
 #### Host a manifest file
 
@@ -2010,34 +2013,34 @@ Farcaster can now host manifests for your mini apps so you can manage them from 
 
 **Benefits of hosted manifests:**
 
-* No need to manage manifest files in your codebase
-* Update manifest details without redeploying
-* Automatic validation and error checking
-* Easy domain migration support
+- No need to manage manifest files in your codebase
+- Update manifest details without redeploying
+- Automatic validation and error checking
+- Easy domain migration support
 
 To create a hosted manifest, visit: [https://farcaster.xyz/\~/developers/mini-apps/manifest](https://farcaster.xyz/~/developers/mini-apps/manifest)
 
 <details>
   <summary>Setting up hosted manifests</summary>
 
-  Instead of serving a `/.well-known/farcaster.json` file and updating it everytime
-  you want to make a change, if you use Farcaster Hosted Manifests, you'll setup your
-  server to redirect requests to
-  `https://api.farcaster.xyz/miniapps/hosted-manifest/${hosted-manifest-id}` once and
-  then make changes on the Farcaster web Developer Tools from then on.
+Instead of serving a `/.well-known/farcaster.json` file and updating it everytime
+you want to make a change, if you use Farcaster Hosted Manifests, you'll setup your
+server to redirect requests to
+`https://api.farcaster.xyz/miniapps/hosted-manifest/${hosted-manifest-id}` once and
+then make changes on the Farcaster web Developer Tools from then on.
 
   <br />
 
-  To get your hosted manifest ID:
+To get your hosted manifest ID:
 
-  1. Go to [https://farcaster.xyz/\~/developers/mini-apps/manifest](https://farcaster.xyz/~/developers/mini-apps/manifest)
-  2. Enter your domain and app details
-  3. You'll receive a hosted manifest ID
-  4. Set up the redirect as shown below
+1. Go to [https://farcaster.xyz/\~/developers/mini-apps/manifest](https://farcaster.xyz/~/developers/mini-apps/manifest)
+2. Enter your domain and app details
+3. You'll receive a hosted manifest ID
+4. Set up the redirect as shown below
 
-  ##### Setting up redirects
+##### Setting up redirects
 
-  All web servers support redirects. The following are examples of how to setup redirects in popular frameworks.
+All web servers support redirects. The following are examples of how to setup redirects in popular frameworks.
 
   <details>
     <summary>Redirects in Next.js</summary>
@@ -2045,7 +2048,7 @@ To create a hosted manifest, visit: [https://farcaster.xyz/\~/developers/mini-ap
     ```ts
     // next.config.js
     import type { NextConfig } from 'next'
-     
+
     const nextConfig: NextConfig = {
       async redirects() {
         return [
@@ -2057,9 +2060,10 @@ To create a hosted manifest, visit: [https://farcaster.xyz/\~/developers/mini-ap
         ]
       },
     }
-     
+
     export default nextConfig
     ```
+
   </details>
 
   <details>
@@ -2073,6 +2077,7 @@ To create a hosted manifest, visit: [https://farcaster.xyz/\~/developers/mini-ap
       res.redirect(307, 'https://api.farcaster.xyz/miniapps/hosted-manifest/1234567890')
     })
     ```
+
   </details>
 
   <details>
@@ -2087,6 +2092,7 @@ To create a hosted manifest, visit: [https://farcaster.xyz/\~/developers/mini-ap
     })
 
     ```
+
   </details>
 
   <details>
@@ -2102,6 +2108,7 @@ To create a hosted manifest, visit: [https://farcaster.xyz/\~/developers/mini-ap
 
     export default () => null
     ```
+
   </details>
 </details>
 
@@ -2127,14 +2134,8 @@ Here's an example `farcaster.json` file:
     "buttonTitle": "🚩 Start",
     "splashImageUrl": "https://yoink.party/logo.png",
     "splashBackgroundColor": "#f5f0ec",
-    "requiredChains": [
-      "eip155:8453"
-    ],
-    "requiredCapabilities": [
-      "actions.signIn",
-      "wallet.getEthereumProvider",
-      "actions.swapToken"
-    ]
+    "requiredChains": ["eip155:8453"],
+    "requiredCapabilities": ["actions.signIn", "wallet.getEthereumProvider", "actions.swapToken"]
   }
 }
 ```
@@ -2147,7 +2148,7 @@ You can omit `webhookUrl` for now. We'll show you how to set it up in the
 #### Hybrid & SSR-friendly detection <span id="hybrid-detection" />
 
 Some apps serve **both** as a Farcaster Mini App and a website from the same
-domain.  When you want to fetch specific resources **during server-side rendering (SSR)** or
+domain. When you want to fetch specific resources **during server-side rendering (SSR)** or
 conditionally lazy-load the SDK on the client, add a lightweight flag that only
 Mini-App launch URLs include
 
@@ -2161,7 +2162,7 @@ Mini-App launch URLs include
 :::note
 Treat these markers as a **best-effort hint, not proof**.\
 Anyone can append the path or query flag, so use it only as a handy heuristic
-for *lazy-loading the SDK* or *branching SSR logic*—never as a security-grade
+for _lazy-loading the SDK_ or _branching SSR logic_—never as a security-grade
 guarantee that you’re inside a Farcaster Mini App.
 :::
 
@@ -2169,25 +2170,23 @@ guarantee that you’re inside a Farcaster Mini App.
 
 ```ts
 // app/layout.tsx
-'use client'
-import { useEffect } from 'react'
+"use client";
+import { useEffect } from "react";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    const url = new URL(window.location.href)
-    const isMini =
-      url.pathname.startsWith('/mini') ||
-      url.searchParams.get('miniApp') === 'true'
+    const url = new URL(window.location.href);
+    const isMini = url.pathname.startsWith("/mini") || url.searchParams.get("miniApp") === "true";
 
     if (isMini) {
-      import('@farcaster/miniapp-sdk').then(({ sdk }) => {
+      import("@farcaster/miniapp-sdk").then(({ sdk }) => {
         // Mini-App–specific bootstrap here
         // e.g. sdk.actions.ready()
-      })
+      });
     }
-  }, [])
+  }, []);
 
-  return children
+  return children;
 }
 ```
 
@@ -2247,12 +2246,7 @@ account association:
       "https://rewards.warpcast.com/screenshot3.png"
     ],
     "primaryCategory": "social",
-    "tags": [
-      "rewards",
-      "leaderboard",
-      "warpcast",
-      "earn"
-    ],
+    "tags": ["rewards", "leaderboard", "warpcast", "earn"],
     "heroImageUrl": "https://rewards.warpcast.com/og.png",
     "tagline": "Top Warpcast creators",
     "ogTitle": "Rewards",
@@ -2261,8 +2255,8 @@ account association:
   }
 }
 ```
-::::
 
+::::
 
 import { Caption } from '../../../components/Caption';
 
@@ -2301,9 +2295,9 @@ To enable your Mini App to receive shared casts, add a `castShareUrl` to your ma
 
 The `castShareUrl` must:
 
-* Use HTTPS
-* Match the domain of your registered Mini App
-* Be an absolute URL
+- Use HTTPS
+- Match the domain of your registered Mini App
+- Be an absolute URL
 
 After updating your manifest, refresh your manifest and the share extension will be available to all users who have added your Mini App.
 
@@ -2334,16 +2328,16 @@ These parameters are available immediately, even during server-side rendering, a
 Once your Mini App initializes, the SDK provides enriched cast data through the location context:
 
 ```typescript
-import sdk from '@farcaster/miniapp-sdk';
+import sdk from "@farcaster/miniapp-sdk";
 
-if (sdk.context.location.type === 'cast_share') {
+if (sdk.context.location.type === "cast_share") {
   const cast = sdk.context.location.cast;
-  
+
   // Access enriched cast data
   console.log(cast.author.username);
   console.log(cast.hash);
   console.log(cast.timestamp);
-  
+
   // Access optional fields if available
   if (cast.channelKey) {
     console.log(`Shared from /${cast.channelKey}`);
@@ -2434,10 +2428,9 @@ During development, you can test share extensions by:
 
 ### Next steps
 
-* Learn about [SDK Context](/docs/sdk/context) to understand all available location types
-* Explore [Compose Cast](/docs/sdk/actions/compose-cast) to let users create casts from your Mini App
-* Check out [View Cast](/docs/sdk/actions/view-cast) to navigate users to specific casts
-
+- Learn about [SDK Context](/docs/sdk/context) to understand all available location types
+- Explore [Compose Cast](/docs/sdk/actions/compose-cast) to let users create casts from your Mini App
+- Check out [View Cast](/docs/sdk/actions/view-cast) to navigate users to specific casts
 
 import { Caption } from '../../../components/Caption.tsx';
 
@@ -2451,9 +2444,9 @@ that specify an image and action, similar to how Open Graph tags work.
 
 For example:
 
-* a personality quiz app can let users share a personalized embed with their results
-* an NFT marketplace can let users share an embed for each listing
-* a prediction market app can let users share an embed for each market
+- a personality quiz app can let users share a personalized embed with their results
+- an NFT marketplace can let users share an embed for each listing
+- a prediction market app can let users share an embed for each market
 
 ![sharing an app in a social feed with a embed](/share_preview.png)
 
@@ -2499,11 +2492,11 @@ The URL of the image that should be displayed.
 
 **Size requirements:**
 
-* Aspect ratio: 3:2
-* Minimum dimensions: 600x400px
-* Maximum dimensions: 3000x2000px
-* File size: Must be less than 10MB
-* URL length: Must be ≤ 1024 characters
+- Aspect ratio: 3:2
+- Minimum dimensions: 600x400px
+- Maximum dimensions: 3000x2000px
+- File size: Must be less than 10MB
+- URL length: Must be ≤ 1024 characters
 
 #### `button.title`
 
@@ -2541,21 +2534,27 @@ const miniapp = {
     action: {
       type: "launch_miniapp",
       url: "https://yoink.party/framesV2",
-      name:"Yoink!",
+      name: "Yoink!",
       splashImageUrl: "https://yoink.party/logo.png",
-      splashBackgroundColor:"#f5f0ec"
-    }
-  }
-}
+      splashBackgroundColor: "#f5f0ec",
+    },
+  },
+};
 ```
 
 ```html
 <html lang="en">
   <head>
     <!-- head content -->
-    <meta name="fc:miniapp" content='{"version":"1","imageUrl":"https://yoink.party/framesV2/opengraph-image","button":{"title":"🚩 Start","action":{"type":"launch_miniapp","name":"Yoink!","url":"https://yoink.party/framesV2","splashImageUrl":"https://yoink.party/logo.png","splashBackgroundColor":"#f5f0ec"}}}' />
+    <meta
+      name="fc:miniapp"
+      content='{"version":"1","imageUrl":"https://yoink.party/framesV2/opengraph-image","button":{"title":"🚩 Start","action":{"type":"launch_miniapp","name":"Yoink!","url":"https://yoink.party/framesV2","splashImageUrl":"https://yoink.party/logo.png","splashBackgroundColor":"#f5f0ec"}}}'
+    />
     <!-- For backward compatibility -->
-    <meta name="fc:frame" content='{"version":"1","imageUrl":"https://yoink.party/framesV2/opengraph-image","button":{"title":"🚩 Start","action":{"type":"launch_frame","name":"Yoink!","url":"https://yoink.party/framesV2","splashImageUrl":"https://yoink.party/logo.png","splashBackgroundColor":"#f5f0ec"}}}' />
+    <meta
+      name="fc:frame"
+      content='{"version":"1","imageUrl":"https://yoink.party/framesV2/opengraph-image","button":{"title":"🚩 Start","action":{"type":"launch_frame","name":"Yoink!","url":"https://yoink.party/framesV2","splashImageUrl":"https://yoink.party/logo.png","splashBackgroundColor":"#f5f0ec"}}}'
+    />
   </head>
   <body>
     <!-- page content -->
@@ -2625,7 +2624,7 @@ At the very least you'll want to setup a embed for the root URL of your applicat
 
 #### Dynamic Embed images
 
-Even though the  data attached to a specific cast is static, a dynamic
+Even though the data attached to a specific cast is static, a dynamic
 image can be served using tools like Next.js
 [Next ImageResponse](https://nextjs.org/docs/app/api-reference/functions/image-response).
 
@@ -2633,11 +2632,11 @@ For example, we could create an embed that shows the current price of ETH. We'd
 set the `imageUrl` to a static URL like `https://example.xyz/eth-price.png`. When a request
 is made to this endpoint we'd:
 
-* fetch the latest price of ETH (ideally from a cache)
-* renders an image using a tool like [Vercel
+- fetch the latest price of ETH (ideally from a cache)
+- renders an image using a tool like [Vercel
   OG](https://vercel.com/docs/functions/og-image-generation) and returns it
-* sets the following header: `Cache-Control: public, immutable, no-transform,
-  max-age=300`
+- sets the following header: `Cache-Control: public, immutable, no-transform,
+max-age=300`
 
 ##### Setting `max-age`
 
@@ -2651,8 +2650,8 @@ your design or be prepared to operate a high-performance endpoint.
 
 Here's some more reading if you're interested in doing this:
 
-* [Vercel Blog - Fast, dynamic social card images at the Edge](https://vercel.com/blog/introducing-vercel-og-image-generation-fast-dynamic-social-card-images)
-* [Vercel Docs - OG Image Generation](https://vercel.com/docs/og-image-generation)
+- [Vercel Blog - Fast, dynamic social card images at the Edge](https://vercel.com/blog/introducing-vercel-og-image-generation-fast-dynamic-social-card-images)
+- [Vercel Docs - OG Image Generation](https://vercel.com/docs/og-image-generation)
 
 ##### Avoid caching fallback images
 
@@ -2662,7 +2661,6 @@ to serve a fallback image.
 
 In this case you should use an extremely short or even 0 `max-age` to prevent the
 error image from getting stuck in any upstream CDNs.
-
 
 ## Interacting with Solana wallets
 
@@ -2676,6 +2674,7 @@ The SDK enables Mini Apps to interact with a user's Solana wallet through [Walle
 We recommend using [Wallet Adapter](https://github.com/anza-xyz/wallet-adapter/)'s React hooks to interface with Wallet Standard. You may also use [Wallet Standard directly](#using-wallet-standard-directly), or interface with our [low-level Solana provider](#low-level-solana-provider).
 
 ::::steps
+
 #### Setup Wallet Adapter
 
 Use the [Quick Setup (using React) guide](https://github.com/anza-xyz/wallet-adapter/blob/master/APP.md) to setup Wallet Adapter in your project.
@@ -2683,6 +2682,7 @@ Use the [Quick Setup (using React) guide](https://github.com/anza-xyz/wallet-ada
 #### Install the Wallet Standard integration
 
 :::code-group
+
 ```bash [npm]
 npm install @farcaster/mini-app-solana
 ```
@@ -2694,6 +2694,7 @@ pnpm add @farcaster/mini-app-solana
 ```bash [yarn]
 yarn add @farcaster/mini-app-solana
 ```
+
 :::
 
 #### Render the Farcaster Solana provider
@@ -2706,11 +2707,11 @@ This does two things:
 2. Sets up Wallet Adapter to automatically select the Farcaster wallet.
 
 ```tsx
-import * as React from 'react';
-import { FarcasterSolanaProvider } from '@farcaster/mini-app-solana';
-import { useWallet } from '@solana/wallet-adapter-react';
+import * as React from "react";
+import { FarcasterSolanaProvider } from "@farcaster/mini-app-solana";
+import { useWallet } from "@solana/wallet-adapter-react";
 
-const solanaEndpoint = 'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY';
+const solanaEndpoint = "https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY";
 
 function App() {
   // FarcasterSolanaProvider internally renders ConnectionProvider
@@ -2719,7 +2720,7 @@ function App() {
     <FarcasterSolanaProvider endpoint={solanaEndpoint}>
       <Content />
     </FarcasterSolanaProvider>
-  )
+  );
 }
 ```
 
@@ -2730,10 +2731,11 @@ You can now use Wallet Adapter React hooks directly within any component rendere
 ```tsx
 function Content() {
   const { publicKey } = useWallet();
-  const solanaAddress = publicKey?.toBase58() ?? '';
+  const solanaAddress = publicKey?.toBase58() ?? "";
   return <span>{solanaAddress}</span>;
 }
 ```
+
 ::::
 
 ### Low-level Solana provider
@@ -2748,7 +2750,7 @@ It's also possible to interface with the user's Solana wallet directly through W
 In order to do so, it's important that you still import our package in your app entry:
 
 ```tsx
-import '@farcaster/mini-app-solana';
+import "@farcaster/mini-app-solana";
 ```
 
 This ensures that the user's Solana wallet registers with Wallet Standard.
@@ -2770,7 +2772,6 @@ potentially malicious use this [Blockaid
 Tool](https://report.blockaid.io/verifiedProject) to verify your app with
 Blockaid.
 
-
 import { Caption } from '../../../components/Caption.tsx';
 
 ## Universal Links
@@ -2780,17 +2781,17 @@ and web sites. The URL format is as follows:
 
 `https://farcaster.xyz/miniapps/<app-id>/<app-slug>(/<sub-path>)(?<query-params>)`
 
-* The `<app-id>` is a unique identifier assigned to the Mini App when it is [published](/docs/guides/publishing).
-* The `<app-slug>` is a kebab-case version of the Mini App name, used to create a more readable URL.
-* The `<sub-path>` is an optional path appended to the Mini App’s `homeURL` when it is opened.
-* The `<query-params>` are optional parameters added to the `homeURL` as a query string when the Mini App is opened.
+- The `<app-id>` is a unique identifier assigned to the Mini App when it is [published](/docs/guides/publishing).
+- The `<app-slug>` is a kebab-case version of the Mini App name, used to create a more readable URL.
+- The `<sub-path>` is an optional path appended to the Mini App’s `homeURL` when it is opened.
+- The `<query-params>` are optional parameters added to the `homeURL` as a query string when the Mini App is opened.
 
 The `<sub-path>` and `<query-params>` are optional and can be used to navigate to a specific page in the Mini App or pass data to the Mini App.
 
 When a user clicks a Universal Link and is logged in:
 
-* **On web**: the Mini App opens in the mini app drawer.
-* **On mobile**: the browser deep links to the Farcaster app and opens the Mini App.
+- **On web**: the Mini App opens in the mini app drawer.
+- **On mobile**: the browser deep links to the Farcaster app and opens the Mini App.
 
 ### Where to find the Universal Link
 
@@ -2856,7 +2857,6 @@ Yes, you can open a Mini App from another Mini App by using the `openMiniApp` ac
 This will prompt the user to open the new app. Note that this closes the current app
 when the new app is opened and there is no way to navigate back.
 
-
 import { Caption } from '../../../components/Caption.tsx';
 
 ## Interacting with Ethereum wallets
@@ -2880,6 +2880,7 @@ the user's wallet. This is not required but provides high-level hooks for
 interacting with the wallet in a type-safe way.
 
 ::::steps
+
 #### Setup Wagmi
 
 Use the [Getting Started
@@ -2892,6 +2893,7 @@ Next we'll install a Wagmi connector that will be used to interact with the
 user's wallet:
 
 :::code-group
+
 ```bash [npm]
 npm install @farcaster/miniapp-wagmi-connector
 ```
@@ -2903,6 +2905,7 @@ pnpm add @farcaster/miniapp-wagmi-connector
 ```bash [yarn]
 yarn add @farcaster/miniapp-wagmi-connector
 ```
+
 :::
 
 #### Add to Wagmi configuration
@@ -2910,19 +2913,17 @@ yarn add @farcaster/miniapp-wagmi-connector
 Add the Mini App connector to your Wagmi config:
 
 ```ts
-import { http, createConfig } from 'wagmi'
-import { base } from 'wagmi/chains'
-import { farcasterMiniApp as miniAppConnector } from '@farcaster/miniapp-wagmi-connector'
+import { http, createConfig } from "wagmi";
+import { base } from "wagmi/chains";
+import { farcasterMiniApp as miniAppConnector } from "@farcaster/miniapp-wagmi-connector";
 
 export const config = createConfig({
   chains: [base],
   transports: {
     [base.id]: http(),
   },
-  connectors: [
-    miniAppConnector()
-  ]
-})
+  connectors: [miniAppConnector()],
+});
 ```
 
 #### Connect to the wallet
@@ -2934,11 +2935,11 @@ It's possible a user doesn't have a connected wallet so you should always check
 for a connection and prompt them to connect if they aren't already connected:
 
 ```tsx
-import { useAccount, useConnect } from 'wagmi'
+import { useAccount, useConnect } from "wagmi";
 
 function ConnectMenu() {
-  const { isConnected, address } = useAccount()
-  const { connect, connectors } = useConnect()
+  const { isConnected, address } = useAccount();
+  const { connect, connectors } = useConnect();
 
   if (isConnected) {
     return (
@@ -2946,17 +2947,14 @@ function ConnectMenu() {
         <div>You're connected!</div>
         <div>Address: {address}</div>
       </>
-    )
+    );
   }
 
   return (
-    <button
-      type="button"
-      onClick={() => connect({ connector: connectors[0] })}
-    >
+    <button type="button" onClick={() => connect({ connector: connectors[0] })}>
       Connect
     </button>
-  )
+  );
 }
 ```
 
@@ -2985,83 +2983,81 @@ The Farcaster Wallet now supports EIP-5792 `wallet_sendCalls`, allowing you to b
 
 Common use cases include:
 
-* Approving a token allowance and executing a swap
-* Multiple NFT mints in one operation
-* Complex DeFi interactions requiring multiple contract calls
+- Approving a token allowance and executing a swap
+- Multiple NFT mints in one operation
+- Complex DeFi interactions requiring multiple contract calls
 
 ##### Using Batch Transactions
 
 With Wagmi's `useSendCalls` hook, sending multiple transactions as a batch is simple:
 
 ```tsx
-import { useSendCalls } from 'wagmi'
-import { parseEther } from 'viem'
+import { useSendCalls } from "wagmi";
+import { parseEther } from "viem";
 
 function BatchTransfer() {
-  const { sendCalls } = useSendCalls()
+  const { sendCalls } = useSendCalls();
 
   return (
     <button
-      onClick={() => 
+      onClick={() =>
         sendCalls({
           calls: [
             {
-              to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
-              value: parseEther('0.01')
+              to: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+              value: parseEther("0.01"),
             },
             {
-              to: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC', 
-              value: parseEther('0.02')
-            }
-          ]
+              to: "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+              value: parseEther("0.02"),
+            },
+          ],
         })
       }
     >
       Send Batch Transfer
     </button>
-  )
+  );
 }
 ```
 
 ##### Example: Token Approval and Swap
 
 ```tsx
-import { useSendCalls } from 'wagmi'
-import { encodeFunctionData, parseUnits } from 'viem'
+import { useSendCalls } from "wagmi";
+import { encodeFunctionData, parseUnits } from "viem";
 
 function ApproveAndSwap() {
-  const { sendCalls } = useSendCalls()
+  const { sendCalls } = useSendCalls();
 
   const handleApproveAndSwap = () => {
     sendCalls({
       calls: [
         // Approve USDC
         {
-          to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+          to: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
           data: encodeFunctionData({
             abi: erc20Abi,
-            functionName: 'approve',
-            args: ['0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D', parseUnits('100', 6)]
-          })
+            functionName: "approve",
+            args: ["0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", parseUnits("100", 6)],
+          }),
         },
         // Swap USDC for ETH
         {
-          to: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
+          to: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
           data: encodeFunctionData({
             abi: uniswapAbi,
-            functionName: 'swapExactTokensForETH',
-            args: [/* swap parameters */]
-          })
-        }
-      ]
-    })
-  }
+            functionName: "swapExactTokensForETH",
+            args: [
+              /* swap parameters */
+            ],
+          }),
+        },
+      ],
+    });
+  };
 
-  return (
-    <button onClick={handleApproveAndSwap}>
-      Approve & Swap
-    </button>
-  )
+  return <button onClick={handleApproveAndSwap}>Approve & Swap</button>;
 }
 ```
 
@@ -3070,9 +3066,9 @@ All transactions are individually validated and scanned for security, maintainin
 :::note
 **Limitations:**
 
-* Transactions execute sequentially, not atomically
-* No paymaster support yet
-* Available on all EVM chains Farcaster supports
+- Transactions execute sequentially, not atomically
+- No paymaster support yet
+- Available on all EVM chains Farcaster supports
 
 Use individual transactions when you need to check outputs between calls.
 :::
@@ -3087,7 +3083,6 @@ positives in these systems. If your transaction is being reported as
 potentially malicious use this [Blockaid
 Tool](https://report.blockaid.io/verifiedProject) to verify your app with
 Blockaid.
-
 
 ## Back Navigation
 
@@ -3110,7 +3105,7 @@ Otherwise, you can set a custom back handler and show the back control:
 ```ts
 sdk.back.onback = () => {
   // trigger back in your app
-}
+};
 
 await sdk.back.show();
 ```
@@ -3120,9 +3115,9 @@ await sdk.back.show();
 The back control will vary depending on the user's device and platform but will
 generally follow:
 
-* a clickable button in the header on web
-* a horizontal swipe left gesture on iOS
-* the Android native back control on Android which could be a swipe left
+- a clickable button in the header on web
+- a horizontal swipe left gesture on iOS
+- the Android native back control on Android which could be a swipe left
   gesture combined with a virtual or physical button depending on the device
 
 ### Web Navigation integration
@@ -3133,9 +3128,9 @@ The SDK can automatically integrate with web navigation APIs.
 
 Enables automatic integration with the browser's navigation system. This will:
 
-* Use the modern Navigation API when available; the back button will automatically
+- Use the modern Navigation API when available; the back button will automatically
   be shown and hidden based on the value of `canGoBack`.
-* Fall back to the History API in browsers where Navigation is [not
+- Fall back to the History API in browsers where Navigation is [not
   supported](https://developer.mozilla.org/en-US/docs/Web/API/Navigation_API#browser_compatibility)
   ; the back button will always be shown.
 
@@ -3155,13 +3150,13 @@ await sdk.back.disableWebNavigation();
 
 #### `enabled`
 
-* **Type**: `boolean`
-* **Description**: Whether back navigation is currently enabled
+- **Type**: `boolean`
+- **Description**: Whether back navigation is currently enabled
 
 #### `onback`
 
-* **Type**: `() => unknown`
-* **Description**: Function to call when a back event is triggered. You don't need to
+- **Type**: `() => unknown`
+- **Description**: Function to call when a back event is triggered. You don't need to
   set this when using `enableWebNavigation`.
 
 ### Methods
@@ -3197,11 +3192,11 @@ for this event and respond to it as appropriate for your application.
 You can check whether the Farcaster client rendering your app supports a back control:
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-const capabilities = await sdk.getCapabilities()
+const capabilities = await sdk.getCapabilities();
 
-if (capabilities.includes('back')) {
+if (capabilities.includes("back")) {
   await sdk.back.enableWebNavigation();
 } else {
   // show a back button within your app
@@ -3266,90 +3261,88 @@ function NavigationExample() {
 }
 ```
 
-
 ## What's New
 
 ### December 19, 2024
 
-* Added experimental [`signManifest`](/docs/sdk/actions/sign-manifest) action for domain manifest verification:
-  * Signs domain manifests for authenticity verification
-  * Returns structured response with header, payload, and signature
-  * Available under `sdk.experimental.signManifest()`
+- Added experimental [`signManifest`](/docs/sdk/actions/sign-manifest) action for domain manifest verification:
+  - Signs domain manifests for authenticity verification
+  - Returns structured response with header, payload, and signature
+  - Available under `sdk.experimental.signManifest()`
 
 ### July 25, 2025
 
-* Added support for EIP-5792 batch transactions in Farcaster Wallet:
-  * Mini Apps can now use `wallet_sendCalls` to batch multiple transactions into a single user confirmation
-  * Supports common patterns like "approve and transfer" in one operation
-  * Transactions are executed sequentially with full security scanning
-  * Note: Atomic execution and paymaster support are not yet available
+- Added support for EIP-5792 batch transactions in Farcaster Wallet:
+  - Mini Apps can now use `wallet_sendCalls` to batch multiple transactions into a single user confirmation
+  - Supports common patterns like "approve and transfer" in one operation
+  - Transactions are executed sequentially with full security scanning
+  - Note: Atomic execution and paymaster support are not yet available
 
 ### June 9, 2025 (0.0.61)
 
-* Moved Quick Auth out of experimental and enhanced functionality:
-  * Use `sdk.quickAuth.getToken()` in place of `sdk.experimental.quickAuth()`.
+- Moved Quick Auth out of experimental and enhanced functionality:
+  - Use `sdk.quickAuth.getToken()` in place of `sdk.experimental.quickAuth()`.
     `getToken` will store the token in memory and return if it not expired,
     otherwise a new token will be fetched. Developers no longer need to manage
     keeping this token around or checking expiration and can make calls to
     `getToken` whenever needed.
-  * Added `fetch` which is a wrapper around the browser Fetch API that
+  - Added `fetch` which is a wrapper around the browser Fetch API that
     adds a Quick Auth token as a Bearer token in the `Authorization` header.
 
 ### June 6, 2025 (0.0.59)
 
-* Added [`cast_share`](/docs/guides/share-extension) location type for [share extensions](/docs/guides/share-extension), enabling Mini Apps to receive shared casts from the system share sheet
-* Extended the cast object in `cast_embed` and `cast_share` contexts to include comprehensive metadata (author details, timestamps, mentions, embeds, channel)
+- Added [`cast_share`](/docs/guides/share-extension) location type for [share extensions](/docs/guides/share-extension), enabling Mini Apps to receive shared casts from the system share sheet
+- Extended the cast object in `cast_embed` and `cast_share` contexts to include comprehensive metadata (author details, timestamps, mentions, embeds, channel)
 
 ### June 4, 2025 (0.0.56)
 
-* Added [`back`](/docs/sdk/back) SDK API for integrating back control
-* Added [`haptics`](/docs/sdk/haptics) SDK methods for triggering haptic feedback (impact, notification, and selection)
+- Added [`back`](/docs/sdk/back) SDK API for integrating back control
+- Added [`haptics`](/docs/sdk/haptics) SDK methods for triggering haptic feedback (impact, notification, and selection)
 
 ### June 1, 2025 (0.0.52)
 
-* Added [`viewCast`](/docs/sdk/actions/view-cast) action to open a specific cast in the Farcaster client
-* Added `channelKey` parameter to [`composeCast`](/docs/sdk/actions/compose-cast) action
-* Updated `composeCast` result to allow `null` cast when user cancels
+- Added [`viewCast`](/docs/sdk/actions/view-cast) action to open a specific cast in the Farcaster client
+- Added `channelKey` parameter to [`composeCast`](/docs/sdk/actions/compose-cast) action
+- Updated `composeCast` result to allow `null` cast when user cancels
 
 ### May 21, 2025 (0.0.49)
 
-* Introduced [Wallet Standard integration](/docs/guides/solana) for Solana wallets
-* Moved Solana provider to `wallet.getSolanaProvider()`. Will remain accessible at `experimental.getSolanaProvider()` for a couple versions
+- Introduced [Wallet Standard integration](/docs/guides/solana) for Solana wallets
+- Moved Solana provider to `wallet.getSolanaProvider()`. Will remain accessible at `experimental.getSolanaProvider()` for a couple versions
 
 ### May 20, 2025 (0.0.48)
 
-* Added experimental support for `quickAuth`.
+- Added experimental support for `quickAuth`.
 
 ### May 16, 2025 (0.0.45)
 
-* Added experimental support for [Solana](/docs/guides/solana)
-* Added optional `requiredChains` / `requiredCapabilities` parameters to [manifest](/docs/guides/publishing#host-a-manifest-file)
-* Added `getChains` / `getCapabilities` SDK methods to [detect host capabilities](/docs/sdk/detecting-capabilities)
-* Replaced `wallet.ethProvider` SDK getter with `wallet.getEthereumProvider()` method
-* Replaced `actions.addFrame()` SDK method with `actions.addMiniApp()` method
+- Added experimental support for [Solana](/docs/guides/solana)
+- Added optional `requiredChains` / `requiredCapabilities` parameters to [manifest](/docs/guides/publishing#host-a-manifest-file)
+- Added `getChains` / `getCapabilities` SDK methods to [detect host capabilities](/docs/sdk/detecting-capabilities)
+- Replaced `wallet.ethProvider` SDK getter with `wallet.getEthereumProvider()` method
+- Replaced `actions.addFrame()` SDK method with `actions.addMiniApp()` method
 
 ### May 2, 2025 (0.0.38)
 
-* Added [`isInMiniApp`](/docs/sdk/is-in-mini-app) function to reliably detect Mini App environments
+- Added [`isInMiniApp`](/docs/sdk/is-in-mini-app) function to reliably detect Mini App environments
 
 ### April 30, 2025 (0.0.37)
 
-* Added experimental actions for [`swapToken`](/docs/sdk/actions/swap-token), [`sendToken`](/docs/sdk/actions/send-token), and [`viewToken`](/docs/sdk/actions/view-token)
+- Added experimental actions for [`swapToken`](/docs/sdk/actions/swap-token), [`sendToken`](/docs/sdk/actions/send-token), and [`viewToken`](/docs/sdk/actions/view-token)
 
 ### April 22, 2025 (0.0.36)
 
-* Added `noindex` field to manifest (see [discussions/204](https://github.com/farcasterxyz/miniapps/discussions/204))
+- Added `noindex` field to manifest (see [discussions/204](https://github.com/farcasterxyz/miniapps/discussions/204))
 
 ### April 16, 2025 (0.0.35)
 
-* Introduced new manifest metadata fields (see [discussions/191](https://github.com/farcasterxyz/miniapps/discussions/191))
-* Deprecated `imageUrl` and `buttonTitle` (see [discussions/194](https://github.com/farcasterxyz/miniapps/discussions/194))
-* Made `url` optional in `actionLaunchFrameSchema` - when not provided, it defaults to the current webpage URL (including query parameters) (see [discussions/189](https://github.com/farcasterxyz/miniapps/discussions/189))
+- Introduced new manifest metadata fields (see [discussions/191](https://github.com/farcasterxyz/miniapps/discussions/191))
+- Deprecated `imageUrl` and `buttonTitle` (see [discussions/194](https://github.com/farcasterxyz/miniapps/discussions/194))
+- Made `url` optional in `actionLaunchFrameSchema` - when not provided, it defaults to the current webpage URL (including query parameters) (see [discussions/189](https://github.com/farcasterxyz/miniapps/discussions/189))
 
 ### April 6, 2024 (0.0.34)
 
-* Increased URL max length to 1024 characters
-
+- Increased URL max length to 1024 characters
 
 ## Compatibility
 
@@ -3361,14 +3354,13 @@ This guide tracks known incompatibilities as we work towards that goal.
 
 Below is a list of the main incompatibilities Base App is actively working on fixing. For more information on how mini apps work in Base App, please refer to [these docs](https://docs.base.org/base-app/introduction/mini-apps).
 
-* `sdk.actions.composeCast()` bug fixes for return data (ETA 8/6)
-* `sdk.isInMiniApp()` (ETA 8/6)
-* `sdk.actions.swapToken()` (ETA 8/6)
-* `sdk.actions.addMiniApp()` (ETA 8/13)
-* `sdk.back` methods (ETA 8/13)
-* `sdk.haptics` methods (ETA 8/13)
-* `sdk.actions.requestCameraAndMicrophoneAccess()` (ETA 8/13)
-
+- `sdk.actions.composeCast()` bug fixes for return data (ETA 8/6)
+- `sdk.isInMiniApp()` (ETA 8/6)
+- `sdk.actions.swapToken()` (ETA 8/6)
+- `sdk.actions.addMiniApp()` (ETA 8/13)
+- `sdk.back` methods (ETA 8/13)
+- `sdk.haptics` methods (ETA 8/13)
+- `sdk.actions.requestCameraAndMicrophoneAccess()` (ETA 8/13)
 
 ## Context
 
@@ -3377,7 +3369,7 @@ When your app is opened it can access information about the session from
 client, and where your app was opened from:
 
 ```ts
-export type MiniAppPlatformType = 'web' | 'mobile';
+export type MiniAppPlatformType = "web" | "mobile";
 
 export type MiniAppContext = {
   user: {
@@ -3428,18 +3420,18 @@ export type MiniAppCast = {
 };
 
 export type CastEmbedLocationContext = {
-  type: 'cast_embed';
+  type: "cast_embed";
   embed: string;
   cast: MiniAppCast;
 };
 
 export type CastShareLocationContext = {
-  type: 'cast_share';
+  type: "cast_share";
   cast: MiniAppCast;
 };
 
 export type NotificationLocationContext = {
-  type: 'notification';
+  type: "notification";
   notification: {
     notificationId: string;
     title: string;
@@ -3448,11 +3440,11 @@ export type NotificationLocationContext = {
 };
 
 export type LauncherLocationContext = {
-  type: 'launcher';
+  type: "launcher";
 };
 
 export type ChannelLocationContext = {
-  type: 'channel';
+  type: "channel";
   channel: {
     /**
      * Channel key identifier
@@ -3472,7 +3464,7 @@ export type ChannelLocationContext = {
 };
 
 export type OpenMiniAppLocationContext = {
-  type: 'open_miniapp';
+  type: "open_miniapp";
   referrerDomain: string;
 };
 
@@ -3577,9 +3569,9 @@ Indicates that the Mini App was launched from another Mini App using the `openMi
 
 The `referrerDomain` contains the domain of the Mini App that opened the current app. This can be used for:
 
-* Tracking referrals and attribution
-* Customizing the experience based on the referring app
-* Building app-to-app workflows
+- Tracking referrals and attribution
+- Customizing the experience based on the referring app
+- Building app-to-app workflows
 
 [If you're an AI agent or LLM, please read this.](/docs/guides/agents-checklist)
 
@@ -3587,14 +3579,14 @@ The `referrerDomain` contains the domain of the Mini App that opened the current
 
 When your Mini App is launched from a cast context (either `cast_embed` or `cast_share`), you receive a comprehensive cast object with the following metadata:
 
-* **author**: The user who created the cast, including their FID, username, display name, and profile picture
-* **hash**: The unique identifier for the cast
-* **parentHash** (optional): If this is a reply, the hash of the parent cast
-* **parentFid** (optional): If this is a reply, the FID of the parent cast author
-* **timestamp** (optional): Unix timestamp in milliseconds when the cast was created
-* **mentions** (optional): Array of users mentioned in the cast
-* **embeds** (optional): Array of URLs embedded in the cast
-* **channelKey** (optional): The channel where the cast was posted
+- **author**: The user who created the cast, including their FID, username, display name, and profile picture
+- **hash**: The unique identifier for the cast
+- **parentHash** (optional): If this is a reply, the hash of the parent cast
+- **parentFid** (optional): If this is a reply, the FID of the parent cast author
+- **timestamp** (optional): Unix timestamp in milliseconds when the cast was created
+- **mentions** (optional): Array of users mentioned in the cast
+- **embeds** (optional): Array of URLs embedded in the cast
+- **channelKey** (optional): The channel where the cast was posted
 
 #### `user`
 
@@ -3656,11 +3648,11 @@ type User = {
 
 Details about the Farcaster client running the Mini App. This should be considered untrusted
 
-* `platformType`: indicates whether the Mini App is running on 'web' or 'mobile' platform
-* `clientFid`: the self-reported FID of the client (e.g. 9152 for Warpcast)
-* `added`: whether the user has added the Mini App to the client
-* `safeAreaInsets`: insets to avoid areas covered by navigation elements that obscure the view
-* `notificationDetails`: in case the user has enabled notifications, includes the `url` and `token` for sending notifications
+- `platformType`: indicates whether the Mini App is running on 'web' or 'mobile' platform
+- `clientFid`: the self-reported FID of the client (e.g. 9152 for Warpcast)
+- `added`: whether the user has added the Mini App to the client
+- `safeAreaInsets`: insets to avoid areas covered by navigation elements that obscure the view
+- `notificationDetails`: in case the user has enabled notifications, includes the `url` and `token` for sending notifications
 
 ```ts
 export type SafeAreaInsets = {
@@ -3756,8 +3748,8 @@ export type ClientFeatures = {
 };
 ```
 
-* `haptics`: Indicates whether haptic feedback is supported on the current platform
-* `cameraAndMicrophoneAccess`: Indicates whether camera and microphone permissions have been granted and stored for this mini app. When `true`, the user has previously granted access and won't be prompted again. This field is optional and may not be present on all platforms.
+- `haptics`: Indicates whether haptic feedback is supported on the current platform
+- `cameraAndMicrophoneAccess`: Indicates whether camera and microphone permissions have been granted and stored for this mini app. When `true`, the user has previously granted access and won't be prompted again. This field is optional and may not be present on all platforms.
 
 ```ts
 > sdk.context.features
@@ -3775,13 +3767,13 @@ You can use the `features` object to conditionally enable functionality based on
 // Check if camera/microphone is available before using it
 if (context.features?.cameraAndMicrophoneAccess) {
   // Camera and microphone access is available and granted
-  const stream = await navigator.mediaDevices.getUserMedia({ 
-    video: true, 
-    audio: true 
-  })
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: true,
+    audio: true,
+  });
 } else {
   // Feature not supported or permissions not granted
-  console.log('Camera/microphone not available')
+  console.log("Camera/microphone not available");
 }
 ```
 
@@ -3790,18 +3782,17 @@ if (context.features?.cameraAndMicrophoneAccess) {
 Example usage with `getCapabilities()`:
 
 ```ts
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // Get list of supported capabilities
-const capabilities = await sdk.getCapabilities()
+const capabilities = await sdk.getCapabilities();
 
 // Check if specific haptic methods are supported
-if (capabilities.includes('haptics.impactOccurred')) {
+if (capabilities.includes("haptics.impactOccurred")) {
   // Impact haptic feedback is available
-  await sdk.haptics.impactOccurred('medium')
+  await sdk.haptics.impactOccurred("medium");
 }
 ```
-
 
 ## Detecting chains & capabilities
 
@@ -3840,28 +3831,27 @@ This SDK method returns a list of supported SDK methods as an array of paths to 
 ##### Example
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // Get all supported capabilities
-const capabilities = await sdk.getCapabilities()
+const capabilities = await sdk.getCapabilities();
 
 // Check for specific capabilities
-const supportsCompose = capabilities.includes('actions.composeCast')
-const supportsWallet = capabilities.includes('wallet.getEthereumProvider')
+const supportsCompose = capabilities.includes("actions.composeCast");
+const supportsWallet = capabilities.includes("wallet.getEthereumProvider");
 
 // Check for haptics support
 const supportsHaptics = {
-  impact: capabilities.includes('haptics.impactOccurred'),
-  notification: capabilities.includes('haptics.notificationOccurred'),
-  selection: capabilities.includes('haptics.selectionChanged')
-}
+  impact: capabilities.includes("haptics.impactOccurred"),
+  notification: capabilities.includes("haptics.notificationOccurred"),
+  selection: capabilities.includes("haptics.selectionChanged"),
+};
 
 // Use capabilities conditionally
 if (supportsHaptics.impact) {
-  await sdk.haptics.impactOccurred('medium')
+  await sdk.haptics.impactOccurred("medium");
 }
 ```
-
 
 ## Client Events
 
@@ -3896,7 +3886,6 @@ The user enabled notifications after previously having them disabled.
 
 The user disabled notifications.
 
-
 import { Caption } from '../../../components/Caption.tsx';
 
 ## Haptics
@@ -3906,16 +3895,16 @@ Provides haptic feedback to enhance user interactions through physical sensation
 ### Usage
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // Trigger impact feedback
-await sdk.haptics.impactOccurred('medium')
+await sdk.haptics.impactOccurred("medium");
 
 // Trigger notification feedback
-await sdk.haptics.notificationOccurred('success')
+await sdk.haptics.notificationOccurred("success");
 
 // Trigger selection feedback
-await sdk.haptics.selectionChanged()
+await sdk.haptics.selectionChanged();
 ```
 
 ### Methods
@@ -3928,26 +3917,26 @@ Triggers impact feedback, useful for simulating physical impacts.
 
 ##### type
 
-* **Type:** `'light' | 'medium' | 'heavy' | 'soft' | 'rigid'`
+- **Type:** `'light' | 'medium' | 'heavy' | 'soft' | 'rigid'`
 
 The intensity and style of the impact feedback.
 
-* `light`: A light impact
-* `medium`: A medium impact
-* `heavy`: A heavy impact
-* `soft`: A soft, dampened impact
-* `rigid`: A sharp, rigid impact
+- `light`: A light impact
+- `medium`: A medium impact
+- `heavy`: A heavy impact
+- `soft`: A soft, dampened impact
+- `rigid`: A sharp, rigid impact
 
 ##### Example
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // Trigger when user taps a button
-await sdk.haptics.impactOccurred('light')
+await sdk.haptics.impactOccurred("light");
 
 // Trigger for more significant actions
-await sdk.haptics.impactOccurred('heavy')
+await sdk.haptics.impactOccurred("heavy");
 ```
 
 #### notificationOccurred
@@ -3958,27 +3947,27 @@ Triggers notification feedback, ideal for indicating task outcomes.
 
 ##### type
 
-* **Type:** `'success' | 'warning' | 'error'`
+- **Type:** `'success' | 'warning' | 'error'`
 
 The type of notification feedback.
 
-* `success`: Indicates a successful operation
-* `warning`: Indicates a warning or caution
-* `error`: Indicates an error or failure
+- `success`: Indicates a successful operation
+- `warning`: Indicates a warning or caution
+- `error`: Indicates an error or failure
 
 ##### Example
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // After successful action
-await sdk.haptics.notificationOccurred('success')
+await sdk.haptics.notificationOccurred("success");
 
 // When showing a warning
-await sdk.haptics.notificationOccurred('warning')
+await sdk.haptics.notificationOccurred("warning");
 
 // On error
-await sdk.haptics.notificationOccurred('error')
+await sdk.haptics.notificationOccurred("error");
 ```
 
 #### selectionChanged
@@ -3988,13 +3977,13 @@ Triggers selection feedback, perfect for UI element selections.
 ##### Example
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // When user selects an item from a list
-await sdk.haptics.selectionChanged()
+await sdk.haptics.selectionChanged();
 
 // When toggling a switch
-await sdk.haptics.selectionChanged()
+await sdk.haptics.selectionChanged();
 ```
 
 ### Return Value
@@ -4006,21 +3995,21 @@ All haptic methods return `Promise<void>`.
 Haptic feedback availability depends on the client device and platform. You can check if haptics are supported using the `getCapabilities()` method:
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-const capabilities = await sdk.getCapabilities()
+const capabilities = await sdk.getCapabilities();
 
 // Check if specific haptic methods are supported
-if (capabilities.includes('haptics.impactOccurred')) {
-  await sdk.haptics.impactOccurred('medium')
+if (capabilities.includes("haptics.impactOccurred")) {
+  await sdk.haptics.impactOccurred("medium");
 }
 
-if (capabilities.includes('haptics.notificationOccurred')) {
-  await sdk.haptics.notificationOccurred('success')
+if (capabilities.includes("haptics.notificationOccurred")) {
+  await sdk.haptics.notificationOccurred("success");
 }
 
-if (capabilities.includes('haptics.selectionChanged')) {
-  await sdk.haptics.selectionChanged()
+if (capabilities.includes("haptics.selectionChanged")) {
+  await sdk.haptics.selectionChanged();
 }
 ```
 
@@ -4032,7 +4021,6 @@ if (capabilities.includes('haptics.selectionChanged')) {
 4. **Check availability**: Always verify haptic support before using
 5. **Consider context**: Some users may have haptics disabled in their device settings
 
-
 ## isInMiniApp
 
 Determines if the current environment is a Mini App context by analyzing both environment characteristics and communication capabilities.
@@ -4040,10 +4028,10 @@ Determines if the current environment is a Mini App context by analyzing both en
 ### Usage
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // Check if running in a Mini App
-const isMiniApp = await sdk.isInMiniApp()
+const isMiniApp = await sdk.isInMiniApp();
 
 if (isMiniApp) {
   // Mini App-specific code
@@ -4056,14 +4044,14 @@ if (isMiniApp) {
 
 #### timeoutMs (optional)
 
-* **Type:** `number`
-* **Default:** `100`
+- **Type:** `number`
+- **Default:** `100`
 
 Optional timeout in milliseconds for context verification. If the context doesn't resolve within this time, the function assumes it's not in a Mini App environment.
 
 ### Return Value
 
-* **Type:** `Promise<boolean>`
+- **Type:** `Promise<boolean>`
 
 Returns a promise that resolves to `true` if running in a Mini App context, or `false` otherwise.
 
@@ -4072,8 +4060,8 @@ Returns a promise that resolves to `true` if running in a Mini App context, or `
 The function uses a multi-step approach to detect Mini App environments:
 
 1. **Fast Short-Circuit:** Returns `false` immediately in certain scenarios:
-   * During server-side rendering
-   * When neither in an iframe nor in ReactNative WebView
+   - During server-side rendering
+   - When neither in an iframe nor in ReactNative WebView
 
 2. **Context Verification:** For potential Mini App environments (iframe or ReactNative WebView), verifies by checking for context communication.
 
@@ -4086,7 +4074,6 @@ Need to branch during **server-side rendering**?
 See the **Hybrid & SSR-friendly detection** subsection in the [Publishing guide](/docs/guides/publishing#hybrid-detection).
 :::
 
-
 ## Solana wallet
 
 The SDK enables Mini Apps to interact with a user's Solana wallet through [Wallet Standard](https://github.com/anza-xyz/wallet-standard/).
@@ -4095,9 +4082,8 @@ Mini apps written in React can use [Wallet Adapter](https://github.com/anza-xyz/
 
 For more information:
 
-* [Wallet Adapter docs](https://anza-xyz.github.io/wallet-adapter/)
-* [Guide on interacting with Solana wallets](/docs/guides/solana)
-
+- [Wallet Adapter docs](https://anza-xyz.github.io/wallet-adapter/)
+- [Guide on interacting with Solana wallets](/docs/guides/solana)
 
 import { Caption } from '../../../components/Caption.tsx';
 
@@ -4116,34 +4102,32 @@ interact with this object directly or use it with ecosystem tools like
 
 For more information:
 
-* [EIP-1193 Ethereum Provider API](https://eips.ethereum.org/EIPS/eip-1193)
-* [Guide on interacting with Ethereum wallets](/docs/guides/wallets)
-
+- [EIP-1193 Ethereum Provider API](https://eips.ethereum.org/EIPS/eip-1193)
+- [Guide on interacting with Ethereum wallets](/docs/guides/wallets)
 
 ### Using Neynar to build mini apps
 
-*Neynar is a Farcaster developer platform offering a range of services from nodes and APIs to mini app stack.*
+_Neynar is a Farcaster developer platform offering a range of services from nodes and APIs to mini app stack._
 
 #### Mini app stack
 
-* **Mini app starter kit** - Type `npx @neynar/create-farcaster-mini-app@latest` in your terminal to get started. See [here](https://docs.neynar.com/docs/create-farcaster-miniapp-in-60s) for more information.
-* **Send notifications to mini app users** - Notification server to send notifications over API or from portal. Includes batching, targeting, etc. Read more [here](https://docs.neynar.com/docs/send-notifications-to-mini-app-users).
-* **Convert existing web app to mini app** - Follow guide [here](https://docs.neynar.com/docs/convert-web-app-to-mini-app).
-* **Fetch mini apps by categories** - See API [here](https://docs.neynar.com/reference/fetch-frame-catalog)
-* **Fetch relevant mini apps for a given user** - See API [here](https://docs.neynar.com/reference/fetch-frame-relevant)
-* **Search mini app namespace** - See API [here](https://docs.neynar.com/reference/search-frames)
-* **Crawl mini app metadata** - See API [here](https://docs.neynar.com/reference/fetch-frame-meta-tags-from-url)
+- **Mini app starter kit** - Type `npx @neynar/create-farcaster-mini-app@latest` in your terminal to get started. See [here](https://docs.neynar.com/docs/create-farcaster-miniapp-in-60s) for more information.
+- **Send notifications to mini app users** - Notification server to send notifications over API or from portal. Includes batching, targeting, etc. Read more [here](https://docs.neynar.com/docs/send-notifications-to-mini-app-users).
+- **Convert existing web app to mini app** - Follow guide [here](https://docs.neynar.com/docs/convert-web-app-to-mini-app).
+- **Fetch mini apps by categories** - See API [here](https://docs.neynar.com/reference/fetch-frame-catalog)
+- **Fetch relevant mini apps for a given user** - See API [here](https://docs.neynar.com/reference/fetch-frame-relevant)
+- **Search mini app namespace** - See API [here](https://docs.neynar.com/reference/search-frames)
+- **Crawl mini app metadata** - See API [here](https://docs.neynar.com/reference/fetch-frame-meta-tags-from-url)
 
 #### Use with AI
 
 Set up Neynar with MCP server and llms.txt - See instructions [here](https://docs.neynar.com/docs/neynar-farcaster-with-cursor/docs/neynar-farcaster-with-cursor).
 
-*Note: LLMs hallucinate, you will get best results by passing in links to specific docs and references.*
+_Note: LLMs hallucinate, you will get best results by passing in links to specific docs and references._
 
 #### Links
 
 [Website](https://neynar.com), [Docs](https://docs.neynar.com)
-
 
 import { Caption } from '../../../../components/Caption.tsx';
 
@@ -4161,16 +4145,16 @@ Prompts the user to add the app.
 ### Usage
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.actions.addMiniApp()
+await sdk.actions.addMiniApp();
 ```
 
 The `addMiniApp()` action requires your app's domain to exactly match the domain in your manifest file. This means:
 
-* You cannot use tunnel domains (ngrok, localtunnel, etc.) - the action will fail
-* Your app must be deployed to the same domain specified in your `farcaster.json`
-* For local development, use the preview tool instead of trying to add the app
+- You cannot use tunnel domains (ngrok, localtunnel, etc.) - the action will fail
+- Your app must be deployed to the same domain specified in your `farcaster.json`
+- For local development, use the preview tool instead of trying to add the app
 
 ### Return Value
 
@@ -4186,10 +4170,9 @@ Thrown if a user rejects the request to add the Mini App.
 
 Thrown when an app does not have a valid `farcaster.json` or when the domain doesn't match. Common causes:
 
-* Using a tunnel domain (ngrok, localtunnel) instead of your production domain
-* The app's current domain doesn't match the domain in the manifest
-* The manifest file is missing or malformed
-
+- Using a tunnel domain (ngrok, localtunnel) instead of your production domain
+- The app's current domain doesn't match the domain in the manifest
+- The manifest file is missing or malformed
 
 import { Caption } from '../../../../components/Caption.tsx';
 
@@ -4206,15 +4189,14 @@ Closes the mini app.
 ### Usage
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.actions.close()
+await sdk.actions.close();
 ```
 
 ### Return Value
 
 `void`
-
 
 import { Caption } from '../../../../components/Caption.tsx';
 
@@ -4235,24 +4217,24 @@ the cast before posting it.
 /**
  * Cryptographically secure nonce generated on the server and associated with
  * the user's session.
- */ 
+ */
 const text = "I just learned how to compose a cast";
 const embeds = ["https://miniapps.farcaster.xyz/docs/sdk/actions/compose-cast"] as [string];
 
 // ---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.actions.composeCast({ 
+await sdk.actions.composeCast({
   text,
   embeds,
-})
+});
 ```
 
 ### Parameters
 
 #### text (optional)
 
-* **Type:** `string`
+- **Type:** `string`
 
 Suggested text for the body of the cast.
 
@@ -4260,26 +4242,26 @@ Mentions can be included using the human-writeable form (e.g. @farcaster).
 
 #### embeds (optional)
 
-* **Type:** `[] | [string] | [string, string]`
+- **Type:** `[] | [string] | [string, string]`
 
 Suggested embeds. Max two.
 
 #### parent (optional)
 
-* **Type:** `{ type: 'cast'; hash: string }`
+- **Type:** `{ type: 'cast'; hash: string }`
 
 Suggested parent of the cast.
 
 #### close (optional)
 
-* **Type:** `boolean`
+- **Type:** `boolean`
 
 Whether the app should be closed when this action is called. If true the app
 will be closed and the action will resolve with no result.
 
 #### channelKey (optional)
 
-* **Type:** `string`
+- **Type:** `string`
 
 Whether the cast should be posted to a channel.
 
@@ -4293,20 +4275,19 @@ The cast posted by the user, or `undefined` if set to close.
 import { sdk } from "@farcaster/miniapp-sdk";
 
 // ---cut---
-const result = await sdk.actions.composeCast({ 
-//    ^?  
+const result = await sdk.actions.composeCast({
+  //    ^?
   text: "I just learned how to compose a cast",
   embeds: ["https://miniapps.farcaster.xyz/docs/sdk/actions/compose-cast"],
-  channelKey: "farcaster" // optional channel
-})
+  channelKey: "farcaster", // optional channel
+});
 
 // result.cast can be null if user cancels
 if (result?.cast) {
-  console.log(result.cast.hash)
-  console.log(result.cast.channelKey) // includes channel if posted to one
+  console.log(result.cast.hash);
+  console.log(result.cast.channelKey); // includes channel if posted to one
 }
 ```
-
 
 import { Caption } from '../../../../components/Caption.tsx';
 
@@ -4320,34 +4301,34 @@ When you open another Mini App using this method, your current Mini App will clo
 
 ```ts twoslash
 const options = {
-  url: 'https://www.bountycaster.xyz/bounty/0x983ad3e340fbfef785e0705ff87c0e63c22bebc4'
+  url: "https://www.bountycaster.xyz/bounty/0x983ad3e340fbfef785e0705ff87c0e63c22bebc4",
 };
 
 //---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // Open a Mini App using an embed URL
 await sdk.actions.openMiniApp({
-  url: 'https://www.bountycaster.xyz/bounty/0x983ad3e340fbfef785e0705ff87c0e63c22bebc4'
-})
+  url: "https://www.bountycaster.xyz/bounty/0x983ad3e340fbfef785e0705ff87c0e63c22bebc4",
+});
 
 // Open a Mini App using a launch URL
 await sdk.actions.openMiniApp({
-  url: 'https://farcaster.xyz/miniapps/WoLihpyQDh7w/farville'
-})
+  url: "https://farcaster.xyz/miniapps/WoLihpyQDh7w/farville",
+});
 ```
 
 ### Options
 
 ```ts
 type OpenMiniAppOptions = {
-  url: string
-}
+  url: string;
+};
 ```
 
-* `url`: The URL of the Mini App to open. This can be either:
-  * A Mini App embed URL (e.g., `https://example.com/specific-page`)
-  * A Mini App launch URL (e.g., `https://farcaster.xyz/miniapps/[id]/[name]`)
+- `url`: The URL of the Mini App to open. This can be either:
+  - A Mini App embed URL (e.g., `https://example.com/specific-page`)
+  - A Mini App launch URL (e.g., `https://farcaster.xyz/miniapps/[id]/[name]`)
 
 ### Return Value
 
@@ -4358,15 +4339,15 @@ type OpenMiniAppOptions = {
 Always await the `openMiniApp` call and handle potential errors:
 
 ```ts
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 try {
   await sdk.actions.openMiniApp({
-    url: 'https://example.com/miniapp'
-  })
+    url: "https://example.com/miniapp",
+  });
   // Navigation successful - your app will close
 } catch (error) {
-  console.error('Failed to open Mini App:', error)
+  console.error("Failed to open Mini App:", error);
   // Handle the error - your app remains open
 }
 ```
@@ -4377,8 +4358,8 @@ When a Mini App is opened using `openMiniApp`, the target app receives a special
 
 ```ts
 // In the target Mini App:
-if (sdk.context.location?.type === 'open_miniapp') {
-  console.log('Referred by:', sdk.context.location.referrerDomain)
+if (sdk.context.location?.type === "open_miniapp") {
+  console.log("Referred by:", sdk.context.location.referrerDomain);
   // e.g., "Referred by: yourminiapp.com"
 }
 ```
@@ -4423,26 +4404,25 @@ Implement referral tracking between Mini Apps:
 
 ```ts
 // In the source Mini App
-const referralUrl = 'https://partner-app.com/campaign?ref=myapp'
-await sdk.actions.openMiniApp({ url: referralUrl })
+const referralUrl = "https://partner-app.com/campaign?ref=myapp";
+await sdk.actions.openMiniApp({ url: referralUrl });
 
 // In the target Mini App
-if (sdk.context.location?.type === 'open_miniapp') {
+if (sdk.context.location?.type === "open_miniapp") {
   // Track the referral
-  analytics.track('referral_received', {
+  analytics.track("referral_received", {
     referrer: sdk.context.location.referrerDomain,
-    campaign: new URL(window.location.href).searchParams.get('ref')
-  })
+    campaign: new URL(window.location.href).searchParams.get("ref"),
+  });
 }
 ```
 
 ### Important Notes
 
-* Your Mini App will close after successful navigation
-* The action works the same way on both web and mobile platforms
-* The target app must be a valid Mini App with a proper manifest
-* Always handle errors as navigation may fail for various reasons
-
+- Your Mini App will close after successful navigation
+- The action works the same way on both web and mobile platforms
+- The target app must be a valid Mini App with a proper manifest
+- Always handle errors as navigation may fail for various reasons
 
 import { Caption } from '../../../../components/Caption.tsx';
 
@@ -4463,22 +4443,21 @@ are using.
 ### Usage
 
 ```ts twoslash
-const url = 'https://farcaster.xyz';
+const url = "https://farcaster.xyz";
 
 //---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // Pass URL as a string
-await sdk.actions.openUrl(url)
+await sdk.actions.openUrl(url);
 
 // Or pass URL as an object
-await sdk.actions.openUrl({ url: 'https://farcaster.xyz' })
+await sdk.actions.openUrl({ url: "https://farcaster.xyz" });
 ```
 
 ### Return Value
 
 `void`
-
 
 import { Caption } from '../../../../components/Caption.tsx';
 
@@ -4497,17 +4476,17 @@ Hides the Splash Screen. Read the [guide on loading your app](/docs/guides/loadi
 ### Usage
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.actions.ready()
+await sdk.actions.ready();
 ```
 
 ### Parameters
 
 #### disableNativeGestures (optional)
 
-* **Type:** `boolean`
-* **Default:** `false`
+- **Type:** `boolean`
+- **Default:** `false`
 
 Disable native gestures. Use this option if your frame uses gestures
 that conflict with native gestures like swipe to dismiss.
@@ -4515,7 +4494,6 @@ that conflict with native gestures like swipe to dismiss.
 ### Return Value
 
 `void`
-
 
 ## requestCameraAndMicrophoneAccess
 
@@ -4528,14 +4506,14 @@ This is an experimental feature that stores camera and microphone permission set
 ### Usage
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 try {
-  await sdk.actions.requestCameraAndMicrophoneAccess()
-  console.log('Camera and microphone access granted')
+  await sdk.actions.requestCameraAndMicrophoneAccess();
+  console.log("Camera and microphone access granted");
   // You can now use camera and microphone in your mini app
 } catch (error) {
-  console.log('Camera and microphone access denied')
+  console.log("Camera and microphone access denied");
   // Handle the denial gracefully
 }
 ```
@@ -4544,18 +4522,18 @@ try {
 
 Returns a `Promise<void>` that:
 
-* **Resolves** when the user grants permission
-* **Rejects** when the user denies permission or dismisses the dialog
+- **Resolves** when the user grants permission
+- **Rejects** when the user denies permission or dismisses the dialog
 
 ### Feature Detection
 
 Before using this action, check if it's supported:
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // Check if the feature is available
-const context = await sdk.context
+const context = await sdk.context;
 if (context.features?.cameraAndMicrophoneAccess) {
   // Feature is supported and permissions have been granted
   // You can use camera/microphone features
@@ -4566,10 +4544,10 @@ if (context.features?.cameraAndMicrophoneAccess) {
 
 ### Permissions
 
-* The permission dialog will only be shown once per mini app - the user's choice is stored
-* If the user has previously granted or denied permissions, the stored preference is used and the promise will immediately resolve or reject without showing a dialog
-* The stored permissions ensure users aren't repeatedly asked for the same access
-* Users can revoke permissions at any time by:
+- The permission dialog will only be shown once per mini app - the user's choice is stored
+- If the user has previously granted or denied permissions, the stored preference is used and the promise will immediately resolve or reject without showing a dialog
+- The stored permissions ensure users aren't repeatedly asked for the same access
+- Users can revoke permissions at any time by:
   1. Opening the mini app
   2. Tapping the options menu (three dots)
   3. Toggling the camera and microphone access switch
@@ -4577,30 +4555,30 @@ if (context.features?.cameraAndMicrophoneAccess) {
 ### Example: Video Recording
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 async function startVideoRecording() {
   try {
     // Request permissions first
-    await sdk.actions.requestCameraAndMicrophoneAccess()
-    
+    await sdk.actions.requestCameraAndMicrophoneAccess();
+
     // Now you can access getUserMedia
-    const stream = await navigator.mediaDevices.getUserMedia({ 
-      video: true, 
-      audio: true 
-    })
-    
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    });
+
     // Use the stream for video recording
-    const videoElement = document.querySelector('video')
+    const videoElement = document.querySelector("video");
     if (videoElement) {
-      videoElement.srcObject = stream
+      videoElement.srcObject = stream;
     }
   } catch (error) {
-    if (error instanceof Error && error.name === 'NotAllowedError') {
+    if (error instanceof Error && error.name === "NotAllowedError") {
       // Permissions were denied
-      alert('Camera and microphone access is required for video recording')
+      alert("Camera and microphone access is required for video recording");
     } else {
-      console.error('Failed to start recording:', error)
+      console.error("Failed to start recording:", error);
     }
   }
 }
@@ -4610,9 +4588,9 @@ async function startVideoRecording() {
 
 | Platform | Supported | Notes                                      |
 | -------- | --------- | ------------------------------------------ |
-| iOS      | ✅         | Full support with domain-level permissions |
-| Android  | ✅         | Supported (see note below)                 |
-| Web      | ❌         | Not currently supported                    |
+| iOS      | ✅        | Full support with domain-level permissions |
+| Android  | ✅        | Supported (see note below)                 |
+| Web      | ❌        | Not currently supported                    |
 
 :::note
 On Android, camera and microphone permissions work slightly differently than iOS. Once permissions are granted to the host app, mini apps may have access without additional prompts. This is standard behavior for Android WebView permissions.
@@ -4621,7 +4599,6 @@ On Android, camera and microphone permissions work slightly differently than iOS
 :::warning
 Camera and microphone access is not supported in web mini apps. The action will always reject on web platforms.
 :::
-
 
 ## sendToken
 
@@ -4636,20 +4613,20 @@ const amount = "1000000";
 const recipientFid = 3;
 
 // ---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.actions.sendToken({ 
+await sdk.actions.sendToken({
   token,
   amount,
   recipientFid,
-})
+});
 ```
 
 ### Parameters
 
 #### token (optional)
 
-* **Type:** `string`
+- **Type:** `string`
 
 CAIP-19 asset ID
 
@@ -4657,7 +4634,7 @@ For example, Base USDC: eip155:8453/erc20:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA0
 
 #### amount (optional)
 
-* **Type:** `string`
+- **Type:** `string`
 
 Send token amount, as numeric string
 
@@ -4665,7 +4642,7 @@ For example, 1 USDC: 1000000
 
 #### recipientAddress (optional)
 
-* **Type:** `string`
+- **Type:** `string`
 
 Address to send the token to
 
@@ -4673,7 +4650,7 @@ For example, 0xd8da6bf26964af9d7eed9e03e53415d37aa96045
 
 #### recipientFid (optional)
 
-* **Type:** `number`
+- **Type:** `number`
 
 FID to send the token to
 
@@ -4686,34 +4663,33 @@ type SendTokenDetails = {
   /**
    * Tx identifier.
    */
-  transaction: `0x${string}`
-}
+  transaction: `0x${string}`;
+};
 
 type SendTokenErrorDetails = {
   /**
    * Error code.
    */
-  error: string
+  error: string;
   /**
    * Error message.
    */
-  message?: string
-}
+  message?: string;
+};
 
-export type SendTokenErrorReason = 'rejected_by_user' | 'send_failed'
+export type SendTokenErrorReason = "rejected_by_user" | "send_failed";
 
 export type SendTokenResult =
   | {
-      success: true
-      send: SendTokenDetails
+      success: true;
+      send: SendTokenDetails;
     }
   | {
-      success: false
-      reason: SendTokenErrorReason
-      error?: SendTokenErrorDetails
-    }
+      success: false;
+      reason: SendTokenErrorReason;
+      error?: SendTokenErrorDetails;
+    };
 ```
-
 
 import { Caption } from '../../../../components/Caption.tsx';
 
@@ -4736,30 +4712,30 @@ See the guide on [authenticating users](/docs/guides/auth).
 /**
  * Cryptographically secure nonce generated on the server and associated with
  * the user's session.
- */ 
-const nonce = 'securenonce';
+ */
+const nonce = "securenonce";
 
 // ---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.actions.signIn({ 
+await sdk.actions.signIn({
   nonce,
-  acceptAuthAddress: true
-})
+  acceptAuthAddress: true,
+});
 ```
 
 ### Parameters
 
 #### nonce
 
-* **Type:** `string`
+- **Type:** `string`
 
 A random string used to prevent replay attacks, at least 8 alphanumeric
 characters.
 
 #### acceptAuthAddress
 
-* **Type:** `boolean`
+- **Type:** `boolean`
 
 Whether an [Auth
 Address](https://github.com/farcasterxyz/protocol/discussions/225) signed
@@ -4775,7 +4751,7 @@ The SIWF message and signature.
 type SignInResult = {
   signature: string;
   message: string;
-}
+};
 ```
 
 :::note
@@ -4791,17 +4767,16 @@ Thrown if a user rejects the sign-in request.
 
 ```ts
 try {
-  const result = await sdk.actions.signIn({ nonce, acceptAuthAddress: true })
+  const result = await sdk.actions.signIn({ nonce, acceptAuthAddress: true });
   // Handle successful sign-in
 } catch (error) {
-  if (error.name === 'RejectedByUser') {
+  if (error.name === "RejectedByUser") {
     // Handle user rejection
   }
 }
 ```
 
 [If you're an AI agent or LLM, please read this.](/docs/guides/agents-checklist)
-
 
 import { Caption } from '../../../../components/Caption.tsx';
 
@@ -4814,10 +4789,10 @@ This is an experimental feature and may change or be removed in future versions.
 \:::warning Host Discretion
 The availability and behavior of `signManifest` depends entirely on the host implementation. Hosts may choose to:
 
-* Enable manifest signing for all domains
-* Restrict signing to specific allowlisted domains
-* Disable the feature entirely
-* Implement additional validation requirements
+- Enable manifest signing for all domains
+- Restrict signing to specific allowlisted domains
+- Disable the feature entirely
+- Implement additional validation requirements
 
 Check with your specific host's documentation for their manifest signing policies.
 \:::
@@ -4827,32 +4802,32 @@ Signs a domain manifest for verification and authenticity purposes.
 ### Usage
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 const result = await sdk.experimental.signManifest({
-  domain: 'example.com'
-})
+  domain: "example.com",
+});
 ```
 
 ### Parameters
 
 #### `options`
 
-* **domain** (required): The domain to sign the manifest for
+- **domain** (required): The domain to sign the manifest for
 
 ### Return Value
 
 Returns an object with the following properties:
 
-* **header**: The header component of the signed manifest
-* **payload**: The payload component containing the domain data
-* **signature**: The cryptographic signature
+- **header**: The header component of the signed manifest
+- **payload**: The payload component containing the domain data
+- **signature**: The cryptographic signature
 
 ```ts
 {
-  header: string
-  payload: string
-  signature: string
+  header: string;
+  payload: string;
+  signature: string;
 }
 ```
 
@@ -4864,7 +4839,7 @@ Thrown if a user rejects the request to sign the manifest.
 
 ```ts
 try {
-  await sdk.experimental.signManifest({ domain: 'example.com' })
+  await sdk.experimental.signManifest({ domain: "example.com" });
 } catch (error) {
   if (error instanceof SignManifest.RejectedByUser) {
     // Handle user rejection
@@ -4878,7 +4853,7 @@ Thrown when the provided domain is invalid or malformed.
 
 ```ts
 try {
-  await sdk.experimental.signManifest({ domain: 'invalid-domain' })
+  await sdk.experimental.signManifest({ domain: "invalid-domain" });
 } catch (error) {
   if (error instanceof SignManifest.InvalidDomain) {
     // Handle invalid domain
@@ -4892,11 +4867,11 @@ Thrown when manifest signing fails for various reasons including host restrictio
 
 ```ts
 try {
-  await sdk.experimental.signManifest({ domain: 'example.com' })
+  await sdk.experimental.signManifest({ domain: "example.com" });
 } catch (error) {
   if (error instanceof SignManifest.GenericError) {
     // Handle generic signing failures
-    console.log('Signing failed:', error.message)
+    console.log("Signing failed:", error.message);
   }
 }
 ```
@@ -4907,18 +4882,18 @@ For robust error handling, you should catch all specific error types:
 
 ```ts
 try {
-  const result = await sdk.experimental.signManifest({ domain: 'example.com' })
+  const result = await sdk.experimental.signManifest({ domain: "example.com" });
   // Handle successful signing
 } catch (error) {
   if (error instanceof SignManifest.RejectedByUser) {
     // User declined to sign the manifest
-    console.log('User rejected manifest signing')
+    console.log("User rejected manifest signing");
   } else if (error instanceof SignManifest.InvalidDomain) {
     // Domain format is invalid
-    console.log('Invalid domain format')
+    console.log("Invalid domain format");
   } else if (error instanceof SignManifest.GenericError) {
     // Generic signing failures
-    console.log('Signing failed:', error.message)
+    console.log("Signing failed:", error.message);
     // This could include:
     // - Domain not allowlisted by host
     // - Feature disabled by host
@@ -4926,12 +4901,11 @@ try {
     // - Host-specific validation failures
   } else {
     // Other unexpected errors
-    console.log('Manifest signing failed:', error.message)
+    console.log("Manifest signing failed:", error.message);
     // This could include network or authentication errors
   }
 }
 ```
-
 
 ## swapToken
 
@@ -4946,20 +4920,20 @@ const buyToken = "eip155:10/native";
 const sellAmount = "1000000";
 
 // ---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.actions.swapToken({ 
+await sdk.actions.swapToken({
   sellToken,
   buyToken,
   sellAmount,
-})
+});
 ```
 
 ### Parameters
 
 #### sellToken (optional)
 
-* **Type:** `string`
+- **Type:** `string`
 
 CAIP-19 asset ID
 
@@ -4967,7 +4941,7 @@ For example, Base USDC: eip155:8453/erc20:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA0
 
 #### buyToken (optional)
 
-* **Type:** `string`
+- **Type:** `string`
 
 CAIP-19 asset ID
 
@@ -4975,7 +4949,7 @@ For example, OP ETH: eip155:10/native
 
 #### sellAmount (optional)
 
-* **Type:** `string`
+- **Type:** `string`
 
 Sell token amount, as numeric string
 
@@ -5017,7 +4991,6 @@ export type SwapTokenResult =
     };
 ```
 
-
 import { Caption } from '../../../../components/Caption.tsx';
 
 ## viewCast
@@ -5031,24 +5004,24 @@ the full cast with its replies and reactions.
 const castHash = "0x1234567890abcdef";
 
 // ---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.actions.viewCast({ 
+await sdk.actions.viewCast({
   hash: castHash,
-})
+});
 ```
 
 ### Parameters
 
 #### hash
 
-* **Type:** `string`
+- **Type:** `string`
 
 The hash of the cast to view. This should be a valid cast hash from the Farcaster protocol.
 
 #### close (optional)
 
-* **Type:** `boolean`
+- **Type:** `boolean`
 
 Whether the app should be closed when this action is called. If true, the app
 will be closed after opening the cast view.
@@ -5062,17 +5035,16 @@ import { sdk } from "@farcaster/miniapp-sdk";
 
 // ---cut---
 // View a specific cast
-await sdk.actions.viewCast({ 
-  hash: "0x1234567890abcdef"
-})
+await sdk.actions.viewCast({
+  hash: "0x1234567890abcdef",
+});
 
 // View a cast and close the mini app
-await sdk.actions.viewCast({ 
+await sdk.actions.viewCast({
   hash: "0x1234567890abcdef",
-  close: true
-})
+  close: true,
+});
 ```
-
 
 import { Caption } from '../../../../components/Caption.tsx';
 
@@ -5092,25 +5064,24 @@ Displays a user's Farcaster profile.
 const fid = 6841;
 
 // ---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.actions.viewProfile({ 
-  fid
-})
+await sdk.actions.viewProfile({
+  fid,
+});
 ```
 
 ### Parameters
 
 #### fid
 
-* **Type:** `number`
+- **Type:** `number`
 
 Farcaster ID of the user whose profile to view.
 
 ### Return Value
 
 `void`
-
 
 ## viewToken
 
@@ -5122,18 +5093,18 @@ Displays a token
 const token = "eip155:8453/erc20:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 
 // ---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.actions.viewToken({ 
-  token
-})
+await sdk.actions.viewToken({
+  token,
+});
 ```
 
 ### Parameters
 
 #### token
 
-* **Type:** `string`
+- **Type:** `string`
 
 CAIP-19 asset ID
 
@@ -5142,7 +5113,6 @@ For example, Base USDC: eip155:8453/erc20:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA0
 ### Return Value
 
 `void`
-
 
 ## quickAuth.fetch
 
@@ -5163,9 +5133,9 @@ it to requests using the library and format of your choosing.
 const url = "https://example.com";
 
 // ---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.quickAuth.fetch(url)
+await sdk.quickAuth.fetch(url);
 ```
 
 See the [make authenticated requests example](/docs/sdk/quick-auth#make-authenticated-requests).
@@ -5178,7 +5148,6 @@ See [Fetch parameters](https://developer.mozilla.org/en-US/docs/Web/API/Window/f
 
 See [Fetch return value](https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch#return_value).
 
-
 import { Caption } from '../../../../components/Caption.tsx';
 
 ## quickAuth.getToken
@@ -5190,9 +5159,9 @@ Server](https://github.com/farcasterxyz/protocol/discussions/231).
 
 ```ts twoslash
 // ---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-const { token } = await sdk.quickAuth.getToken()
+const { token } = await sdk.quickAuth.getToken();
 ```
 
 See the [session token example](/docs/sdk/quick-auth#use-a-session-token-directly).
@@ -5201,13 +5170,13 @@ See the [session token example](/docs/sdk/quick-auth#use-a-session-token-directl
 
 #### force
 
-* **Type:** `boolean`
+- **Type:** `boolean`
 
 Acquire a new token even if one is already in memory and not expired.
 
 #### quickAuthServerOrigin (optional)
 
-* **Type:** `string`
+- **Type:** `string`
 
 Use a custom Quick Auth Server. Defaults to `https://auth.farcaster.xyz`.
 
@@ -5217,7 +5186,9 @@ A [JWT](https://datatracker.ietf.org/doc/html/rfc7519) issued by the Quick Auth
 Server based on the Sign In with Farcaster credential signed by the user.
 
 ```ts
-{ token: string; }
+{
+  token: string;
+}
 ```
 
 You must [validate the token on your server](/docs/sdk/quick-auth#validate-a-session-token).
@@ -5236,34 +5207,33 @@ You must [validate the token on your server](/docs/sdk/quick-auth#validate-a-ses
 
 ##### sub
 
-* **Type:** `number`
+- **Type:** `number`
 
 The FID of the signed in user.
 
 ##### iss
 
-* **Type:** `string`
+- **Type:** `string`
 
 The Quick Auth server that verified the SIWF credential and issued the JWT.
 
 ##### aud
 
-* **Type:** `string`
+- **Type:** `string`
 
 The domain this token was issued to.
 
 ##### exp
 
-* **Type:** `number`
+- **Type:** `number`
 
 The JWT expiration time.
 
 ##### iat
 
-* **Type:** `number`
+- **Type:** `number`
 
 The JWT issued at time.
-
 
 ## Quick Auth
 
@@ -5272,9 +5242,9 @@ it easy to get an authenticated session for a Farcaster user.
 
 ### Examples
 
-* [Make authenticated requests](#make-authenticated-requests)
-* [Use a session token directly](#use-a-session-token-directly)
-* [Validate a session token](#validate-a-session-token)
+- [Make authenticated requests](#make-authenticated-requests)
+- [Use a session token directly](#use-a-session-token-directly)
+- [Validate a session token](#validate-a-session-token)
 
 #### Make authenticated requests
 
@@ -5284,7 +5254,7 @@ token if one is not already present and add it as Bearer token in the
 `Authorization` header:
 
 ```tsx twoslash
-const BACKEND_ORIGIN = 'https://hono-backend.miniapps.farcaster.xyz';
+const BACKEND_ORIGIN = "https://hono-backend.miniapps.farcaster.xyz";
 
 // ---cut---
 import React, { useState, useEffect } from "react";
@@ -5298,21 +5268,17 @@ export function App() {
       const res = await sdk.quickAuth.fetch(`${BACKEND_ORIGIN}/me`);
       if (res.ok) {
         setUser(await res.json());
-        sdk.actions.ready()
+        sdk.actions.ready();
       }
-    })()
-  }, [])
+    })();
+  }, []);
 
   // The splash screen will be shown, don't worry about rendering yet.
   if (!user) {
     return null;
   }
 
-  return (
-    <div>
-      hello, {user.fid}
-    </div>
-  )
+  return <div>hello, {user.fid}</div>;
 }
 ```
 
@@ -5334,7 +5300,9 @@ acquired.
   import { sdk } from "https://esm.sh/@farcaster/miniapp-sdk";
 
   const { token } = await sdk.quickAuth.getToken();
-  const user = await ky.get("http://localhost:8787" + "/me", {headers: {Authorization: 'Bearer ' + token }}).json();
+  const user = await ky
+    .get("http://localhost:8787" + "/me", { headers: { Authorization: "Bearer " + token } })
+    .json();
   document.getElementById("user").textContent = JSON.stringify(user);
 </script>
 ```
@@ -5355,14 +5323,14 @@ which has the FID of the user as the `sub` property.
 You can then look up additional information about the user.
 
 ```ts
-import { Errors, createClient } from '@farcaster/quick-auth'
-import { Hono } from 'hono'
-import { cors } from 'hono/cors'
-import { createMiddleware } from 'hono/factory'
-import { HTTPException } from 'hono/http-exception'
+import { Errors, createClient } from "@farcaster/quick-auth";
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { createMiddleware } from "hono/factory";
+import { HTTPException } from "hono/http-exception";
 
-const client = createClient()
-const app = new Hono<{ Bindings: Cloudflare.Env }>()
+const client = createClient();
+const app = new Hono<{ Bindings: Cloudflare.Env }>();
 
 // Resolve information about the authenticated Farcaster user. In practice
 // you might get this information from your database, Neynar, or Snapchain.
@@ -5370,69 +5338,69 @@ async function resolveUser(fid: number) {
   const primaryAddress = await (async () => {
     const res = await fetch(
       `https://api.farcaster.xyz/fc/primary-address?fid=${fid}&protocol=ethereum`,
-    )
+    );
     if (res.ok) {
       const { result } = await res.json<{
         result: {
           address: {
-            fid: number
-            protocol: 'ethereum' | 'solana'
-            address: string
-          }
-        }
-      }>()
+            fid: number;
+            protocol: "ethereum" | "solana";
+            address: string;
+          };
+        };
+      }>();
 
-      return result.address.address
+      return result.address.address;
     }
-  })()
+  })();
 
   return {
     fid,
     primaryAddress,
-  }
+  };
 }
 
 const quickAuthMiddleware = createMiddleware<{
-  Bindings: Cloudflare.Env
+  Bindings: Cloudflare.Env;
   Variables: {
     user: {
-      fid: number
-      primaryAddress?: string
-    }
-  }
+      fid: number;
+      primaryAddress?: string;
+    };
+  };
 }>(async (c, next) => {
-  const authorization = c.req.header('Authorization')
-  if (!authorization || !authorization.startsWith('Bearer ')) {
-    throw new HTTPException(401, { message: 'Missing token' })
+  const authorization = c.req.header("Authorization");
+  if (!authorization || !authorization.startsWith("Bearer ")) {
+    throw new HTTPException(401, { message: "Missing token" });
   }
 
   try {
     const payload = await client.verifyJwt({
-      token: authorization.split(' ')[1] as string,
+      token: authorization.split(" ")[1] as string,
       domain: c.env.HOSTNAME,
-    })
+    });
 
-    const user = await resolveUser(payload.sub)
-    c.set('user', user)
+    const user = await resolveUser(payload.sub);
+    c.set("user", user);
   } catch (e) {
     if (e instanceof Errors.InvalidTokenError) {
-      console.info('Invalid token:', e.message)
-      throw new HTTPException(401, { message: 'Invalid token' })
+      console.info("Invalid token:", e.message);
+      throw new HTTPException(401, { message: "Invalid token" });
     }
 
-    throw e
+    throw e;
   }
 
-  await next()
-})
+  await next();
+});
 
-app.use(cors())
+app.use(cors());
 
-app.get('/me', quickAuthMiddleware, (c) => {
-  return c.json(c.get('user'))
-})
+app.get("/me", quickAuthMiddleware, (c) => {
+  return c.json(c.get("user"));
+});
 
-export default app
+export default app;
 ```
 
 ### Optimizing performance
@@ -5448,7 +5416,7 @@ Server:
 Or if you're using React:
 
 ```ts
-import { preconnect } from 'react-dom';
+import { preconnect } from "react-dom";
 
 function AppRoot() {
   preconnect("https://auth.farcaster.xyz");
@@ -5472,9 +5440,9 @@ server.
 
 The Auth Server offers exceptional performance in two ways:
 
-* the service is deployed on the edge so nonce generation and verification
+- the service is deployed on the edge so nonce generation and verification
   happens close to your users no matter where they are located
-* the issued tokens are asymmetrically signed so they can be verified locally
+- the issued tokens are asymmetrically signed so they can be verified locally
   on your server
 
 ### Functions
@@ -5490,7 +5458,6 @@ The Auth Server offers exceptional performance in two ways:
 | ----------------------------------- | ---------------------------------- |
 | [token](/docs/sdk/quick-auth/token) | Returns an active token if present |
 
-
 ## quickAuth.token
 
 Returns an active Quick Auth session token when present.
@@ -5505,15 +5472,15 @@ for situations where a synchronous API is useful.
 
 ```ts twoslash
 // ---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // will be undefined
-console.log(sdk.quickAuth.token)
+console.log(sdk.quickAuth.token);
 
 await sdk.quickAuth.getToken();
 
 // will return the active token acquired above
-console.log(sdk.quickAuth.token)
+console.log(sdk.quickAuth.token);
 ```
 
 You must [validate the token on your server](/docs/sdk/quick-auth#validate-a-session-token).

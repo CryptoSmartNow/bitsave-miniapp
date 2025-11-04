@@ -34,7 +34,7 @@ export default function Hero() {
 
     // Prefetch dashboard route for faster navigation
     if (isConnected) {
-      router.prefetch('/dashboard');
+      router.prefetch("/dashboard");
     }
   }, [isConnected, router]);
 
@@ -43,11 +43,11 @@ export default function Hero() {
     if (isConnected) {
       console.log("Navigating to dashboard...");
       setIsNavigating(true);
-      
+
       try {
         // Navigate immediately without delay
         router.push("/dashboard");
-        
+
         // Reset navigation state after a short delay
         setTimeout(() => setIsNavigating(false), 1000);
       } catch (error) {
@@ -263,7 +263,7 @@ export default function Hero() {
                 Watch Demo
               </button>
 
-              <ShareMiniApp 
+              <ShareMiniApp
                 variant="secondary"
                 size="lg"
                 customMessage="🚀 Just discovered BitSave - the smartest way to save crypto without losing to market volatility! Check it out 👇"

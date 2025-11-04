@@ -25,6 +25,7 @@ BitSave is a **Farcaster MiniApp** — a web application that runs natively with
 ## 🔗 Supported Networks & Assets
 
 ### Base Network (Ethereum L2)
+
 - **Chain ID**: 8453
 - **Primary Token**: USDC (0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913)
 - **Contract Address**: `0x3593546078eecd0ffd1c19317f53ee565be6ca13`
@@ -32,6 +33,7 @@ BitSave is a **Farcaster MiniApp** — a web application that runs natively with
 - **Explorer**: [BaseScan](https://basescan.org/)
 
 ### Celo Network
+
 - **Chain ID**: 42220
 - **Supported Tokens**:
   - **cUSD** (0x765de816845861e75a25fca122bb6898b8b1282a): Celo Dollar
@@ -45,6 +47,7 @@ BitSave is a **Farcaster MiniApp** — a web application that runs natively with
 ## 🚀 Core Features
 
 ### 🏦 Savings Vault Creation
+
 - **Custom Naming**: Personalize your savings goals
 - **Multi-Network Support**: Choose between Base and Celo networks
 - **Flexible Deposits**: Start with any amount (including $0)
@@ -52,37 +55,44 @@ BitSave is a **Farcaster MiniApp** — a web application that runs natively with
 - **Asset Selection**: Support for USDC, cUSD, USDGLO, and more
 
 ### 💸 Smart Top-Up System
+
 - **Manual Deposits**: Add funds to your vault anytime
 - **Earnings Detection**: Automatic monitoring of wallet activity
 - **Smart Suggestions**: AI-powered recommendations based on earning patterns
 - **Batch Operations**: Efficiently manage multiple savings plans
 
 ### 🔔 Intelligent Notifications
+
 - **Wallet Activity Monitoring**: Track incoming payments and earnings
 - **Contextual Prompts**: _"You earned $50 this week. Save 30% in your Emergency Fund?"_
 - **Customizable Alerts**: Control notification frequency and types
 - **Social Integration**: Option to share savings milestones
 
 ### 📢 Social Sharing
+
 - **Cast Integration**: Share savings achievements as Farcaster casts
 - **Achievement Badges**: Unlock and display saving milestones
 - **Community Features**: Connect with other savers in your network
 - **Referral System**: Earn rewards for bringing friends to BitSave
 
 ### 🥇 Leaderboard & Gamification
+
 Track and compete with the community across multiple metrics:
+
 - **Total Saved**: Lifetime savings across all vaults
 - **Yield Earned**: Total returns generated
 - **Vault Count**: Number of active savings plans
 - **Consistency Score**: Regularity of saving habits
 
 **Filter Options**:
+
 - All users (global leaderboard)
 - Friends only (social network)
 - Network-specific (Base vs Celo)
 - Time-based (weekly, monthly, all-time)
 
 ### ⚙️ Advanced Settings
+
 - **Notification Controls**: Fine-tune alert preferences
 - **Auto-Save** (Coming Soon): Automated percentage-based saving
 - **Privacy Settings**: Control sharing and leaderboard visibility
@@ -93,6 +103,7 @@ Track and compete with the community across multiple metrics:
 ## 🏗️ Technology Stack
 
 ### Frontend Architecture
+
 - **Framework**: [Next.js 15](https://nextjs.org/) with React 19
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/) with custom design system
 - **Typography**: Space Grotesk font family
@@ -100,20 +111,23 @@ Track and compete with the community across multiple metrics:
 - **State Management**: React Query + Wagmi for blockchain state
 
 ### Blockchain Integration
+
 - **Wallet Connection**: [Wagmi](https://wagmi.sh/) + Farcaster MiniApp Connector
 - **Smart Contracts**: Solidity contracts deployed on Base and Celo
-- **Web3 Libraries**: 
+- **Web3 Libraries**:
   - [Ethers.js](https://docs.ethers.org/) for contract interactions
   - [Viem](https://viem.sh/) for typed blockchain operations
 - **Chain Support**: Multi-chain architecture with network switching
 
 ### Farcaster Integration
+
 - **SDK**: [@farcaster/miniapp-sdk](https://miniapps.farcaster.xyz/) v0.1.9
 - **Authentication**: [@farcaster/auth-kit](https://docs.farcaster.xyz/auth-kit/) for Sign-in with Farcaster
 - **Social Data**: [Neynar](https://neynar.com/) SDK for Farcaster data access
 - **Wagmi Connector**: [@farcaster/miniapp-wagmi-connector](https://github.com/farcasterxyz/miniapps) for wallet integration
 
 ### Backend & Data
+
 - **Database**: [MongoDB](https://www.mongodb.com/) with Mongoose ODM
 - **API Routes**: Next.js API routes for server-side logic
 - **External APIs**:
@@ -122,6 +136,7 @@ Track and compete with the community across multiple metrics:
   - **Notifications**: Webhook-based alert system
 
 ### Development Tools
+
 - **Package Manager**: PNPM for efficient dependency management
 - **TypeScript**: Full type safety across the application
 - **Linting**: ESLint with Next.js configuration
@@ -133,6 +148,7 @@ Track and compete with the community across multiple metrics:
 ## 🔧 Local Development
 
 ### Prerequisites
+
 - **Node.js**: v18+ (recommended: v20+)
 - **PNPM**: v8+ (or npm/yarn)
 - **MongoDB**: Local instance or MongoDB Atlas
@@ -208,39 +224,43 @@ pnpm ci           # Run CI checks (format + build)
 ## 📱 How It Works
 
 ### 1. **Vault Creation Flow**
+
 ```
-User connects Farcaster wallet → 
-Selects network (Base/Celo) → 
-Chooses token (USDC/cUSD/USDGLO) → 
-Sets savings goal and duration → 
-Contract deployment → 
+User connects Farcaster wallet →
+Selects network (Base/Celo) →
+Chooses token (USDC/cUSD/USDGLO) →
+Sets savings goal and duration →
+Contract deployment →
 Vault ready for deposits
 ```
 
 ### 2. **Earning Detection**
+
 ```
-Webhook monitors wallet → 
-Detects incoming transactions → 
-Calculates earning patterns → 
-Triggers smart suggestions → 
+Webhook monitors wallet →
+Detects incoming transactions →
+Calculates earning patterns →
+Triggers smart suggestions →
 User can save percentage of earnings
 ```
 
 ### 3. **Yield Generation**
+
 ```
-User deposits funds → 
-Smart contract allocates to yield strategies → 
-Interest compounds automatically → 
-User can withdraw principal + yield → 
+User deposits funds →
+Smart contract allocates to yield strategies →
+Interest compounds automatically →
+User can withdraw principal + yield →
 Penalty applied for early withdrawal (if set)
 ```
 
 ### 4. **Social Integration**
+
 ```
-User achieves savings milestone → 
-Option to cast achievement → 
-Appears in Farcaster feed → 
-Friends can interact and be inspired → 
+User achieves savings milestone →
+Option to cast achievement →
+Appears in Farcaster feed →
+Friends can interact and be inspired →
 Referral rewards distributed
 ```
 
@@ -249,12 +269,14 @@ Referral rewards distributed
 ## 🛡️ Security & Audits
 
 ### Smart Contract Security
+
 - **Audited Contracts**: All vault contracts undergo security audits
 - **Time Locks**: Critical functions protected by time delays
 - **Multi-Signature**: Administrative functions require multiple signatures
 - **Upgradeable Contracts**: Proxy pattern for secure upgrades
 
 ### Data Protection
+
 - **No Private Keys**: All wallet operations through Farcaster's secure infrastructure
 - **Encrypted Storage**: Sensitive user data encrypted at rest
 - **HTTPS Only**: All communications secured with TLS
@@ -265,6 +287,7 @@ Referral rewards distributed
 We welcome contributions to BitSave! Here's how you can help:
 
 ### Development
+
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
@@ -272,12 +295,14 @@ We welcome contributions to BitSave! Here's how you can help:
 5. Submit a pull request
 
 ### Bug Reports
+
 - Use GitHub Issues for bug reports
 - Include reproduction steps
 - Provide browser/device information
 - Include screenshots if relevant
 
 ### Feature Requests
+
 - Open a GitHub Issue with the "enhancement" label
 - Describe the use case and expected behavior
 - Include mockups or examples if helpful

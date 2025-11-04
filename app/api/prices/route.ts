@@ -22,11 +22,11 @@ async function fetchPriceFromCoinGecko(id: string, fallback: number): Promise<nu
       `https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd`,
       {
         headers: {
-          'Accept': 'application/json',
+          Accept: "application/json",
         },
         // Add timeout
         signal: AbortSignal.timeout(10000), // 10 second timeout
-      }
+      },
     );
 
     if (!res.ok) {
@@ -35,7 +35,7 @@ async function fetchPriceFromCoinGecko(id: string, fallback: number): Promise<nu
 
     const data = await res.json();
     const price = data[id]?.usd;
-    
+
     if (price && price > 0) {
       console.log(`Successfully fetched ${id} price: $${price}`);
       return price;
@@ -52,9 +52,9 @@ async function fetchPriceFromCoinGecko(id: string, fallback: number): Promise<nu
 async function getCachedPrice(tokenId: TokenId): Promise<number> {
   const cached = priceCache.get(tokenId);
   const now = Date.now();
-  
+
   // Check if we have cached data and it's less than 5 minutes old
-  if (cached && (now - cached.timestamp) < CACHE_DURATION) {
+  if (cached && now - cached.timestamp < CACHE_DURATION) {
     console.log(`Using cached price for ${tokenId}: $${cached.price}`);
     return cached.price;
   }
@@ -62,7 +62,7 @@ async function getCachedPrice(tokenId: TokenId): Promise<number> {
   // Fetch new price
   const fallback = DEFAULT_PRICES[tokenId];
   const newPrice = await fetchPriceFromCoinGecko(tokenId, fallback);
-  
+
   // Update cache
   priceCache.set(tokenId, {
     price: newPrice,
@@ -75,29 +75,29 @@ async function getCachedPrice(tokenId: TokenId): Promise<number> {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const tokens = searchParams.get('tokens');
+    const tokens = searchParams.get("tokens");
 
-    console.log('Price API called with tokens:', tokens);
+    console.log("Price API called with tokens:", tokens);
 
     if (!tokens) {
       return NextResponse.json(
-        { error: 'Missing tokens parameter. Use ?tokens=ethereum,celo,gooddollar' },
-        { status: 400 }
+        { error: "Missing tokens parameter. Use ?tokens=ethereum,celo,gooddollar" },
+        { status: 400 },
       );
     }
 
-    const tokenIds = tokens.split(',').map(token => token.trim()) as TokenId[];
-    
+    const tokenIds = tokens.split(",").map((token) => token.trim()) as TokenId[];
+
     // Validate token IDs
-    const validTokens = tokenIds.filter(token => token in DEFAULT_PRICES);
+    const validTokens = tokenIds.filter((token) => token in DEFAULT_PRICES);
     if (validTokens.length === 0) {
       return NextResponse.json(
-        { error: 'No valid tokens provided. Supported tokens: ethereum, celo, gooddollar' },
-        { status: 400 }
+        { error: "No valid tokens provided. Supported tokens: ethereum, celo, gooddollar" },
+        { status: 400 },
       );
     }
 
-    console.log('Valid tokens to fetch:', validTokens);
+    console.log("Valid tokens to fetch:", validTokens);
 
     // Fetch prices for all requested tokens in parallel
     const pricePromises = validTokens.map(async (tokenId) => {
@@ -108,17 +108,17 @@ export async function GET(request: NextRequest) {
     const priceResults = await Promise.all(pricePromises);
     const prices = Object.assign({}, ...priceResults);
 
-    console.log('Fetched prices:', prices);
+    console.log("Fetched prices:", prices);
 
     // Add cache info
     const cacheInfo = Object.fromEntries(
-      validTokens.map(token => {
+      validTokens.map((token) => {
         const cached = priceCache.get(token);
         return [
           `${token}_cache_age`,
-          cached ? Math.floor((Date.now() - cached.timestamp) / 1000) : 0
+          cached ? Math.floor((Date.now() - cached.timestamp) / 1000) : 0,
         ];
-      })
+      }),
     );
 
     return NextResponse.json(
@@ -130,20 +130,20 @@ export async function GET(request: NextRequest) {
       },
       {
         headers: {
-          'Cache-Control': 'public, max-age=300', // 5 minutes client cache
+          "Cache-Control": "public, max-age=300", // 5 minutes client cache
         },
-      }
+      },
     );
   } catch (error) {
-    console.error('Error in prices API:', error);
+    console.error("Error in prices API:", error);
     return NextResponse.json(
       {
-        error: 'Internal server error',
+        error: "Internal server error",
         success: false,
         prices: DEFAULT_PRICES, // Return defaults on error
         timestamp: new Date().toISOString(),
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

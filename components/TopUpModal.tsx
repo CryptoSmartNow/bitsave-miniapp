@@ -175,7 +175,7 @@ export default function TopUpModal({
       embeds: [embedUrl],
     });
   }
-  
+
   // Check balances when amount changes
   useEffect(() => {
     if (address && amount && parseFloat(amount) > 0 && isOpen) {

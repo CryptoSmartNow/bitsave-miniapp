@@ -7,13 +7,7 @@ class Alchemy {
     base: process.env.ALCHEMY_WALLET_ACTIVITY_WEBHOOK_ID_BASE!,
     celo: process.env.ALCHEMY_WALLET_ACTIVITY_WEBHOOK_ID_CELO!,
   };
-  SUPPORTED_TOKENS = [
-    'USDC',
-    'CUSD',
-    'cUSD',
-    'USDGLO',
-    '$G'
-  ]
+  SUPPORTED_TOKENS = ["USDC", "CUSD", "cUSD", "USDGLO", "$G"];
 
   constructor() {
     if (!this.API_TOKEN) {

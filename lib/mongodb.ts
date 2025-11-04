@@ -71,7 +71,7 @@ export class UserDatabase {
   async getUserByWallet(walletAddress: string): Promise<UserType | null> {
     try {
       await connectToDatabase();
-      return await User.findOne({ walletAddress: new RegExp(`^${walletAddress}$`, 'i') }).exec();
+      return await User.findOne({ walletAddress: new RegExp(`^${walletAddress}$`, "i") }).exec();
     } catch (error) {
       console.error("Error getting user by wallet address:", error);
       throw error;

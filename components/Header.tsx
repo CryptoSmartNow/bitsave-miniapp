@@ -168,7 +168,7 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center space-x-4">
-          <ShareMiniApp 
+          <ShareMiniApp
             variant="icon"
             customMessage="💎 Building my crypto wealth with BitSave - smart savings that protect against volatility while earning yield! 🔥"
             className="hidden sm:inline-flex"

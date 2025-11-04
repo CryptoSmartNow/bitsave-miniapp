@@ -127,7 +127,7 @@ export default function Footer() {
                   </a>
                 ))}
               </div>
-              <ShareMiniApp 
+              <ShareMiniApp
                 variant="minimal"
                 size="sm"
                 customText="Share App"

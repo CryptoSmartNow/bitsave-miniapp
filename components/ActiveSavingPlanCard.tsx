@@ -187,7 +187,7 @@ const ActiveSavingPlanCard = ({ plan, openTopUpModal, openWithdrawModal }: props
         const maturityTimestamp = Number(plan.maturityTime || 0);
         const maturityDate = new Date(maturityTimestamp * 1000);
         const isNotYetMatured = currentDate < maturityDate;
-        
+
         return isNotYetMatured ? (
           <div className="flex items-center gap-2 mb-2">
             <span
@@ -196,8 +196,8 @@ const ActiveSavingPlanCard = ({ plan, openTopUpModal, openWithdrawModal }: props
             >
               i
               <span className="absolute left-6 top-1/2 -translate-y-1/2 w-64 bg-white/90 text-[#163239] text-xs rounded-lg shadow-lg border border-[#81D7B4]/20 px-4 py-2 z-20 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-300 pointer-events-none">
-                Withdrawing before the set completion date will forfeit your $BTS rewards and incur a
-                penalty on your savings.
+                Withdrawing before the set completion date will forfeit your $BTS rewards and incur
+                a penalty on your savings.
               </span>
             </span>
             <span className="text-xs text-gray-500 font-medium">
