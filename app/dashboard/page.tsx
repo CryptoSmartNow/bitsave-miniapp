@@ -1150,13 +1150,13 @@ export default function Dashboard() {
             className={`px-3 md:px-4 py-2 font-medium text-xs md:text-sm ${activeTab === "ready" ? "text-[#81D7B4] border-b-2 border-[#81D7B4]" : "text-gray-500 hover:text-gray-700"}`}
             onClick={() => setActiveTab("ready")}
           >
-            Ready
+            Completed
           </button>
           <button
             className={`px-3 md:px-4 py-2 font-medium text-xs md:text-sm ${activeTab === "completed" ? "text-[#81D7B4] border-b-2 border-[#81D7B4]" : "text-gray-500 hover:text-gray-700"}`}
             onClick={() => setActiveTab("completed")}
           >
-            Completed
+            Withdrawn
           </button>
         </div>
 
