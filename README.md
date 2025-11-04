@@ -40,12 +40,6 @@ BitSave is a **Farcaster MiniApp** — a web application that runs natively with
 - **Gas Token**: CELO
 - **Explorer**: [Celoscan](https://celoscan.io/)
 
-### Yield Generation
-BitSave generates yield through:
-- **Compound Protocol**: Automated lending to earn interest
-- **Yield Farming**: Strategic allocation to high-yield opportunities
-- **Stablecoin Strategies**: Focus on stable, low-risk yield sources
-
 ---
 
 ## 🚀 Core Features
