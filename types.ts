@@ -2,14 +2,6 @@ import type { config } from "./app/providers";
 
 export type ChainId = (typeof config.chains)[number]["id"];
 
-export interface LeaderboardEntry {
-  useraddress: string;
-  totalamount: number;
-  chain: string;
-  datetime?: string;
-  rank?: number;
-}
-
 export interface Update {
   id: string;
   title: string;
