@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAccount, useSwitchChain, useChainId } from "wagmi";
+import { useAccount, useSwitchChain, useChainId, useConnect } from "wagmi";
 import { base, celo } from "viem/chains";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -10,7 +10,6 @@ import { Space_Grotesk } from "next/font/google";
 import TopUpModal from "../../components/TopUpModal";
 import WithdrawModal from "../../components/WithdrawModal";
 import ShareMiniApp from "../../components/ShareMiniApp";
-import axios from "axios";
 import sdk from "@farcaster/miniapp-sdk";
 import { getSaving, getUserChildContract, getUserVaultNames } from "@/lib/onchain";
 import { ethers } from "ethers";
@@ -20,7 +19,7 @@ import {
   CELO_TOKEN_MAP,
   SUPPORTED_CHAINS,
 } from "@/lib/constants";
-import type { LeaderboardEntry, Update, ReadUpdate, SavingsPlan } from "@/types";
+import type { Update, ReadUpdate, SavingsPlan } from "@/types";
 import { getChainLogo, getTokenLogo } from "@/lib/utils";
 import EmptyCompletedSavings from "../../components/EmptyCompletedSavings";
 import EmptyCurrentSavings from "../../components/EmptyCurrentSavings";
@@ -39,8 +38,7 @@ const spaceGrotesk = Space_Grotesk({
 
 export default function Dashboard() {
   const [mounted, setMounted] = useState(false);
-  const { address, isConnected, isConnecting } = useAccount();
-  const router = useRouter();
+  const { address, isConnected } = useAccount();
   const [activeTab, setActiveTab] = useState("current");
   const [topUpModal, setTopUpModal] = useState({
     isOpen: false,
@@ -74,6 +72,8 @@ export default function Dashboard() {
 
   // price provider
   const { celoPrice, ethPrice, goodDollarPrice } = usePrices();
+
+  console.log("hiiiiiiii");
 
   // automatically ask user to add miniapp and silently register wallet on connection
   useEffect(() => {
@@ -318,6 +318,7 @@ export default function Dashboard() {
   useEffect(() => {
     const readyMiniapp = async () => {
       await sdk.actions.ready();
+      console.log("Miniapp is ready");
       setMounted(true);
 
       // Start fetching data in background without blocking UI
@@ -693,69 +694,6 @@ export default function Dashboard() {
       fetchSavingsData();
     }, 2000);
   };
-
-  const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
-  const [isLeaderboardLoading, setIsLeaderboardLoading] = useState(true);
-
-  const fetchLeaderboardData = async () => {
-    setIsLeaderboardLoading(true);
-    try {
-      // Add timeout to prevent hanging
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
-
-      const response = await fetch("https://bitsaveapi.vercel.app/leaderboard", {
-        method: "GET",
-        headers: {
-          accept: "application/json",
-          "X-API-Key": process.env.NEXT_PUBLIC_API_KEY || "",
-        },
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch leaderboard data");
-      }
-
-      const data = (await response.json()) as LeaderboardEntry[];
-
-      const rankedData = data
-        .sort((a: LeaderboardEntry, b: LeaderboardEntry) => b.totalamount - a.totalamount)
-        .slice(0, 4)
-        .map((user: LeaderboardEntry, index: number) => ({
-          ...user,
-          rank: index + 1,
-          datetime: new Date().toISOString().split("T")[0],
-        }));
-
-      setLeaderboardData(rankedData);
-    } catch (error) {
-      if (error instanceof Error && error.name === "AbortError") {
-        console.log("Leaderboard fetch was aborted due to timeout");
-      } else {
-        console.error("Error fetching leaderboard data:", error);
-      }
-      setLeaderboardData([]);
-    } finally {
-      setIsLeaderboardLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (mounted) {
-      // Fetch leaderboard data in parallel
-      fetchLeaderboardData();
-    }
-  }, [mounted]);
-
-  // Go back home if the user is not connected
-  useEffect(() => {
-    if (mounted && !isConnecting && !isConnected) {
-      router.push("/");
-    }
-  }, [isConnected, isConnecting, mounted, router]);
 
   if (!mounted) {
     return (

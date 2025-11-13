@@ -326,11 +326,6 @@ export default function PlansPage() {
     <div
       className={`${spaceGrotesk.className} min-h-screen bg-gradient-to-b from-gray-50 to-gray-100`}
     >
-      {/* Decorative elements */}
-      <div className="fixed -top-40 -right-40 w-96 h-96 bg-[#81D7B4]/10 rounded-full blur-3xl"></div>
-      <div className="fixed -bottom-40 -left-40 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
-      <div className="fixed top-1/4 left-1/3 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl"></div>
-
       {/* Noise texture */}
       <div className="fixed inset-0 bg-[url('/noise.jpg')] opacity-[0.02] mix-blend-overlay pointer-events-none"></div>
 
