@@ -1,20 +1,22 @@
 "use client";
 
 import farcasterMiniApp from "@farcaster/miniapp-wagmi-connector";
-import { useConnect, useAccount } from "wagmi";
+import { useConnect, useAccount, injected } from "wagmi";
 import { useRouter } from "next/navigation";
+import { useMiniApp } from "@neynar/react";
 
 export default function CustomConnectButton() {
   const { connect } = useConnect();
   const { isConnected } = useAccount();
   const router = useRouter();
+  const { isInMiniApp } = useMiniApp();
 
-  function handleOpenApp() {
+  async function handleOpenApp() {
     if (isConnected) {
       // Open the dashboard
       router.push("/dashboard");
     } else {
-      connect({ connector: farcasterMiniApp() });
+      connect({ connector: (await isInMiniApp()) ? farcasterMiniApp() : injected() });
     }
   }
 
