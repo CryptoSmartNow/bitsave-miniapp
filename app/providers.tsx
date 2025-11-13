@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { WagmiProvider, createConfig, http, webSocket } from "wagmi";
+import { WagmiProvider, createConfig, http, injected, webSocket } from "wagmi";
 import { base, celo } from "wagmi/chains";
 import { farcasterFrame } from "@farcaster/miniapp-wagmi-connector";
 import { MiniAppProvider } from "@neynar/react";
@@ -17,7 +17,7 @@ export const config = createConfig({
     [base.id]: webSocket("wss://base.gateway.tenderly.co"),
     [celo.id]: webSocket("wss://celo.drpc.org"),
   },
-  connectors: [farcasterFrame()],
+  connectors: [farcasterFrame(), injected()],
 });
 
 config.connectors.forEach((connector) => {

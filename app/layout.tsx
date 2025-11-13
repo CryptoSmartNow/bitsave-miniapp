@@ -5,6 +5,7 @@ import { Providers } from "./providers";
 import ReferralTracker from "@/components/ReferralTracker";
 import { APP_NAME, APP_DESCRIPTION, APP_OG_IMAGE_URL } from "../lib/constants";
 import { getMiniAppEmbedMetadata } from "@/lib/utils";
+import NavigationLayout from "@/components/layout/Navigation";
 
 // Configure Space Grotesk font with all weights
 const spaceGrotesk = Space_Grotesk({
@@ -36,7 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${spaceGrotesk.className}`}>
         <Providers>
           <ReferralTracker />
-          {children}
+          <NavigationLayout>{children}</NavigationLayout>
         </Providers>
       </body>
     </html>
