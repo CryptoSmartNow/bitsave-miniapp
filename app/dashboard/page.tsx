@@ -566,7 +566,7 @@ export default function Dashboard() {
               const planData = {
                 id: savingName.trim(),
                 address: userChildContractAddress,
-                name: savingName.trim(),
+                name: savingName,
                 currentAmount: currentFormatted,
                 targetAmount: targetFormatted,
                 progress,
