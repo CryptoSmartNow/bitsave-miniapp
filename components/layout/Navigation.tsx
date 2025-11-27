@@ -154,7 +154,7 @@ export default function NavigationLayout({ children }: { children: React.ReactNo
             <span className="ml-3">My Plans</span>
           </Link>
 
-          <Link
+          {/* <Link
             href="/dashboard/activity"
             className={`flex items-center px-4 py-3 mb-2 rounded-lg mx-2 ${
               isActive("/dashboard/activity")
@@ -177,9 +177,9 @@ export default function NavigationLayout({ children }: { children: React.ReactNo
               />
             </svg>
             <span className="ml-3">Activity</span>
-          </Link>
+          </Link> */}
 
-          <Link
+          {/* <Link
             href="/dashboard/social"
             className={`flex items-center px-4 py-3 mb-2 rounded-lg mx-2 ${
               isActive("/dashboard/social")
@@ -199,7 +199,7 @@ export default function NavigationLayout({ children }: { children: React.ReactNo
               <ellipse cx="12" cy="12" rx="6.5" ry="1.5" strokeWidth="1" opacity="0.5" />
             </svg>
             <span className="ml-3">Savvy Space</span>
-          </Link>
+          </Link> */}
 
           <Link
             href="/dashboard/leaderboard"
@@ -276,7 +276,7 @@ export default function NavigationLayout({ children }: { children: React.ReactNo
             <span className="ml-3">Create Plan</span>
           </Link>
 
-          <Link
+          {/* <Link
             href="/dashboard/settings"
             className={`flex items-center px-4 py-3 mb-2 rounded-lg mx-2 ${
               isActive("/dashboard/settings")
@@ -305,7 +305,7 @@ export default function NavigationLayout({ children }: { children: React.ReactNo
               />
             </svg>
             <span className="ml-3">Settings</span>
-          </Link>
+          </Link> */}
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200/30">
