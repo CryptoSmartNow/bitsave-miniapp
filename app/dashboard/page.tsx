@@ -829,7 +829,7 @@ export default function Dashboard() {
       <div className="absolute bottom-20 left-10 md:left-20 w-40 md:w-80 h-40 md:h-80 bg-blue-500/10 rounded-full blur-3xl -z-10"></div>
 
       {/* Header - responsive adjustments */}
-      <div className="flex justify-end mr-12 items-center overflow-x-hidden">
+      <div className="fixed top-0 right-0 p-4 z-40 flex justify-end mr-4 items-center overflow-x-hidden">
         <div className="flex justify-end items-center space-x-3">
           <ShareMiniApp
             variant="minimal"
@@ -862,7 +862,7 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
-      <div className="mt-4 mb-6 md:mb-8 space-y-1">
+      <div className="mb-6 md:mb-8 space-y-1">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800 tracking-tight">Dashboard</h1>
           <p className="text-sm md:text-base text-gray-500 flex items-center">
