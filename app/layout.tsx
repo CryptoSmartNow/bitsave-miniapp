@@ -44,6 +44,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="en" className={`${spaceGrotesk.variable}`}>
+      <head>
+        <meta name="base:app_id" content="696e6dbbf22fe462e74c158f" />
+      </head>
+
       <body className={`${spaceGrotesk.className}`}>
         <Providers>
           <ReferralTracker />
