@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -31,7 +33,15 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const headersList = await headers();
+  const host = headersList.get("host") ?? undefined;
+
+  // Redirect root domain to miniapp subdomain
+  if (host?.toLowerCase().endsWith("vercel.app")) {
+    redirect("https://miniapp.bitsave.io");
+  }
+
   return (
     <html lang="en" className={`${spaceGrotesk.variable}`}>
       <body className={`${spaceGrotesk.className}`}>
