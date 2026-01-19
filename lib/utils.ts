@@ -77,11 +77,17 @@ export function getMiniAppEmbedMetadata(ogImageUrl?: string) {
 export async function getFarcasterDomainManifest(host?: string): Promise<Manifest> {
   // Determine which account association to use based on the request domain
   // For Vercel preview deployments, use the Vercel domain account association
-  const isVercelDomain = host?.endsWith('.vercel.app') ?? false;
-  
-  const accountAssociation = isVercelDomain 
+  console.log("Host:", host);
+  const isVercelDomain = host?.endsWith(".vercel.app") ?? false;
+
+  const accountAssociation = isVercelDomain
     ? VERCEL_DOMAIN_APP_ACCOUNT_ASSOCIATION!
     : APP_ACCOUNT_ASSOCIATION!;
+
+  console.log("Using account association for domain:", isVercelDomain ? "Vercel" : "Production");
+  console.log("Account Association Header:", accountAssociation.header);
+  console.log("Account Association Payload:", accountAssociation.payload);
+  console.log("Account Association Signature:", accountAssociation.signature);
 
   return {
     accountAssociation,
@@ -98,7 +104,7 @@ export async function getFarcasterDomainManifest(host?: string): Promise<Manifes
       webhookUrl: APP_WEBHOOK_URL,
       primaryCategory: APP_PRIMARY_CATEGORY,
       tags: APP_TAGS,
-      canonicalDomain: 'miniapp.bitsave.io',
+      canonicalDomain: "miniapp.bitsave.io",
     },
     baseBuilder: {
       allowedAddresses: ["0xba24854359D5EBba0BDB9f00c77a4e4B22f8AFB2"],
