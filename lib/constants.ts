@@ -120,10 +120,10 @@ export const VERCEL_DOMAIN_APP_ACCOUNT_ASSOCIATION: AccountAssociation | undefin
 
 export const APP_ACCOUNT_ASSOCIATION: AccountAssociation | undefined = {
   header:
-    "eyJmaWQiOjg5MTM2MSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDIxRDE3N0ZmNzkzYkI4OGYyODAwZTlEYjFEMDVERDI3MzA0NkEzMzgifQ",
+    "eyJmaWQiOjEzMzkzMjcsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHgwNzAzN2Q1NURhZjUzODIyMkVCNWUwN0VmN0YyODY1NEM5QWI2NzEyIn0",
   payload: "eyJkb21haW4iOiJtaW5pYXBwLmJpdHNhdmUuaW8ifQ",
   signature:
-    "HnnAaQe4QX+LUAdKk6NeDQLEabDszqCnXaqRp4g4YD4UbjXfjOo/D1CUmq0dHgWhqfhCGbNUYSdw0o+usy55MBs=",
+    "CDK/SQXat7iL1CJ4B9OnX3Rvgf8B7t5npwcM1qq2wt9PzfTTyQxnFWl+fdIsHqJG7acxvX9xDbKRjWUYdsE7fxw=",
 };
 
 // --- UI Configuration ---
