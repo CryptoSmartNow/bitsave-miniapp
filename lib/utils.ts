@@ -23,6 +23,7 @@ interface Manifest {
     webhookUrl: string;
     primaryCategory?: string;
     tags?: string[];
+    canonicalDomain?: string;
   };
   baseBuilder: {
     allowedAddresses: string[];
@@ -97,6 +98,7 @@ export async function getFarcasterDomainManifest(host?: string): Promise<Manifes
       webhookUrl: APP_WEBHOOK_URL,
       primaryCategory: APP_PRIMARY_CATEGORY,
       tags: APP_TAGS,
+      canonicalDomain: 'miniapp.bitsave.io',
     },
     baseBuilder: {
       allowedAddresses: ["0xba24854359D5EBba0BDB9f00c77a4e4B22f8AFB2"],
