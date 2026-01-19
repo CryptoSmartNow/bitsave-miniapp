@@ -1,11 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getFarcasterDomainManifest } from "@/lib/utils";
 
 export const runtime = "edge";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const config = await getFarcasterDomainManifest();
+    const host = request.headers.get('host') ?? undefined;
+    const config = await getFarcasterDomainManifest(host);
     return NextResponse.json(config);
   } catch (error) {
     console.error("Error generating metadata:", error);

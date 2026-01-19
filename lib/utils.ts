@@ -41,6 +41,7 @@ import {
   APP_URL,
   APP_WEBHOOK_URL,
   APP_ACCOUNT_ASSOCIATION,
+  VERCEL_DOMAIN_APP_ACCOUNT_ASSOCIATION,
   SUPPORTED_CHAINS,
 } from "./constants";
 
@@ -72,9 +73,17 @@ export function getMiniAppEmbedMetadata(ogImageUrl?: string) {
   };
 }
 
-export async function getFarcasterDomainManifest(): Promise<Manifest> {
+export async function getFarcasterDomainManifest(host?: string): Promise<Manifest> {
+  // Determine which account association to use based on the request domain
+  // For Vercel preview deployments, use the Vercel domain account association
+  const isVercelDomain = host?.endsWith('.vercel.app') ?? false;
+  
+  const accountAssociation = isVercelDomain 
+    ? VERCEL_DOMAIN_APP_ACCOUNT_ASSOCIATION!
+    : APP_ACCOUNT_ASSOCIATION!;
+
   return {
-    accountAssociation: APP_ACCOUNT_ASSOCIATION!,
+    accountAssociation,
     miniapp: {
       version: "1",
       name: APP_NAME ?? "Neynar Starter Kit",
