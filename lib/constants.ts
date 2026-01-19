@@ -118,7 +118,13 @@ export const VERCEL_DOMAIN_APP_ACCOUNT_ASSOCIATION: AccountAssociation | undefin
     "MHhlNDgxODlkZjVhOTk4ZTAzYTBlNGZkMjRkYTBhMzI2OTAxYzliZWM0ZGE2MTRlNjI3ZWRjNGNkNWM3ZjExNjVmMzA5NmIzZDJjZjZmMTBlYzA4NTEwNGE1OTA4NjZkZTk3ZTI4MzhlNzFhODJlNzU2NTk2YTZmNjRhMGVkZDEyNzFj",
 };
 
-export const APP_ACCOUNT_ASSOCIATION: AccountAssociation | undefined = undefined;
+export const APP_ACCOUNT_ASSOCIATION: AccountAssociation | undefined = {
+  header:
+    "eyJmaWQiOjg5MTM2MSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDIxRDE3N0ZmNzkzYkI4OGYyODAwZTlEYjFEMDVERDI3MzA0NkEzMzgifQ",
+  payload: "eyJkb21haW4iOiJtaW5pYXBwLmJpdHNhdmUuaW8ifQ",
+  signature:
+    "HnnAaQe4QX+LUAdKk6NeDQLEabDszqCnXaqRp4g4YD4UbjXfjOo/D1CUmq0dHgWhqfhCGbNUYSdw0o+usy55MBs=",
+};
 
 // --- UI Configuration ---
 /**
