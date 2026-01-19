@@ -46,7 +46,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en" className={`${spaceGrotesk.variable}`}>
       <head>
         <meta name="base:app_id" content="68d75277554d6e846c6a69d7" />
-        <meta name="base:app_id" content="696e6dbbf22fe462e74c158f" />
       </head>
 
       <body className={`${spaceGrotesk.className}`}>
